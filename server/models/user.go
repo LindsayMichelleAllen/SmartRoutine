@@ -9,6 +9,12 @@ type User struct {
 	id       string
 }
 
+type CreateUserRequest struct {
+	Username string
+	Name     string
+	Id       string
+}
+
 /*
 SetUsername overwrites the private username field.
 */
@@ -49,4 +55,13 @@ GetId returns the current value of the private id field.
 */
 func(u *User) GetId() string{
 	return u.id
+}
+
+func CreateUser(request *CreateUserRequest) (*User, error) {
+	user := &User{}
+	user.SetName(request.Name)
+	user.SetUsername(request.Username)
+	user.SetId(request.Id)
+	// pass user object to database handler
+	return user, nil
 }
