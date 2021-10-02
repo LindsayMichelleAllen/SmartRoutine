@@ -55,10 +55,10 @@ func CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResp
 func UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse { ... }
 func DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse { ... }
 
-// These methods will be available via a services interactor
+// These methods will be available via a services interactor - Planned in issue#10
 
 /*
-type UserAccountManagementServiceInteractor interface {
+type UserAccountManagementServiceInteractor struct {
   CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse
   UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse
   DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse
@@ -69,5 +69,5 @@ type ServicesInteractor struct {
   ...
   ...
 }
-
+*/
 ```
