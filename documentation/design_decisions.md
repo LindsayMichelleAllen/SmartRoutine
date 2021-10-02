@@ -3,8 +3,11 @@ Data to be stored:
 * user profile
     * username
     * name
-    * id
+    * userId
+* device
+    * deviceId
 * routine
+    * routineId
     * base alarm
     * devices
         * offset
