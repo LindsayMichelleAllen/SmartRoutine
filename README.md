@@ -8,12 +8,12 @@ SaaS application used to set routines for devices
 ### Services
 * #### User Account Management  
 
-    The User Account Management service is responsible for creating, modifying, and deleting user accounts and profiles. This service is also be responsible for user authentication.  
+    _The User Account Management service is responsible for creating, modifying, and deleting user accounts and profiles. This service is also be responsible for user authentication._  
 
 * #### Device Management  
 
-    The Device Management service is responsible for creating, modifying, and deleting devices. It is also responsible for maintaining a device's configuration.  
+    _The Device Management service is responsible for creating, modifying, and deleting devices. It is also responsible for maintaining a device's configuration._  
 
 * #### Routine Management  
 
-    The Routine Management service is responsible for creating, modifying, and deleting routines. 
+    _The Routine Management service is responsible for creating, modifying, and deleting routines._ 
