@@ -8,7 +8,7 @@
             "name": "api",
             "type": "go",
             "request": "launch",
-            "program": "${workspaceFolder}/server/server.go"
+            "program": "${workspaceFolder}/api/api.go"
         },
     ],
     "compounds": [
