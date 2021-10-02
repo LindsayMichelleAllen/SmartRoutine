@@ -4,9 +4,9 @@ The User Account Management service is responsible for creating, modifying, and 
 
 ---
 
-### User Interface
+### User Account Interface
 
-The user interface shall provide methods to:
+The user account interface shall provide methods to:
 * Create a new user
 * Modify an existing user
 * Delete an existing user
@@ -49,6 +49,7 @@ type UserProfileDeleteResponse struct {
   User *UserProfile
   Message string
   Error error
+}
  
 type User interface {
   CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse
