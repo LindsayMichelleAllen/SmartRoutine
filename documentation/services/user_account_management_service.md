@@ -50,10 +50,24 @@ type UserProfileDeleteResponse struct {
   Message string
   Error error
 }
- 
-type User interface {
+
+func CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse { ... }
+func UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse { ... }
+func DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse { ... }
+
+// These methods will be available via a services interactor
+
+/*
+type UserAccountManagementServiceInteractor interface {
   CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse
   UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse
   DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse
 }
+
+type ServicesInteractor struct {
+  AccountManager *UserAccountManagementServiceInteractor
+  ...
+  ...
+}
+
 ```
