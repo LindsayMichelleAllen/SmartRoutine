@@ -54,7 +54,7 @@ func TestUserProfileMethods(t *testing.T) {
 
 func TestUserAccountManagementInteractorMethods(t *testing.T) {
 	t.Run("Create New User", func(t *testing.T) {
-		t.Run("should be able to create new user with valid input", func(t *testing.T) {
+		t.Run("should be able to create new user with valid name and username", func(t *testing.T) {
 			resp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
 				Username: "LJam",
 				Name:     "Lindsay",
@@ -64,26 +64,114 @@ func TestUserAccountManagementInteractorMethods(t *testing.T) {
 			assert.Equal(t, "Lindsay", resp.User.GetName())
 			assert.NotEqual(t, "", resp.User.GetId())
 		})
-		t.Run("TODO: Create New User Error Testing (blocked by database implementation)", func(t *testing.T) {
-
+		t.Run("should return error is username is not provided", func(t *testing.T) {
+			resp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Name: "Lindsay",
+			})
+			assert.NotEqual(t, nil, resp.Error)
+		})
+		t.Run("should return error is name is not provided", func(t *testing.T) {
+			resp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: "LJam",
+			})
+			assert.NotEqual(t, nil, resp.Error)
 		})
 	})
 	t.Run("Update Existing User", func(t *testing.T) {
 		t.Run("should be able to update username", func(t *testing.T) {
-			resp := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
-				&userAcctMngr.UserProfile{},
+			createResp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: "LJam",
+				Name:     "Lindsay",
 			})
-			assert.Equal(t, "Method not yet implemented", resp.Message)
-			assert.NotEqual(t, nil, resp.Error)
+			assert.Equal(t, nil, createResp.Error)
+
+			updateResp := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
+				Username: "LJam Supreme",
+				Name:     createResp.User.GetName(),
+				Id:       createResp.User.GetId(),
+			})
+			assert.Equal(t, "Successfully Updated User Profile", updateResp.Message)
+			assert.Equal(t, nil, updateResp.Error)
+			assert.Equal(t, "LJam Supreme", updateResp.User.GetUsername())
+			assert.Equal(t, createResp.User.GetName(), updateResp.User.GetName())
+			assert.Equal(t, createResp.User.GetId(), updateResp.User.GetId())
 		})
 		t.Run("should be able to update name", func(t *testing.T) {
-			resp := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
-				&userAcctMngr.UserProfile{},
+			createResp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: "LJam",
+				Name:     "Lindsay",
 			})
-			assert.Equal(t, "Method not yet implemented", resp.Message)
-			assert.NotEqual(t, nil, resp.Error)
+			assert.Equal(t, nil, createResp.Error)
+
+			updateResp := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
+				Username: createResp.User.GetUsername(),
+				Name:     "Lindsay Allen",
+				Id:       createResp.User.GetId(),
+			})
+			assert.Equal(t, "Successfully Updated User Profile", updateResp.Message)
+			assert.Equal(t, nil, updateResp.Error)
+			assert.Equal(t, "Lindsay Allen", updateResp.User.GetName())
+			assert.Equal(t, createResp.User.GetUsername(), updateResp.User.GetUsername())
+			assert.Equal(t, createResp.User.GetId(), updateResp.User.GetId())
 		})
-		t.Run("TODO: Update Existing User Error Testing (blocked by function not implemented", func(t *testing.T) {
+		t.Run("should be able to update username and name", func(t *testing.T) {
+			createResp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: "LJam",
+				Name:     "Lindsay",
+			})
+			assert.Equal(t, nil, createResp.Error)
+
+			updateResp := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
+				Username: "LJam Supreme",
+				Name:     "Lindsay Allen",
+				Id:       createResp.User.GetId(),
+			})
+			assert.Equal(t, "Successfully Updated User Profile", updateResp.Message)
+			assert.Equal(t, nil, updateResp.Error)
+			assert.Equal(t, "Lindsay Allen", updateResp.User.GetName())
+			assert.Equal(t, "LJam Supreme", updateResp.User.GetUsername())
+			assert.Equal(t, createResp.User.GetId(), updateResp.User.GetId())
+		})
+		t.Run("should return error if username is not provided", func(t *testing.T) {
+			createResp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: "LJam",
+				Name:     "Lindsay",
+			})
+			assert.Equal(t, nil, createResp.Error)
+
+			updateResp := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
+				Name: "Lindsay Allen",
+				Id:   createResp.User.GetId(),
+			})
+			assert.NotEqual(t, nil, updateResp.Error)
+		})
+		t.Run("should return error if name is not provided", func(t *testing.T) {
+			createResp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: "LJam",
+				Name:     "Lindsay",
+			})
+			assert.Equal(t, nil, createResp.Error)
+
+			updateResp := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
+				Username: "LJam Supreme",
+				Id:       createResp.User.GetId(),
+			})
+			assert.NotEqual(t, nil, updateResp.Error)
+		})
+		t.Run("should return error if id is not provided", func(t *testing.T) {
+			createResp := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: "LJam",
+				Name:     "Lindsay",
+			})
+			assert.Equal(t, nil, createResp.Error)
+
+			updateResp := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
+				Username: "LJam Supreme",
+				Name:     "Lindsay Allen",
+			})
+			assert.NotEqual(t, nil, updateResp.Error)
+		})
+		t.Run("TODO should return error if user is not authorized to modify user profile", func(t *testing.T) {
 
 		})
 	})
@@ -93,6 +181,10 @@ func TestUserAccountManagementInteractorMethods(t *testing.T) {
 				Id: "123456789",
 			})
 			assert.Equal(t, "Method not yet implemented", resp.Message)
+			assert.NotEqual(t, nil, resp.Error)
+		})
+		t.Run("should return error if id is not provided", func(t *testing.T) {
+			resp := userAcctMngr.DeleteUserProfile(&userAcctMngr.UserProfileDeleteRequest{})
 			assert.NotEqual(t, nil, resp.Error)
 		})
 		t.Run("TODO: should return error if given id does not match any user accounts", func(t *testing.T) {
