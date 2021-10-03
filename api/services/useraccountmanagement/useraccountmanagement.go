@@ -1,7 +1,7 @@
 package useraccountmanagement
 
 import (
-	"api/interactors/databaseinteractor"
+	userdatabaseinteractor "api/interactors/databaseinteractor"
 	"errors"
 )
 
@@ -91,7 +91,7 @@ func CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResp
 
 	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
 
-	resp := dbInteractor.CreateUserProfile(&userdatabaseinteractor.CreateUserDatabaseRequest{
+	resp := dbInteractor.CreateUserProfile(&userdatabaseinteractor.CreateUserInteractorRequest{
 		Username: request.Username,
 		Name:     request.Name,
 		Id:       "123456789",
@@ -119,7 +119,7 @@ func UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResp
 	}
 
 	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
-	resp := dbInteractor.UpdateUserProfile(&userdatabaseinteractor.UpdateUserDatabaseRequest{
+	resp := dbInteractor.UpdateUserProfile(&userdatabaseinteractor.UpdateUserInteractorRequest{
 		Username: request.Username,
 		Name:     request.Name,
 		Id:       request.Id,
@@ -147,7 +147,7 @@ func DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResp
 	}
 
 	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
-	resp := dbInteractor.DeleteUserProfile(&userdatabaseinteractor.DeleteUserDatabaseRequest{
+	resp := dbInteractor.DeleteUserProfile(&userdatabaseinteractor.DeleteUserInteractorRequest{
 		Id: "123456789",
 	})
 
