@@ -1,6 +1,9 @@
 package useraccountmanagement
 
-import "errors"
+import (
+	"api/interactors/databaseinteractor"
+	"errors"
+)
 
 type UserProfile struct {
 	/* username used for login */
@@ -47,44 +50,32 @@ type UserProfileDeleteResponse struct {
 	Error   error
 }
 
-/*
-SetUsername overwrites the private username field.
-*/
+/* SetUsername overwrites the private username field. */
 func (u *UserProfile) SetUsername(newUsername string) {
 	u.userName = newUsername
 }
 
-/*
-GetUsername returns the current value of the private username field.
-*/
+/* GetUsername returns the current value of the private username field. */
 func (u *UserProfile) GetUsername() string {
 	return u.userName
 }
 
-/*
-SetName overwrites the private name field.
-*/
+/* SetName overwrites the private name field. */
 func (u *UserProfile) SetName(newName string) {
 	u.name = newName
 }
 
-/*
-GetName returns the current value of the private name field.
-*/
+/* GetName returns the current value of the private name field. */
 func (u *UserProfile) GetName() string {
 	return u.name
 }
 
-/*
-SetId overwrites the private id field.
-*/
+/* SetId overwrites the private id field. */
 func (u *UserProfile) SetId(newId string) {
 	u.id = newId
 }
 
-/*
-GetId returns the current value of the private id field.
-*/
+/* GetId returns the current value of the private id field. */
 func (u *UserProfile) GetId() string {
 	return u.id
 }
@@ -97,16 +88,24 @@ func CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResp
 			Error:   errors.New("missing input field(s)"),
 		}
 	}
+
+	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
+
+	resp := dbInteractor.CreateUserProfile(&userdatabaseinteractor.CreateUserDatabaseRequest{
+		Username: request.Username,
+		Name:     request.Name,
+		Id:       "123456789",
+	})
+
 	user := &UserProfile{}
-	user.SetName(request.Name)
-	user.SetUsername(request.Username)
-	// TODO update to randomly generate userId
-	user.SetId("123456789")
-	// TODO pass user object to database handler
+	user.SetName(resp.Name)
+	user.SetUsername(resp.Username)
+	user.SetId(resp.Id)
+
 	return &UserProfileCreateResponse{
 		User:    user,
-		Message: "User Profile Successfully Created - Not Yet Added To Database",
-		Error:   nil,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
@@ -119,19 +118,22 @@ func UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResp
 		}
 	}
 
-	// TODO pass user object to database handler
+	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
+	resp := dbInteractor.UpdateUserProfile(&userdatabaseinteractor.UpdateUserDatabaseRequest{
+		Username: request.Username,
+		Name:     request.Name,
+		Id:       request.Id,
+	})
 
-	/* Remove this code when database is connected */
 	usr := &UserProfile{}
-	usr.SetUsername(request.Username)
-	usr.SetName(request.Name)
-	usr.SetId(request.Id)
-	/***********************************************/
+	usr.SetUsername(resp.Username)
+	usr.SetName(resp.Name)
+	usr.SetId(resp.Id)
 
 	return &UserProfileUpdateResponse{
 		User:    usr,
-		Message: "Successfully Updated User Profile",
-		Error:   nil,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
@@ -143,9 +145,20 @@ func DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResp
 			Error:   errors.New("missing input field"),
 		}
 	}
+
+	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
+	resp := dbInteractor.DeleteUserProfile(&userdatabaseinteractor.DeleteUserDatabaseRequest{
+		Id: "123456789",
+	})
+
+	user := &UserProfile{}
+	user.SetUsername(resp.Username)
+	user.SetName(resp.Name)
+	user.SetId(resp.Id)
+
 	return &UserProfileDeleteResponse{
-		User:    nil,
-		Message: "Method not yet implemented",
-		Error:   errors.New("not yet implemented"),
+		User:    user,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
