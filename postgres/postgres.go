@@ -86,7 +86,7 @@ func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *C
 
 	resp := &CreateUserDatabaseResponse{Message: "Successfully added user", Error: nil}
 
-	query := "INSERT INTO user (id, username, displayname) VALUES ($1, $2, $3) RETURNING id, username, displayname"
+	query := "INSERT INTO user_profile (id, username, displayname) VALUES ($1, $2, $3) RETURNING id, username, displayname"
 
 	err = db.QueryRow(query, request.id, request.Username, request.Name).Scan(&resp.Id, &resp.Username, &resp.Name)
 
@@ -100,14 +100,54 @@ func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *C
 	return resp
 }
 
-func (db *UserProfileDB) UpdateUserProfile(request *UpdateUserDatabaseRequest) *UpdateUserDatabaseResponse {
-	return &UpdateUserDatabaseResponse{
-		Error: errors.New("not yet implemented"),
+func (u *UserProfileDB) UpdateUserProfile(request *UpdateUserDatabaseRequest) *UpdateUserDatabaseResponse {
+	db, err := getDatabase()
+
+	if err != nil {
+		return &UpdateUserDatabaseResponse{
+			Message: "Failed to get database",
+			Error:   err,
+		}
 	}
+
+	resp := &UpdateUserDatabaseResponse{Message: "Successfully updated user profile", Error: nil}
+
+	query := "UPDATE user_profile SET username=$1 displayname=$2 WHERE id=$3 RETURNING id, username, displayname"
+
+	err = db.QueryRow(query, request.Username, request.Name, request.Id).Scan(&resp.Id, &resp.Username, &resp.Name)
+
+	if err != nil {
+		return &UpdateUserDatabaseResponse{
+			Message: "Failed to perform update",
+			Error:   err,
+		}
+	}
+
+	return resp
 }
 
-func (db *UserProfileDB) DeleteUserProfile(request *DeleteUserDatabaseRequest) *DeleteUserDatabaseResponse {
-	return &DeleteUserDatabaseResponse{
-		Error: errors.New("not yet implemented"),
+func (u *UserProfileDB) DeleteUserProfile(request *DeleteUserDatabaseRequest) *DeleteUserDatabaseResponse {
+	db, err := getDatabase()
+
+	if err != nil {
+		return &DeleteUserDatabaseResponse{
+			Message: "Failed to get database",
+			Error:   err,
+		}
 	}
+
+	resp := &DeleteUserDatabaseResponse{Message: "Successfully deleted user profile", Error: nil}
+
+	query := "DELETE FROM user_profile WHERE id=$1 RETURNING id, username, displayname"
+
+	err = db.QueryRow(query, request.Id).Scan(&resp.Id, &resp.Username, &resp.Name)
+
+	if err != nil {
+		return &DeleteUserDatabaseResponse{
+			Message: "Failed to perform deletion",
+			Error:   err,
+		}
+	}
+
+	return resp
 }

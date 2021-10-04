@@ -1,7 +1,6 @@
 package userdatabaseinteractor
 
 import (
-	"errors"
 	db "postgres"
 )
 
@@ -56,35 +55,50 @@ type UserAccountManagementServiceInteractor struct {
 }
 
 func (u *UserAccountManagementServiceInteractor) CreateUserProfile(request *CreateUserInteractorRequest) *CreateUserInteractorResponse {
-	resp, err := db.CreateUserProfile(&db.CreateUserDatabaseRequest{
+	resp := db.CreateUserProfile(&db.CreateUserDatabaseRequest{
 		Username: request.Username,
 		Name:     request.Name,
 		Id:       request.Id,
 	})
 
-	if err != nil {
+	if resp.Error != nil {
 		return &CreateUserInteractorResponse{
 			Message: resp.Message,
 			Error:   resp.Error,
 		}
 	}
 
-	return &CreateUserInteractorResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
-	}
+	return resp
 }
 
 func (u *UserAccountManagementServiceInteractor) UpdateUserProfile(request *UpdateUserInteractorRequest) *UpdateUserInteractorResponse {
-	return &UpdateUserInteractorResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+	resp := db.UpdateUserProfile(&db.UpdateUserDatabaseRequest{
+		Username: request.Username,
+		Name:     request.Name,
+		Id:       request.Id,
+	})
+
+	if resp.Error != nil {
+		return &UpdateUserInteractorResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
 	}
+
+	return resp
 }
 
 func (u *UserAccountManagementServiceInteractor) DeleteUserProfile(request *DeleteUserInteractorRequest) *DeleteUserInteractorResponse {
-	return &DeleteUserInteractorResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+	resp := db.CreateUserProfile(&db.DeleteUserDatabaseRequest{
+		Id: request.Id,
+	})
+
+	if resp.Error != nil {
+		return &DeleteUserInteractorResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
 	}
+
+	return resp
 }
