@@ -1,7 +1,7 @@
 package useraccountmanagement
 
 import (
-	userdatabaseinteractor "api/interactors/databaseinteractor"
+	"api/interactors/databaseinteractor/userdatabaseinteractor"
 	"errors"
 )
 
