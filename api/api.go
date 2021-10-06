@@ -14,17 +14,18 @@ func main() {
 
 	http.HandleFunc("/create/user", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
-			if err := r.ParseForm(); err != nil {
+			r.ParseForm()
+			username := r.PostFormValue("username")
+			name := r.Form.Get("name")
 
-				userResponse := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
-					Username: r.FormValue("username"),
-					Name:     r.FormValue("name"),
-				})
-				if userResponse.Error != nil {
-					http.Error(w, userResponse.Error.Error(), 500)
-				} else {
-					fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
-				}
+			userResponse := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: username,
+				Name:     name,
+			})
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
 			}
 		}
 	})
