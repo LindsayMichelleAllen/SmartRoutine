@@ -19,14 +19,25 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		data := url.Values{
+			"username": {"LJamSupreme"},
+			"name":     {"Lindsay Allen"},
+			"id":       {"123456789"},
+		}
+
+		resp, err := http.PostForm("http://localhost:8080/modify/user", data)
+
+		if err != nil {
+			log.Fatal(err)
+		}
 	*/
+
 	data := url.Values{
-		"username": {"LJamSupreme"},
-		"name":     {"Lindsay Allen"},
-		"id":       {"123456789"},
+		"id": {"123456789"},
 	}
 
-	resp, err := http.PostForm("http://localhost:8080/modify/user", data)
+	resp, err := http.PostForm("http://localhost:8080/delete/user", data)
 
 	if err != nil {
 		log.Fatal(err)
