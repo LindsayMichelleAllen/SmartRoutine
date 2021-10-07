@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 
 	_ "github.com/lib/pq"
@@ -11,7 +10,8 @@ import (
 const (
 	DB_USER     = "postgres"
 	DB_PASSWORD = "postgres"
-	DB_NAME     = "user"
+	DB_NAME     = "user_profile"
+	TBL_USER    = "profile_details"
 )
 
 type CreateUserDatabaseRequest struct {
@@ -59,16 +59,16 @@ type UserProfileDB struct {
 }
 
 func getDatabase() (*sql.DB, error) {
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%ssslmode=disable", DB_USER, DB_PASSWORD, DB_NAME)
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", DB_USER, DB_PASSWORD, DB_NAME)
 	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {
-		return nil, errors.New("cannot open database")
+		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		return nil, errors.New("cannot connect to database")
+		return nil, err
 	}
 
 	return db, nil
@@ -86,13 +86,13 @@ func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *C
 
 	resp := &CreateUserDatabaseResponse{Message: "Successfully added user", Error: nil}
 
-	query := "INSERT INTO user_profile (id, username, displayname) VALUES ($1, $2, $3) RETURNING id, username, displayname"
+	query := "INSERT INTO profile_details (id, username, displayname) VALUES ($1, $2, $3) RETURNING id, username, displayname"
 
 	err = db.QueryRow(query, request.Id, request.Username, request.Name).Scan(&resp.Id, &resp.Username, &resp.Name)
 
 	if err != nil {
 		return &CreateUserDatabaseResponse{
-			Message: "Faile to perform insert",
+			Message: "Failed to perform insert",
 			Error:   err,
 		}
 	}
