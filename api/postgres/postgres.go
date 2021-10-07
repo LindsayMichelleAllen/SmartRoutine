@@ -138,7 +138,7 @@ func (u *UserProfileDB) DeleteUserProfile(request *DeleteUserDatabaseRequest) *D
 
 	resp := &DeleteUserDatabaseResponse{Message: "Successfully deleted user profile", Error: nil}
 
-	query := "DELETE FROM user_profile WHERE id=$1 RETURNING id, username, displayname"
+	query := "DELETE FROM profile_details WHERE id=$1 RETURNING id, username, displayname"
 
 	err = db.QueryRow(query, request.Id).Scan(&resp.Id, &resp.Username, &resp.Name)
 

@@ -52,5 +52,23 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/delete/user", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			id := r.FormValue("id")
+
+			userResponse := userAcctMngr.DeleteUserProfile(&userAcctMngr.UserProfileDeleteRequest{
+				Id: id,
+			})
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+			}
+		}
+	})
+
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
