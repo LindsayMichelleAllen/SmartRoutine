@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,21 +8,29 @@ import (
 )
 
 func main() {
+	/*
+		data := url.Values{
+			"username": {"LJam"},
+			"name":     {"Lindsay"},
+		}
 
+		resp, err := http.PostForm("http://localhost:8080/create/user", data)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	*/
 	data := url.Values{
-		"username": {"LJam"},
-		"name":     {"Lindsay"},
+		"username": {"LJamSupreme"},
+		"name":     {"Lindsay Allen"},
+		"id":       {"123456789"},
 	}
 
-	resp, err := http.PostForm("http://localhost:8080/create/user", data)
+	resp, err := http.PostForm("http://localhost:8080/modify/user", data)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var res map[string]interface{}
-
-	json.NewDecoder(resp.Body).Decode(&res)
-
-	fmt.Println(res["form"])
+	fmt.Println(resp)
 }

@@ -112,7 +112,7 @@ func (u *UserProfileDB) UpdateUserProfile(request *UpdateUserDatabaseRequest) *U
 
 	resp := &UpdateUserDatabaseResponse{Message: "Successfully updated user profile", Error: nil}
 
-	query := "UPDATE user_profile SET username=$1 displayname=$2 WHERE id=$3 RETURNING id, username, displayname"
+	query := "UPDATE profile_details SET username=$1, displayname=$2 WHERE id=$3 RETURNING id, username, displayname"
 
 	err = db.QueryRow(query, request.Username, request.Name, request.Id).Scan(&resp.Id, &resp.Username, &resp.Name)
 
