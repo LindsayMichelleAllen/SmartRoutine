@@ -14,17 +14,58 @@ func main() {
 
 	http.HandleFunc("/create/user", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
-			if err := r.ParseForm(); err != nil {
+			r.ParseForm()
+			username := r.FormValue("username")
+			name := r.FormValue("name")
 
-				userResponse := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
-					Username: r.FormValue("username"),
-					Name:     r.FormValue("name"),
-				})
-				if userResponse.Error != nil {
-					http.Error(w, userResponse.Error.Error(), 500)
-				} else {
-					fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
-				}
+			userResponse := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+				Username: username,
+				Name:     name,
+			})
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+			}
+		}
+	})
+
+	http.HandleFunc("/modify/user", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			username := r.FormValue("username")
+			name := r.FormValue("name")
+			id := r.FormValue("id")
+
+			userResponse := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
+				Username: username,
+				Name:     name,
+				Id:       id,
+			})
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+			}
+		}
+	})
+
+	http.HandleFunc("/delete/user", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			id := r.FormValue("id")
+
+			userResponse := userAcctMngr.DeleteUserProfile(&userAcctMngr.UserProfileDeleteRequest{
+				Id: id,
+			})
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
 			}
 		}
 	})
