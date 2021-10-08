@@ -115,6 +115,6 @@ func main() {
 ```
 
 
-Future updates for the User Account Management Service include 
+## Future updates
 * Password protection
 * Authentication for Update & Delete functionality
