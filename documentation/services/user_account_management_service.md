@@ -11,7 +11,7 @@ The user account interface shall provide methods to:
 * Modify an existing user
 * Delete an existing user
 
-Below is an example of the minimum implementation of the user profile interface. All response objects currently contain the same struct attributes, but these will not be combined to a single response object type to allow for future updates and extensions such as specific error types. 
+Below is an example of the minimum implementation of the user account management service. All response objects currently contain the same struct attributes, but these will not be combined to a single response object type to allow for future updates and extensions.
 
 ```golang
 type UserProfile struct {
@@ -51,23 +51,70 @@ type UserProfileDeleteResponse struct {
   Error error
 }
 
-func CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse { ... }
-func UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse { ... }
-func DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse { ... }
+// These methods will be available via a services interactor
 
-// These methods will be available via a services interactor - Planned in issue#10
+type UserAccountManagementServiceInteractor struct {}
 
-/*
-type UserAccountManagementServiceInteractor struct {
-  CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse
-  UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse
-  DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse
-}
+func (u *UserAccouneManagementServiceInteractor)CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse { ... }
+func (u *UserAccouneManagementServiceInteractor)UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse { ... }
+func (u *UserAccouneManagementServiceInteractor)DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse { ... }
+
 
 type ServicesInteractor struct {
   AccountManager *UserAccountManagementServiceInteractor
   ...
   ...
 }
-*/
+
 ```
+### Example Usage
+
+```golang
+
+import (
+  usrAcctMngr "api/services/useraccountmanagement"
+)
+
+func main() {
+  /* Create a new user */
+  newUserResp := usrAcctMngr.CreateUserProfile(&usrAcctMngr.UserProfileCreateRequest{
+    Username: "Example Username",
+    Name:     "Example Name",
+  })
+
+  if newUserResp.Error != nil {
+    // handle error
+  }
+  
+  usr := newUserResp.User
+
+  /* Update an existing user */
+  updateUserResp := usrAcctMngr.UpdateUserProfile(&usrAcctMngr.UserProfileUpdateRequest{
+    Username: "New Username",
+    Name:     "New Name",
+    Id:       "UserId",
+  })
+
+  if updateUserResp.Error != nil {
+    // handle error
+  }
+
+  usr := updateUserResp.User
+
+  /* Delete an existing user */
+  deleteUserResp := usrAcctMngr.DeleteUserProfile(&usrAcctMngr.UserProfileDeleteRequest{
+    Id: "UserId",
+  })
+
+  if deleteUserResp.Error != nil {
+    // handle error
+  }
+
+  removedUser := deleteUserResp.User
+}
+```
+
+
+Future updates for the User Account Management Service include 
+* Password protection
+* Authentication for Update & Delete functionality
