@@ -18,7 +18,8 @@ func main() {
 			username := r.FormValue("username")
 			name := r.FormValue("name")
 
-			userResponse := userAcctMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
+			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+			userResponse := basicUsrMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
 				Username: username,
 				Name:     name,
 			})
@@ -39,7 +40,8 @@ func main() {
 			name := r.FormValue("name")
 			id := r.FormValue("id")
 
-			userResponse := userAcctMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
+			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+			userResponse := basicUsrMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
 				Username: username,
 				Name:     name,
 				Id:       id,
@@ -59,7 +61,8 @@ func main() {
 			}
 			id := r.FormValue("id")
 
-			userResponse := userAcctMngr.DeleteUserProfile(&userAcctMngr.UserProfileDeleteRequest{
+			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+			userResponse := basicUsrMngr.DeleteUserProfile(&userAcctMngr.UserProfileDeleteRequest{
 				Id: id,
 			})
 			if userResponse.Error != nil {

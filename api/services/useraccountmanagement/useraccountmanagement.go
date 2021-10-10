@@ -2,17 +2,9 @@ package useraccountmanagement
 
 import (
 	"api/interactors/databaseinteractor/userdatabaseinteractor"
+	"api/services/model"
 	"errors"
 )
-
-type UserProfile struct {
-	/* username used for login */
-	userName string
-	/* name displayed to user */
-	name string
-	/* unique id of user */
-	id string
-}
 
 type UserProfileCreateRequest struct {
 	/* username provided by user */
@@ -33,54 +25,34 @@ type UserProfileDeleteRequest struct {
 }
 
 type UserProfileCreateResponse struct {
-	User    *UserProfile
+	User    *model.UserProfile
 	Message string
 	Error   error
 }
 
 type UserProfileUpdateResponse struct {
-	User    *UserProfile
+	User    *model.UserProfile
 	Message string
 	Error   error
 }
 
 type UserProfileDeleteResponse struct {
-	User    *UserProfile
+	User    *model.UserProfile
 	Message string
 	Error   error
 }
 
-/* SetUsername overwrites the private username field. */
-func (u *UserProfile) SetUsername(newUsername string) {
-	u.userName = newUsername
+type UserService interface {
+	CreateUserProfile(*UserProfileCreateRequest) *UserProfileCreateResponse
+	UpdateUserProfile(*UserProfileUpdateRequest) *UserProfileUpdateResponse
+	DeleteUserProfile(*UserProfileDeleteRequest) *UserProfileDeleteResponse
 }
 
-/* GetUsername returns the current value of the private username field. */
-func (u *UserProfile) GetUsername() string {
-	return u.userName
+type UnprotectedUserService struct {
+	// intentionally left empty
 }
 
-/* SetName overwrites the private name field. */
-func (u *UserProfile) SetName(newName string) {
-	u.name = newName
-}
-
-/* GetName returns the current value of the private name field. */
-func (u *UserProfile) GetName() string {
-	return u.name
-}
-
-/* SetId overwrites the private id field. */
-func (u *UserProfile) SetId(newId string) {
-	u.id = newId
-}
-
-/* GetId returns the current value of the private id field. */
-func (u *UserProfile) GetId() string {
-	return u.id
-}
-
-func CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse {
+func (u *UnprotectedUserService) CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse {
 	if request.Username == "" || request.Name == "" {
 		return &UserProfileCreateResponse{
 			User:    nil,
@@ -90,14 +62,14 @@ func CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResp
 	}
 
 	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
-
+	// TODO randomly generate the user id
 	resp := dbInteractor.CreateUserProfile(&userdatabaseinteractor.CreateUserInteractorRequest{
 		Username: request.Username,
 		Name:     request.Name,
 		Id:       "123456789",
 	})
 
-	user := &UserProfile{}
+	user := &model.UserProfile{}
 	user.SetName(resp.Name)
 	user.SetUsername(resp.Username)
 	user.SetId(resp.Id)
@@ -109,7 +81,7 @@ func CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResp
 	}
 }
 
-func UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse {
+func (u *UnprotectedUserService) UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse {
 	if request.Username == "" || request.Name == "" || request.Id == "" {
 		return &UserProfileUpdateResponse{
 			User:    nil,
@@ -125,7 +97,7 @@ func UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResp
 		Id:       request.Id,
 	})
 
-	usr := &UserProfile{}
+	usr := &model.UserProfile{}
 	usr.SetUsername(resp.Username)
 	usr.SetName(resp.Name)
 	usr.SetId(resp.Id)
@@ -137,7 +109,7 @@ func UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResp
 	}
 }
 
-func DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse {
+func (u *UnprotectedUserService) DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse {
 	if request.Id == "" {
 		return &UserProfileDeleteResponse{
 			User:    nil,
@@ -151,7 +123,7 @@ func DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResp
 		Id: "123456789",
 	})
 
-	user := &UserProfile{}
+	user := &model.UserProfile{}
 	user.SetUsername(resp.Username)
 	user.SetName(resp.Name)
 	user.SetId(resp.Id)

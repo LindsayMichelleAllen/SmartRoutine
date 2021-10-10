@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestUserDatabaseInteractor(t *testing.T) {
+func TestUserAccountManagementDBInteractorMethods(t *testing.T) {
 	t.Run("CreateUserProfile", func(t *testing.T) {
 		t.Run("should create user profile with username, name, and id", func(t *testing.T) {
 
