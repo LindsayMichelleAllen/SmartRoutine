@@ -62,7 +62,7 @@ func (u *UnprotectedUserService) CreateUserProfile(request *UserProfileCreateReq
 	}
 
 	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
-
+	// TODO randomly generate the user id
 	resp := dbInteractor.CreateUserProfile(&userdatabaseinteractor.CreateUserInteractorRequest{
 		Username: request.Username,
 		Name:     request.Name,

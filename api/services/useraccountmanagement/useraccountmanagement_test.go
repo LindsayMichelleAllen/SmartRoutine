@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUserAccountManagementInteractorMethods(t *testing.T) {
+func TestUserAccountManagementServiceMethods(t *testing.T) {
 	t.Run("Create New User", func(t *testing.T) {
 		t.Run("should be able to create new user with valid name and username", func(t *testing.T) {
 			basicUsrMngr := userAcctMngr.UnprotectedUserService{}

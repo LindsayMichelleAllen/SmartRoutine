@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDeviceManagementInteractorMethods(t *testing.T) {
+func TestDeviceManagementServiceMethods(t *testing.T) {
 	t.Run("Create New Device", func(t *testing.T) {
 		t.Run("should be able to create new device with valid device name and user id", func(t *testing.T) {
 			basicDvcMngr := dvcMngr.UnprotectedDeviceService{}
