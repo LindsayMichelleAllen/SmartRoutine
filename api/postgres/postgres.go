@@ -63,8 +63,16 @@ type CreateDeviceDatabaseRequest struct {
 	UserId string
 	Name   string
 }
-type UpdateDeviceDatabaseRequest struct{}
-type DeleteDeviceDatabaseRequest struct{}
+
+type UpdateDeviceDatabaseRequest struct {
+	Id   string
+	Name string
+}
+
+type DeleteDeviceDatabaseRequest struct {
+	Id string
+}
+
 type CreateDeviceDatabaseResponse struct {
 	Id      string
 	Name    string
@@ -72,19 +80,21 @@ type CreateDeviceDatabaseResponse struct {
 	Message string
 	Error   error
 }
+
 type UpdateDeviceDatabaseResponse struct {
-	DeviceId string
-	Name     string
-	UserId   string
-	Message  string
-	Error    error
+	Id      string
+	Name    string
+	UserId  string
+	Message string
+	Error   error
 }
+
 type DeleteDeviceDatabaseResponse struct {
-	DeviceId string
-	Name     string
-	UserId   string
-	Message  string
-	Error    error
+	Id      string
+	Name    string
+	UserId  string
+	Message string
+	Error   error
 }
 
 type DeviceDB struct {
@@ -194,6 +204,7 @@ func (d *DeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest) *CreateDev
 			Error:   err,
 		}
 	}
+
 	resp := &CreateDeviceDatabaseResponse{Message: "Successfully created device!", Error: nil}
 	query := "INSERT INTO device_details (id, userid, devicename) VALUES ($1, $2, $3) RETURNING id, userid, devicename"
 	err = db.QueryRow(query, request.Id, request.UserId, request.Name).Scan(&resp.Id, &resp.UserId, &resp.Name)
@@ -209,9 +220,49 @@ func (d *DeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest) *CreateDev
 }
 
 func (d *DeviceDB) UpdateDevice(request *UpdateDeviceDatabaseRequest) *UpdateDeviceDatabaseResponse {
-	return &UpdateDeviceDatabaseResponse{}
+	db, err := getDatabase()
+
+	if err != nil {
+		return &UpdateDeviceDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	resp := &UpdateDeviceDatabaseResponse{Message: "Successfully updated device!", Error: nil}
+	query := "UPDATE device_details SET devicename=$1 WHERE id=$2 RETURNING id, userid, devicename"
+	err = db.QueryRow(query, request.Name, request.Id).Scan(&resp.Id, &resp.UserId, &resp.Name)
+
+	if err != nil {
+		return &UpdateDeviceDatabaseResponse{
+			Message: "Query Failed",
+			Error:   err,
+		}
+	}
+
+	return resp
 }
 
 func (d *DeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest) *DeleteDeviceDatabaseResponse {
-	return &DeleteDeviceDatabaseResponse{}
+	db, err := getDatabase()
+
+	if err != nil {
+		return &DeleteDeviceDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	resp := &DeleteDeviceDatabaseResponse{Message: "Successfully removed device!", Error: nil}
+	query := "DELETE FROM device_details WHERE id=$1 RETURNING id, userid, devicename"
+	err = db.QueryRow(query, request.Id).Scan(&resp.Id, &resp.UserId, &resp.Name)
+
+	if err != nil {
+		return &DeleteDeviceDatabaseResponse{
+			Message: "Query Failed",
+			Error:   err,
+		}
+	}
+
+	return resp
 }
