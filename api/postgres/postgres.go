@@ -58,6 +58,39 @@ type UserProfileDB struct {
 	// intentionally left empty
 }
 
+type CreateDeviceDatabaseRequest struct {
+	Id     string
+	UserId string
+	Name   string
+}
+type UpdateDeviceDatabaseRequest struct{}
+type DeleteDeviceDatabaseRequest struct{}
+type CreateDeviceDatabaseResponse struct {
+	Id      string
+	Name    string
+	UserId  string
+	Message string
+	Error   error
+}
+type UpdateDeviceDatabaseResponse struct {
+	DeviceId string
+	Name     string
+	UserId   string
+	Message  string
+	Error    error
+}
+type DeleteDeviceDatabaseResponse struct {
+	DeviceId string
+	Name     string
+	UserId   string
+	Message  string
+	Error    error
+}
+
+type DeviceDB struct {
+	// intentionally left empty
+}
+
 func getDatabase() (*sql.DB, error) {
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", DB_USER, DB_PASSWORD, DB_NAME)
 	db, err := sql.Open("postgres", connStr)
@@ -150,4 +183,35 @@ func (u *UserProfileDB) DeleteUserProfile(request *DeleteUserDatabaseRequest) *D
 	}
 
 	return resp
+}
+
+func (d *DeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest) *CreateDeviceDatabaseResponse {
+	db, err := getDatabase()
+
+	if err != nil {
+		return &CreateDeviceDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+	resp := &CreateDeviceDatabaseResponse{Message: "Successfully created device!", Error: nil}
+	query := "INSERT INTO device_details (id, userid, devicename) VALUES ($1, $2, $3) RETURNING id, userid, devicename"
+	err = db.QueryRow(query, request.Id, request.UserId, request.Name).Scan(&resp.Id, &resp.UserId, &resp.Name)
+
+	if err != nil {
+		return &CreateDeviceDatabaseResponse{
+			Message: "Query Failed",
+			Error:   err,
+		}
+	}
+
+	return resp
+}
+
+func (d *DeviceDB) UpdateDevice(request *UpdateDeviceDatabaseRequest) *UpdateDeviceDatabaseResponse {
+	return &UpdateDeviceDatabaseResponse{}
+}
+
+func (d *DeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest) *DeleteDeviceDatabaseResponse {
+	return &DeleteDeviceDatabaseResponse{}
 }
