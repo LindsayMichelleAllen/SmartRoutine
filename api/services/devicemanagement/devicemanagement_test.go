@@ -16,6 +16,8 @@ func TestDeviceManagementServiceMethods(t *testing.T) {
 				UserId: "123456789",
 			})
 			assert.NotEqual(t, nil, resp.Error)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 		t.Run("should return error if name is not provided", func(t *testing.T) {
 			basicDvcMngr := dvcMngr.UnprotectedDeviceService{}
@@ -23,6 +25,8 @@ func TestDeviceManagementServiceMethods(t *testing.T) {
 				UserId: "123456789",
 			})
 			assert.NotEqual(t, nil, resp.Error)
+			assert.Equal(t, resp.Message, "Device name or user id missing from request")
+			assert.Equal(t, resp.Error.Error(), "missing input field")
 		})
 		t.Run("should return error if user id is not provided", func(t *testing.T) {
 			basicDvcMngr := dvcMngr.UnprotectedDeviceService{}
@@ -30,6 +34,8 @@ func TestDeviceManagementServiceMethods(t *testing.T) {
 				Name: "DeviceName",
 			})
 			assert.NotEqual(t, nil, resp.Error)
+			assert.Equal(t, resp.Message, "Device name or user id missing from request")
+			assert.Equal(t, resp.Error.Error(), "missing input field")
 		})
 	})
 	t.Run("Update Existing Device", func(t *testing.T) {
@@ -93,6 +99,8 @@ func TestDeviceManagementServiceMethods(t *testing.T) {
 			basicDvcMngr := dvcMngr.UnprotectedDeviceService{}
 			resp := basicDvcMngr.DeleteDevice(&dvcMngr.DeviceDeleteRequest{})
 			assert.NotEqual(t, nil, resp.Error)
+			assert.Equal(t, resp.Message, "Device id missing from request")
+			assert.Equal(t, resp.Error.Error(), "missing input field")
 		})
 	})
 }
