@@ -2,7 +2,6 @@ package devicedatabaseinteractor
 
 import (
 	"api/postgres"
-	"errors"
 )
 
 type CreateDeviceRequest struct {
@@ -79,15 +78,46 @@ func (d *BasicDeviceDBInteractor) CreateDevice(request *CreateDeviceRequest) *Cr
 }
 
 func (d *BasicDeviceDBInteractor) UpdateDevice(request *UpdateDeviceRequest) *UpdateDeviceRespose {
+	dbInt := &postgres.DeviceDB{}
+	resp := dbInt.UpdateDevice(&postgres.UpdateDeviceDatabaseRequest{
+		Id:   request.Id,
+		Name: request.Name,
+	})
+
+	if resp.Error != nil {
+		return &UpdateDeviceRespose{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
+	}
+
 	return &UpdateDeviceRespose{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Id:      resp.Id,
+		Name:    resp.Name,
+		UserId:  resp.UserId,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
 func (d *BasicDeviceDBInteractor) DeleteDevice(request *DeleteDeviceRequest) *DeleteDeviceResponse {
+	dbInt := &postgres.DeviceDB{}
+	resp := dbInt.DeleteDevice(&postgres.DeleteDeviceDatabaseRequest{
+		Id: request.Id,
+	})
+
+	if resp.Error != nil {
+		return &DeleteDeviceResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
+	}
+
 	return &DeleteDeviceResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Id:      resp.Id,
+		Name:    resp.Name,
+		UserId:  resp.UserId,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
