@@ -62,8 +62,21 @@ func (d *UnprotectedDeviceService) CreateDevice(request *DeviceCreateRequest) *D
 		Name:   request.Name,
 		UserId: request.UserId,
 	})
+
+	if resp.Error != nil {
+		return &DeviceCreateResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
+	}
+
+	device := &model.Device{}
+	device.SetId(resp.Id)
+	device.SetName(resp.Name)
+	device.SetUserId(resp.UserId)
+
 	return &DeviceCreateResponse{
-		Device:  resp.Device,
+		Device:  device,
 		Message: resp.Message,
 		Error:   resp.Error,
 	}
@@ -82,7 +95,7 @@ func (d *UnprotectedDeviceService) UpdateDevice(request *DeviceUpdateRequest) *D
 		Name: request.Name,
 	})
 	return &DeviceUpdateResponse{
-		Device:  resp.Device,
+		Device:  nil,
 		Message: resp.Message,
 		Error:   resp.Error,
 	}
@@ -100,7 +113,7 @@ func (d *UnprotectedDeviceService) DeleteDevice(request *DeviceDeleteRequest) *D
 		Id: request.Id,
 	})
 	return &DeviceDeleteResponse{
-		Device:  resp.Device,
+		Device:  nil,
 		Message: resp.Message,
 		Error:   resp.Error,
 	}
