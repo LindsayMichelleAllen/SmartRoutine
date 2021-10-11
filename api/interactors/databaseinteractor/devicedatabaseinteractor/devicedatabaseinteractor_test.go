@@ -16,28 +16,32 @@ func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 				Name:   "TestDeviceName",
 				UserId: "TestUserId",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 		t.Run("should return an error if userid is not provided", func(t *testing.T) {
 			resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
 				Id:   "TestDeviceId",
 				Name: "TestDeviceName",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 		t.Run("should return an error if name is not provided", func(t *testing.T) {
 			resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
 				Id:     "TestDeviceId",
 				UserId: "TestUserId",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 		t.Run("should return an error if id is not provided", func(t *testing.T) {
 			resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
 				Name:   "TestDeviceName",
 				UserId: "TestUserId",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 	})
 	t.Run("UpdateDevice", func(t *testing.T) {
@@ -47,19 +51,22 @@ func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 				Id:   "TestDeviceId",
 				Name: "TestDeviceName",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 		t.Run("should return an error if name is not provided", func(t *testing.T) {
 			resp := dbInt.UpdateDevice(&devicedatabaseinteractor.UpdateDeviceRequest{
 				Id: "TestDeviceId",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 		t.Run("should return an error if id is not provided", func(t *testing.T) {
 			resp := dbInt.UpdateDevice(&devicedatabaseinteractor.UpdateDeviceRequest{
 				Name: "TestDeviceName",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 	})
 	t.Run("DeleteDevice", func(t *testing.T) {
@@ -68,17 +75,20 @@ func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 			resp := dbInt.DeleteDevice(&devicedatabaseinteractor.DeleteDeviceRequest{
 				Id: "TestDeviceId",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 		t.Run("should return an error if id is not provided", func(t *testing.T) {
 			resp := dbInt.DeleteDevice(&devicedatabaseinteractor.DeleteDeviceRequest{})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 		t.Run("should return an error if id does not match a known device", func(t *testing.T) {
 			resp := dbInt.DeleteDevice(&devicedatabaseinteractor.DeleteDeviceRequest{
 				Id: "UnknownTestDeviceId",
 			})
-			assert.NotEqual(t, resp.Error, nil)
+			assert.Equal(t, resp.Error.Error(), "not yet implemented")
+			assert.Equal(t, resp.Message, "Not Yet Implemented")
 		})
 	})
 }

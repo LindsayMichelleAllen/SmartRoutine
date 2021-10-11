@@ -3,6 +3,7 @@ package devicemanagement
 import (
 	"api/interactors/databaseinteractor/devicedatabaseinteractor"
 	"api/services/model"
+	"errors"
 )
 
 type DeviceCreateRequest struct {
@@ -48,6 +49,12 @@ type UnprotectedDeviceService struct {
 }
 
 func (d *UnprotectedDeviceService) CreateDevice(request *DeviceCreateRequest) *DeviceCreateResponse {
+	if request.Name == "" || request.UserId == "" {
+		return &DeviceCreateResponse{
+			Message: "Device name or user id missing from request",
+			Error:   errors.New("missing input field"),
+		}
+	}
 	dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
 	// TODO randomly generate device id
 	resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
@@ -63,6 +70,12 @@ func (d *UnprotectedDeviceService) CreateDevice(request *DeviceCreateRequest) *D
 }
 
 func (d *UnprotectedDeviceService) UpdateDevice(request *DeviceUpdateRequest) *DeviceUpdateResponse {
+	if request.Name == "" || request.Id == "" {
+		return &DeviceUpdateResponse{
+			Message: "Device name or id missing from request",
+			Error:   errors.New("missing input field"),
+		}
+	}
 	dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
 	resp := dbInt.UpdateDevice(&devicedatabaseinteractor.UpdateDeviceRequest{
 		Id:   request.Id,
@@ -76,6 +89,12 @@ func (d *UnprotectedDeviceService) UpdateDevice(request *DeviceUpdateRequest) *D
 }
 
 func (d *UnprotectedDeviceService) DeleteDevice(request *DeviceDeleteRequest) *DeviceDeleteResponse {
+	if request.Id == "" {
+		return &DeviceDeleteResponse{
+			Message: "Device id missing from request",
+			Error:   errors.New("missing input field"),
+		}
+	}
 	dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
 	resp := dbInt.DeleteDevice(&devicedatabaseinteractor.DeleteDeviceRequest{
 		Id: request.Id,
