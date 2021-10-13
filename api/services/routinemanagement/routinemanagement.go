@@ -1,6 +1,7 @@
 package routinemanagement
 
 import (
+	"api/interactors/databaseinteractor/routinedatabaseinteractor"
 	"api/services/model"
 	"errors"
 )
@@ -54,7 +55,16 @@ func (r *UnprotectedRoutineService) CreateRoutine(request *RoutineCreateRequest)
 			Error:   errors.New("input field missing"),
 		}
 	}
+	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
+	resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{})
+	if resp.Error != nil {
+		return &RoutineCreateResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
+	}
 	return &RoutineCreateResponse{
+		Routine: resp.Routine,
 		Message: "Not Yet Implemented",
 		Error:   errors.New("not yet implemented"),
 	}
@@ -65,6 +75,14 @@ func (r *UnprotectedRoutineService) UpdateRoutine(request *RoutineUpdateRequest)
 		return &RoutineUpdateResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
+		}
+	}
+	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
+	resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateDatabaseRequest{})
+	if resp.Error != nil {
+		return &RoutineUpdateResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
 		}
 	}
 	return &RoutineUpdateResponse{
@@ -78,6 +96,14 @@ func (r *UnprotectedRoutineService) DeleteRoutine(request *RoutineDeleteRequest)
 		return &RoutineDeleteResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
+		}
+	}
+	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
+	resp := dbInt.DeleteRoutine(&routinedatabaseinteractor.RoutineDeleteDatabaseRequest{})
+	if resp.Error != nil {
+		return &RoutineDeleteResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
 		}
 	}
 	return &RoutineDeleteResponse{
