@@ -10,6 +10,7 @@ import (
 func setupRoutine() *model.Routine {
 	routine := &model.Routine{}
 	routine.SetId("123456789")
+	routine.SetName("RoutineName")
 	routine.SetConfiguration(make([]*model.Configuration, 0))
 	return routine
 }
@@ -20,6 +21,9 @@ func TestRoutineMethods(t *testing.T) {
 		t.Run("should be able to get routine id", func(t *testing.T) {
 			assert.Equal(t, routine.GetId(), "123456789")
 		})
+		t.Run("should be able to get routine name", func(t *testing.T) {
+			assert.Equal(t, routine.GetName(), "RoutineName")
+		})
 		t.Run("should be able to get routine configuration", func(t *testing.T) {
 			assert.Equal(t, routine.GetConfiguration(), make([]*model.Configuration, 0))
 		})
@@ -28,6 +32,10 @@ func TestRoutineMethods(t *testing.T) {
 		t.Run("should be able to set routine id", func(t *testing.T) {
 			routine.SetId("NewRoutineId")
 			assert.Equal(t, routine.GetId(), "NewRoutineId")
+		})
+		t.Run("should be able to set routine id", func(t *testing.T) {
+			routine.SetName("NewRoutineName")
+			assert.Equal(t, routine.GetName(), "NewRoutineName")
 		})
 		t.Run("should be able to set routine configuration", func(t *testing.T) {
 			config := model.Configuration{}
