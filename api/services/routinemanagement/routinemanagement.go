@@ -56,7 +56,12 @@ func (r *UnprotectedRoutineService) CreateRoutine(request *RoutineCreateRequest)
 		}
 	}
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
-	resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{})
+	resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{
+		Id:            "RoutineID", // TODO: generate routine id
+		Name:          request.Name,
+		UserId:        request.UserId,
+		Configuration: &model.Configuration{},
+	})
 	if resp.Error != nil {
 		return &RoutineCreateResponse{
 			Message: resp.Message,
@@ -78,7 +83,10 @@ func (r *UnprotectedRoutineService) UpdateRoutine(request *RoutineUpdateRequest)
 		}
 	}
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
-	resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateDatabaseRequest{})
+	resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateDatabaseRequest{
+		Id:            request.Id,
+		Configuration: request.Configuration,
+	})
 	if resp.Error != nil {
 		return &RoutineUpdateResponse{
 			Message: resp.Message,
@@ -99,7 +107,9 @@ func (r *UnprotectedRoutineService) DeleteRoutine(request *RoutineDeleteRequest)
 		}
 	}
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
-	resp := dbInt.DeleteRoutine(&routinedatabaseinteractor.RoutineDeleteDatabaseRequest{})
+	resp := dbInt.DeleteRoutine(&routinedatabaseinteractor.RoutineDeleteDatabaseRequest{
+		Id: request.Id,
+	})
 	if resp.Error != nil {
 		return &RoutineDeleteResponse{
 			Message: resp.Message,

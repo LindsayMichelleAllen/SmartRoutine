@@ -75,6 +75,8 @@ func TestRoutineDBInteractor(t *testing.T) {
 		t.Run("should be able to create routine with valid input fields", func(t *testing.T) {
 			resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{
 				Id:            "RoutineID",
+				Name:          "RoutineName",
+				UserId:        "RoutineUserID",
 				Configuration: &model.Configuration{},
 			})
 			assert.Equal(t, resp.Message, "Not Yet Implemented")
