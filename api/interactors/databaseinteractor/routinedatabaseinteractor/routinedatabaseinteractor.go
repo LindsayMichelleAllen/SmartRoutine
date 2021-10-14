@@ -1,6 +1,7 @@
 package routinedatabaseinteractor
 
 import (
+	"api/postgres"
 	"api/services/model"
 	"errors"
 )
@@ -56,9 +57,19 @@ func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateDat
 			Error:   errors.New("input field missing"),
 		}
 	}
+
+	routine := &model.Routine{}
+	routine.SetId(request.Id)
+	routine.SetName(request.Name)
+	routine.SetUserId(request.UserId)
+
+	db := &postgres.UnprotectedRoutineDB{}
+	resp := db.CreateRoutine(&postgres.CreateRoutineDatabaseRequest{Routine: routine})
+
 	return &RoutineCreateDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Routine: resp.Routine,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
@@ -69,9 +80,18 @@ func (r *UnprotectedRoutineDBInteractor) UpdateRoutine(request *RoutineUpdateDat
 			Error:   errors.New("input field missing"),
 		}
 	}
+
+	routine := &model.Routine{}
+	routine.SetId(request.Id)
+	routine.AddToConfiguration(request.Configuration)
+
+	db := &postgres.UnprotectedRoutineDB{}
+	resp := db.UpdateRoutine(&postgres.UpdateRoutineDatabaseRequest{Routine: routine})
+
 	return &RoutineUpdateDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Routine: resp.Routine,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
@@ -82,8 +102,16 @@ func (r *UnprotectedRoutineDBInteractor) DeleteRoutine(request *RoutineDeleteDat
 			Error:   errors.New("input field missing"),
 		}
 	}
+
+	routine := &model.Routine{}
+	routine.SetId(request.Id)
+
+	db := &postgres.UnprotectedRoutineDB{}
+	resp := db.DeleteRoutine(&postgres.DeleteRoutineDatabaseRequest{Routine: routine})
+
 	return &RoutineDeleteDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Routine: resp.Routine,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }

@@ -1,7 +1,9 @@
 package postgres
 
 import (
+	"api/services/model"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	_ "github.com/lib/pq"
@@ -99,6 +101,39 @@ type DeleteDeviceDatabaseResponse struct {
 
 type DeviceDB struct {
 	// intentionally left empty
+}
+
+type CreateRoutineDatabaseRequest struct {
+	Routine *model.Routine
+}
+type UpdateRoutineDatabaseRequest struct {
+	Routine *model.Routine
+}
+type DeleteRoutineDatabaseRequest struct {
+	Routine *model.Routine
+}
+type CreateRoutineDatabaseResponse struct {
+	Routine *model.Routine
+	Message string
+	Error   error
+}
+type UpdateRoutineDatabaseResponse struct {
+	Routine *model.Routine
+	Message string
+	Error   error
+}
+type DeleteRoutineDatabaseResponse struct {
+	Routine *model.Routine
+	Message string
+	Error   error
+}
+type RoutineDBInterface interface {
+	CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse
+	UpdateRoutine(request *UpdateRoutineDatabaseRequest) *UpdateRoutineDatabaseResponse
+	DeleteRoutine(request *DeleteRoutineDatabaseRequest) *DeleteRoutineDatabaseResponse
+}
+type UnprotectedRoutineDB struct {
+	/* intentionally left empty */
 }
 
 func getDatabase() (*sql.DB, error) {
@@ -265,4 +300,23 @@ func (d *DeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest) *DeleteDev
 	}
 
 	return resp
+}
+
+func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse {
+	return &CreateRoutineDatabaseResponse{
+		Message: "Not Yet Implemented",
+		Error:   errors.New("not yet implemented"),
+	}
+}
+func (r *UnprotectedRoutineDB) UpdateRoutine(request *UpdateRoutineDatabaseRequest) *UpdateRoutineDatabaseResponse {
+	return &UpdateRoutineDatabaseResponse{
+		Message: "Not Yet Implemented",
+		Error:   errors.New("not yet implemented"),
+	}
+}
+func (r *UnprotectedRoutineDB) DeleteRoutine(request *DeleteRoutineDatabaseRequest) *DeleteRoutineDatabaseResponse {
+	return &DeleteRoutineDatabaseResponse{
+		Message: "Not Yet Implemented",
+		Error:   errors.New("not yet implemented"),
+	}
 }

@@ -43,6 +43,35 @@ func TestRoutineMethods(t *testing.T) {
 			slc = append(slc, &config)
 			routine.SetConfiguration(slc)
 			assert.Equal(t, routine.GetConfiguration(), slc)
+			routine.ClearConfiguration()
+		})
+		t.Run("should be able to add a single routine configuration", func(t *testing.T) {
+			config := &model.Configuration{}
+			dev := &model.Device{}
+			dev.SetId("DeviceID")
+			dev.SetName("DeviceName")
+			dev.SetUserId("DeviceUserID")
+			config.SetId("ConfigID")
+			config.SetDevice(dev)
+			routine.AddToConfiguration(config)
+			assert.Equal(t, len(routine.GetConfiguration()), 1)
+			config2 := &model.Configuration{}
+			dev2 := &model.Device{}
+			dev2.SetId("DeviceID2")
+			dev2.SetName("DeviceName2")
+			dev2.SetUserId("DeviceUserID2")
+			config2.SetId("ConfigID2")
+			config2.SetDevice(dev)
+			routine.AddToConfiguration(config2)
+			assert.Equal(t, len(routine.GetConfiguration()), 2)
+			slc := make([]*model.Configuration, 0)
+			slc = append(slc, config)
+			slc = append(slc, config2)
+			assert.Equal(t, routine.GetConfiguration(), slc)
+		})
+		t.Run("should be able to clear configuration", func(t *testing.T) {
+			routine.ClearConfiguration()
+			assert.Equal(t, len(routine.GetConfiguration()), 0)
 		})
 	})
 }
