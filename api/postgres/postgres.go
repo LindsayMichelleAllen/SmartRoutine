@@ -110,7 +110,7 @@ type UpdateRoutineDatabaseRequest struct {
 	Routine *model.Routine
 }
 type DeleteRoutineDatabaseRequest struct {
-	Routine *model.Routine
+	Id string
 }
 type CreateRoutineDatabaseResponse struct {
 	Routine *model.Routine
@@ -123,7 +123,7 @@ type UpdateRoutineDatabaseResponse struct {
 	Error   error
 }
 type DeleteRoutineDatabaseResponse struct {
-	Routine *model.Routine
+	Id      string
 	Message string
 	Error   error
 }
@@ -303,20 +303,97 @@ func (d *DeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest) *DeleteDev
 }
 
 func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse {
-	return &CreateRoutineDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+	if request.Routine == nil {
+		return &CreateRoutineDatabaseResponse{
+			Message: "Input field missing",
+			Error:   errors.New("input field missing"),
+		}
 	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &CreateRoutineDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := "INSERT INTO routine_details (id, routinename, userid) VALUES($1, $2, $3)"
+	err = db.QueryRow(query, request.Routine.GetId(), request.Routine.GetName(), request.Routine.GetUserId()).Scan()
+
+	if err != nil && err != sql.ErrNoRows {
+		return &CreateRoutineDatabaseResponse{
+			Message: "Query Failed",
+			Error:   err,
+		}
+	}
+
+	resp := &CreateRoutineDatabaseResponse{Routine: request.Routine, Message: "Successfully Created Routine", Error: nil}
+
+	return resp
 }
 func (r *UnprotectedRoutineDB) UpdateRoutine(request *UpdateRoutineDatabaseRequest) *UpdateRoutineDatabaseResponse {
-	return &UpdateRoutineDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+	if request.Routine == nil {
+		return &UpdateRoutineDatabaseResponse{
+			Message: "Input field missing",
+			Error:   errors.New("input field missing"),
+		}
 	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &UpdateRoutineDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := "UPDATE routine_details SET routinename=$1 WHERE id=$2"
+	err = db.QueryRow(query, request.Routine.GetName(), request.Routine.GetId()).Scan()
+
+	if err != nil && err != sql.ErrNoRows {
+		return &UpdateRoutineDatabaseResponse{
+			Message: "Query failed",
+			Error:   err,
+		}
+	}
+
+	resp := &UpdateRoutineDatabaseResponse{Routine: request.Routine, Message: "Successfully Updated Routine", Error: nil}
+
+	return resp
 }
 func (r *UnprotectedRoutineDB) DeleteRoutine(request *DeleteRoutineDatabaseRequest) *DeleteRoutineDatabaseResponse {
+	if request.Id == "" {
+		return &DeleteRoutineDatabaseResponse{
+			Message: "Input field missing",
+			Error:   errors.New("input field missing"),
+		}
+	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &DeleteRoutineDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := "DELETE FROM routine_details WHERE id=$1"
+	err = db.QueryRow(query, request.Id).Scan()
+
+	if err != nil && err != sql.ErrNoRows {
+		return &DeleteRoutineDatabaseResponse{
+			Message: "Query failed",
+			Error:   err,
+		}
+	}
+
 	return &DeleteRoutineDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Id:      request.Id,
+		Message: "Successfully removed routine!",
+		Error:   nil,
 	}
 }

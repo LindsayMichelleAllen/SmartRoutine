@@ -7,15 +7,14 @@ import (
 )
 
 type RoutineCreateDatabaseRequest struct {
-	Id            string
-	Name          string
-	UserId        string
-	Configuration *model.Configuration
+	Id     string
+	Name   string
+	UserId string
 }
 
 type RoutineUpdateDatabaseRequest struct {
-	Id            string
-	Configuration *model.Configuration
+	Id   string
+	Name string
 }
 
 type RoutineDeleteDatabaseRequest struct {
@@ -35,7 +34,7 @@ type RoutineUpdateDatabaseResponse struct {
 }
 
 type RoutineDeleteDatabaseResponse struct {
-	Routine *model.Routine
+	Id      string
 	Message string
 	Error   error
 }
@@ -51,7 +50,7 @@ type UnprotectedRoutineDBInteractor struct {
 }
 
 func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateDatabaseRequest) *RoutineCreateDatabaseResponse {
-	if request.Id == "" || request.Name == "" || request.UserId == "" || request.Configuration == nil {
+	if request.Id == "" || request.Name == "" || request.UserId == "" {
 		return &RoutineCreateDatabaseResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
@@ -74,7 +73,7 @@ func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateDat
 }
 
 func (r *UnprotectedRoutineDBInteractor) UpdateRoutine(request *RoutineUpdateDatabaseRequest) *RoutineUpdateDatabaseResponse {
-	if request.Id == "" || request.Configuration == nil {
+	if request.Id == "" || request.Name == "" {
 		return &RoutineUpdateDatabaseResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
@@ -83,7 +82,7 @@ func (r *UnprotectedRoutineDBInteractor) UpdateRoutine(request *RoutineUpdateDat
 
 	routine := &model.Routine{}
 	routine.SetId(request.Id)
-	routine.AddToConfiguration(request.Configuration)
+	routine.SetName(request.Name)
 
 	db := &postgres.UnprotectedRoutineDB{}
 	resp := db.UpdateRoutine(&postgres.UpdateRoutineDatabaseRequest{Routine: routine})
@@ -103,14 +102,11 @@ func (r *UnprotectedRoutineDBInteractor) DeleteRoutine(request *RoutineDeleteDat
 		}
 	}
 
-	routine := &model.Routine{}
-	routine.SetId(request.Id)
-
 	db := &postgres.UnprotectedRoutineDB{}
-	resp := db.DeleteRoutine(&postgres.DeleteRoutineDatabaseRequest{Routine: routine})
+	resp := db.DeleteRoutine(&postgres.DeleteRoutineDatabaseRequest{Id: request.Id})
 
 	return &RoutineDeleteDatabaseResponse{
-		Routine: resp.Routine,
+		Id:      resp.Id,
 		Message: resp.Message,
 		Error:   resp.Error,
 	}
