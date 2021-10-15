@@ -9,39 +9,113 @@ import (
 
 func main() {
 	/*
+				data := url.Values{
+					"username": {"LJam"},
+					"name":     {"Lindsay"},
+				}
+
+				resp, err := http.PostForm("http://localhost:8080/create/user", data)
+
+				if err != nil {
+					log.Fatal(err)
+				}
+
+
+										data := url.Values{
+											"username": {"LJamSupreme"},
+											"name":     {"Lindsay Allen"},
+											"id":       {"123456789"},
+										}
+
+										resp, err := http.PostForm("http://localhost:8080/modify/user", data)
+
+										if err != nil {
+											log.Fatal(err)
+										}
+
+
+									data := url.Values{
+										"id": {"123456789"},
+									}
+
+									resp, err := http.PostForm("http://localhost:8080/delete/user", data)
+
+									if err != nil {
+										log.Fatal(err)
+									}
+
+									fmt.Println(resp)
+
+								data = url.Values{
+									"name":   {"DeviceName"},
+									"userId": {"123456789"},
+								}
+
+								resp, err = http.PostForm("http://localhost:8080/device/create", data)
+
+								if err != nil {
+									log.Fatal(err)
+								}
+
+								fmt.Println(resp)
+
+						data := url.Values{
+							"name":     {"NewDeviceName"},
+							"deviceId": {"976431852"},
+						}
+
+						resp, err := http.PostForm("http://localhost:8080/device/update", data)
+
+						if err != nil {
+							log.Fatal(err)
+						}
+
+						fmt.Println(resp)
+
+					data := url.Values{
+						"deviceId": {"976431852"},
+					}
+
+					resp, err := http.PostForm("http://localhost:8080/device/delete", data)
+
+					if err != nil {
+						log.Fatal(err)
+					}
+					fmt.Println(resp)
+
+
+			data := url.Values{
+				"userId": {"123456789"},
+				"name":   {"RoutineName"},
+			}
+
+			resp, err := http.PostForm("http://localhost:8080/routine/create", data)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(resp)
+
 		data := url.Values{
-			"username": {"LJam"},
-			"name":     {"Lindsay"},
+			"routineId": {"RoutineID"},
+			"name":      {"NewRoutineName1"},
 		}
 
-		resp, err := http.PostForm("http://localhost:8080/create/user", data)
+		resp, err := http.PostForm("http://localhost:8080/routine/update", data)
 
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		data := url.Values{
-			"username": {"LJamSupreme"},
-			"name":     {"Lindsay Allen"},
-			"id":       {"123456789"},
-		}
-
-		resp, err := http.PostForm("http://localhost:8080/modify/user", data)
-
-		if err != nil {
-			log.Fatal(err)
-		}
+		fmt.Println(resp)
 	*/
-
 	data := url.Values{
-		"id": {"123456789"},
+		"routineId": {"RoutineID"},
 	}
 
-	resp, err := http.PostForm("http://localhost:8080/delete/user", data)
+	resp, err := http.PostForm("http://localhost:8080/routine/delete", data)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	fmt.Println(resp)
 }

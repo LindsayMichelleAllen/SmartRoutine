@@ -1,8 +1,7 @@
 package devicedatabaseinteractor
 
 import (
-	"api/services/model"
-	"errors"
+	"api/postgres"
 )
 
 type CreateDeviceRequest struct {
@@ -21,19 +20,25 @@ type DeleteDeviceRequest struct {
 }
 
 type CreateDeviceResponse struct {
-	Device  *model.Device
+	Id      string
+	Name    string
+	UserId  string
 	Message string
 	Error   error
 }
 
 type UpdateDeviceRespose struct {
-	Device  *model.Device
+	Id      string
+	Name    string
+	UserId  string
 	Message string
 	Error   error
 }
 
 type DeleteDeviceResponse struct {
-	Device  *model.Device
+	Id      string
+	Name    string
+	UserId  string
 	Message string
 	Error   error
 }
@@ -49,22 +54,70 @@ type BasicDeviceDBInteractor struct {
 }
 
 func (d *BasicDeviceDBInteractor) CreateDevice(request *CreateDeviceRequest) *CreateDeviceResponse {
+	dbInt := &postgres.DeviceDB{}
+	resp := dbInt.CreateDevice(&postgres.CreateDeviceDatabaseRequest{
+		Id:     request.Id,
+		Name:   request.Name,
+		UserId: request.UserId,
+	})
+
+	if resp.Error != nil {
+		return &CreateDeviceResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
+	}
+
 	return &CreateDeviceResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Id:      resp.Id,
+		Name:    resp.Name,
+		UserId:  resp.UserId,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
 func (d *BasicDeviceDBInteractor) UpdateDevice(request *UpdateDeviceRequest) *UpdateDeviceRespose {
+	dbInt := &postgres.DeviceDB{}
+	resp := dbInt.UpdateDevice(&postgres.UpdateDeviceDatabaseRequest{
+		Id:   request.Id,
+		Name: request.Name,
+	})
+
+	if resp.Error != nil {
+		return &UpdateDeviceRespose{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
+	}
+
 	return &UpdateDeviceRespose{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Id:      resp.Id,
+		Name:    resp.Name,
+		UserId:  resp.UserId,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
 func (d *BasicDeviceDBInteractor) DeleteDevice(request *DeleteDeviceRequest) *DeleteDeviceResponse {
+	dbInt := &postgres.DeviceDB{}
+	resp := dbInt.DeleteDevice(&postgres.DeleteDeviceDatabaseRequest{
+		Id: request.Id,
+	})
+
+	if resp.Error != nil {
+		return &DeleteDeviceResponse{
+			Message: resp.Message,
+			Error:   resp.Error,
+		}
+	}
+
 	return &DeleteDeviceResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Id:      resp.Id,
+		Name:    resp.Name,
+		UserId:  resp.UserId,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
