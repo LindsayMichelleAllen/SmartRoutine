@@ -1,7 +1,9 @@
 package postgres
 
 import (
+	"api/services/model"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	_ "github.com/lib/pq"
@@ -99,6 +101,39 @@ type DeleteDeviceDatabaseResponse struct {
 
 type DeviceDB struct {
 	// intentionally left empty
+}
+
+type CreateRoutineDatabaseRequest struct {
+	Routine *model.Routine
+}
+type UpdateRoutineDatabaseRequest struct {
+	Routine *model.Routine
+}
+type DeleteRoutineDatabaseRequest struct {
+	Id string
+}
+type CreateRoutineDatabaseResponse struct {
+	Routine *model.Routine
+	Message string
+	Error   error
+}
+type UpdateRoutineDatabaseResponse struct {
+	Routine *model.Routine
+	Message string
+	Error   error
+}
+type DeleteRoutineDatabaseResponse struct {
+	Id      string
+	Message string
+	Error   error
+}
+type RoutineDBInterface interface {
+	CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse
+	UpdateRoutine(request *UpdateRoutineDatabaseRequest) *UpdateRoutineDatabaseResponse
+	DeleteRoutine(request *DeleteRoutineDatabaseRequest) *DeleteRoutineDatabaseResponse
+}
+type UnprotectedRoutineDB struct {
+	/* intentionally left empty */
 }
 
 func getDatabase() (*sql.DB, error) {
@@ -265,4 +300,100 @@ func (d *DeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest) *DeleteDev
 	}
 
 	return resp
+}
+
+func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse {
+	if request.Routine == nil {
+		return &CreateRoutineDatabaseResponse{
+			Message: "Input field missing",
+			Error:   errors.New("input field missing"),
+		}
+	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &CreateRoutineDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := "INSERT INTO routine_details (id, routinename, userid) VALUES($1, $2, $3)"
+	err = db.QueryRow(query, request.Routine.GetId(), request.Routine.GetName(), request.Routine.GetUserId()).Scan()
+
+	if err != nil && err != sql.ErrNoRows {
+		return &CreateRoutineDatabaseResponse{
+			Message: "Query Failed",
+			Error:   err,
+		}
+	}
+
+	resp := &CreateRoutineDatabaseResponse{Routine: request.Routine, Message: "Successfully Created Routine", Error: nil}
+
+	return resp
+}
+func (r *UnprotectedRoutineDB) UpdateRoutine(request *UpdateRoutineDatabaseRequest) *UpdateRoutineDatabaseResponse {
+	if request.Routine == nil {
+		return &UpdateRoutineDatabaseResponse{
+			Message: "Input field missing",
+			Error:   errors.New("input field missing"),
+		}
+	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &UpdateRoutineDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := "UPDATE routine_details SET routinename=$1 WHERE id=$2"
+	err = db.QueryRow(query, request.Routine.GetName(), request.Routine.GetId()).Scan()
+
+	if err != nil && err != sql.ErrNoRows {
+		return &UpdateRoutineDatabaseResponse{
+			Message: "Query failed",
+			Error:   err,
+		}
+	}
+
+	resp := &UpdateRoutineDatabaseResponse{Routine: request.Routine, Message: "Successfully Updated Routine", Error: nil}
+
+	return resp
+}
+func (r *UnprotectedRoutineDB) DeleteRoutine(request *DeleteRoutineDatabaseRequest) *DeleteRoutineDatabaseResponse {
+	if request.Id == "" {
+		return &DeleteRoutineDatabaseResponse{
+			Message: "Input field missing",
+			Error:   errors.New("input field missing"),
+		}
+	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &DeleteRoutineDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := "DELETE FROM routine_details WHERE id=$1"
+	err = db.QueryRow(query, request.Id).Scan()
+
+	if err != nil && err != sql.ErrNoRows {
+		return &DeleteRoutineDatabaseResponse{
+			Message: "Query failed",
+			Error:   err,
+		}
+	}
+
+	return &DeleteRoutineDatabaseResponse{
+		Id:      request.Id,
+		Message: "Successfully removed routine!",
+		Error:   nil,
+	}
 }

@@ -12,8 +12,8 @@ type RoutineCreateRequest struct {
 }
 
 type RoutineUpdateRequest struct {
-	Id            string
-	Configuration *model.Configuration
+	Id   string
+	Name string
 }
 
 type RoutineDeleteRequest struct {
@@ -33,7 +33,7 @@ type RoutineUpdateResponse struct {
 }
 
 type RoutineDeleteResponse struct {
-	Routine *model.Routine
+	Id      string
 	Message string
 	Error   error
 }
@@ -57,26 +57,20 @@ func (r *UnprotectedRoutineService) CreateRoutine(request *RoutineCreateRequest)
 	}
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
 	resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{
-		Id:            "RoutineID", // TODO: generate routine id
-		Name:          request.Name,
-		UserId:        request.UserId,
-		Configuration: &model.Configuration{},
+		Id:     "RoutineID", // TODO: generate routine id
+		Name:   request.Name,
+		UserId: request.UserId,
 	})
-	if resp.Error != nil {
-		return &RoutineCreateResponse{
-			Message: resp.Message,
-			Error:   resp.Error,
-		}
-	}
+
 	return &RoutineCreateResponse{
 		Routine: resp.Routine,
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
 func (r *UnprotectedRoutineService) UpdateRoutine(request *RoutineUpdateRequest) *RoutineUpdateResponse {
-	if request.Id == "" || request.Configuration == nil {
+	if request.Id == "" || request.Name == "" {
 		return &RoutineUpdateResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
@@ -84,18 +78,14 @@ func (r *UnprotectedRoutineService) UpdateRoutine(request *RoutineUpdateRequest)
 	}
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
 	resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateDatabaseRequest{
-		Id:            request.Id,
-		Configuration: request.Configuration,
+		Id:   request.Id,
+		Name: request.Name,
 	})
-	if resp.Error != nil {
-		return &RoutineUpdateResponse{
-			Message: resp.Message,
-			Error:   resp.Error,
-		}
-	}
+
 	return &RoutineUpdateResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Routine: resp.Routine,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }
 
@@ -110,14 +100,10 @@ func (r *UnprotectedRoutineService) DeleteRoutine(request *RoutineDeleteRequest)
 	resp := dbInt.DeleteRoutine(&routinedatabaseinteractor.RoutineDeleteDatabaseRequest{
 		Id: request.Id,
 	})
-	if resp.Error != nil {
-		return &RoutineDeleteResponse{
-			Message: resp.Message,
-			Error:   resp.Error,
-		}
-	}
+
 	return &RoutineDeleteResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+		Id:      resp.Id,
+		Message: resp.Message,
+		Error:   resp.Error,
 	}
 }

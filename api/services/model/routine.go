@@ -38,3 +38,11 @@ func (r *Routine) SetUserId(newUserId string) {
 func (r *Routine) SetConfiguration(newConfiguration []*Configuration) {
 	r.configuration = newConfiguration
 }
+
+func (r *Routine) AddToConfiguration(config *Configuration) {
+	r.configuration = append(r.configuration, config)
+}
+
+func (r *Routine) ClearConfiguration() {
+	r.configuration = nil
+}

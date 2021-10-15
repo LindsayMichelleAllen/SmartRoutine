@@ -14,6 +14,7 @@ func setupConfiguration() *model.Configuration {
 	device.SetName("DeviceName")
 	device.SetUserId("DeviceUserID")
 	config.SetId("ConfigurationID")
+	config.SetOffset(5)
 	config.SetDevice(device)
 	return config
 }
@@ -23,6 +24,9 @@ func TestConfigurationMethods(t *testing.T) {
 	t.Run("Getters", func(t *testing.T) {
 		t.Run("should be able to get configuration id", func(t *testing.T) {
 			assert.Equal(t, config.GetId(), "ConfigurationID")
+		})
+		t.Run("should be able to get configuration offset", func(t *testing.T) {
+			assert.Equal(t, config.GetOffset(), 5)
 		})
 		t.Run("should be able to get configuration device", func(t *testing.T) {
 			assert.Equal(t, config.GetDevice().GetId(), "DeviceID")
@@ -34,6 +38,10 @@ func TestConfigurationMethods(t *testing.T) {
 		t.Run("should be able to set configuration id", func(t *testing.T) {
 			config.SetId("NewConfigurationID")
 			assert.Equal(t, config.GetId(), "NewConfigurationID")
+		})
+		t.Run("should be able to set configuration offset", func(t *testing.T) {
+			config.SetOffset(10)
+			assert.Equal(t, config.GetOffset(), 10)
 		})
 		t.Run("should be able to set configuration device", func(t *testing.T) {
 			device := &model.Device{}
