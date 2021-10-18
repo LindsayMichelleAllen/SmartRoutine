@@ -136,6 +136,39 @@ type UnprotectedRoutineDB struct {
 	/* intentionally left empty */
 }
 
+type CreateConfigurationDatabaseRequest struct {
+	Configuration *model.Configuration
+}
+type UpdateConfigurationDatabaseRequest struct {
+	Configuration *model.Configuration
+}
+type DeleteConfigurationDatabaseRequest struct {
+	Id string
+}
+type CreateConfigurationDatabaseResponse struct {
+	Configuration *model.Configuration
+	Message       string
+	Error         error
+}
+type UpdateConfigurationDatabaseResponse struct {
+	Configuration *model.Configuration
+	Message       string
+	Error         error
+}
+type DeleteConfigurationDatabaseResponse struct {
+	Configuration *model.Configuration
+	Message       string
+	Error         error
+}
+type ConfigurationDBInterface interface {
+	CreateConfiguration(request *CreateConfigurationDatabaseRequest) *CreateConfigurationDatabaseResponse
+	UpdateConfiguration(request *UpdateConfigurationDatabaseRequest) *UpdateConfigurationDatabaseResponse
+	DeleteConfiguration(request *DeleteConfigurationDatabaseRequest) *DeleteConfigurationDatabaseResponse
+}
+type UnprotectedConfigurationDB struct {
+	/* intentionally left empty */
+}
+
 func getDatabase() (*sql.DB, error) {
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", DB_USER, DB_PASSWORD, DB_NAME)
 	db, err := sql.Open("postgres", connStr)
@@ -395,5 +428,26 @@ func (r *UnprotectedRoutineDB) DeleteRoutine(request *DeleteRoutineDatabaseReque
 		Id:      request.Id,
 		Message: "Successfully removed routine!",
 		Error:   nil,
+	}
+}
+
+func (c *UnprotectedConfigurationDB) CreateConfiguration(request *CreateConfigurationDatabaseRequest) *CreateConfigurationDatabaseResponse {
+	return &CreateConfigurationDatabaseResponse{
+		Message: "Not Yet Implemented",
+		Error:   errors.New("not yet implemented"),
+	}
+}
+
+func (c *UnprotectedConfigurationDB) UpdateConfiguration(request *UpdateConfigurationDatabaseRequest) *UpdateConfigurationDatabaseResponse {
+	return &UpdateConfigurationDatabaseResponse{
+		Message: "Not Yet Implemented",
+		Error:   errors.New("not yet implemented"),
+	}
+}
+
+func (c *UnprotectedConfigurationDB) DeleteConfiguration(request *DeleteConfigurationDatabaseRequest) *DeleteConfigurationDatabaseResponse {
+	return &DeleteConfigurationDatabaseResponse{
+		Message: "Not Yet Implemented",
+		Error:   errors.New("not yet implemented"),
 	}
 }
