@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 
 	_ "github.com/lib/pq"
 )
@@ -432,22 +433,117 @@ func (r *UnprotectedRoutineDB) DeleteRoutine(request *DeleteRoutineDatabaseReque
 }
 
 func (c *UnprotectedConfigurationDB) CreateConfiguration(request *CreateConfigurationDatabaseRequest) *CreateConfigurationDatabaseResponse {
-	return &CreateConfigurationDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+	if request.Configuration == nil {
+		return &CreateConfigurationDatabaseResponse{
+			Message: "Configuration not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
 	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &CreateConfigurationDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := "INSERT INTO configuration_details (id, timeoffset, deviceid, routineid) VALUES($1, $2, $3, $4)"
+	err = db.QueryRow(query,
+		request.Configuration.GetId(),
+		request.Configuration.GetOffset(),
+		request.Configuration.GetDevice().GetId(),
+		request.Configuration.GetRoutineId()).Scan()
+
+	if err != nil && err != sql.ErrNoRows {
+		return &CreateConfigurationDatabaseResponse{
+			Message: err.Error(),
+			Error:   err,
+		}
+	}
+
+	resp := &CreateConfigurationDatabaseResponse{Configuration: request.Configuration, Message: "Sucessfully Created Configuration", Error: nil}
+
+	return resp
 }
 
 func (c *UnprotectedConfigurationDB) UpdateConfiguration(request *UpdateConfigurationDatabaseRequest) *UpdateConfigurationDatabaseResponse {
-	return &UpdateConfigurationDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+	if request.Configuration == nil {
+		return &UpdateConfigurationDatabaseResponse{
+			Message: "Configuration not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
 	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &UpdateConfigurationDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := "UPDATE configuration_details SET timeoffset=$1 WHERE id=$2"
+	err = db.QueryRow(query,
+		request.Configuration.GetOffset(),
+		request.Configuration.GetId()).Scan()
+
+	if err != nil && err != sql.ErrNoRows {
+		return &UpdateConfigurationDatabaseResponse{
+			Message: err.Error(),
+			Error:   err,
+		}
+	}
+
+	resp := &UpdateConfigurationDatabaseResponse{Configuration: request.Configuration, Message: "Sucessfully Updated Configuration", Error: nil}
+
+	return resp
 }
 
 func (c *UnprotectedConfigurationDB) DeleteConfiguration(request *DeleteConfigurationDatabaseRequest) *DeleteConfigurationDatabaseResponse {
-	return &DeleteConfigurationDatabaseResponse{
-		Message: "Not Yet Implemented",
-		Error:   errors.New("not yet implemented"),
+	if request.Id == "" {
+		return &DeleteConfigurationDatabaseResponse{
+			Message: "Configuration id not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
 	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &DeleteConfigurationDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	resp := &DeleteConfigurationDatabaseResponse{Message: "Sucessfully Removed Configuration", Error: nil}
+	configId := ""
+	timeoffset := ""
+	deviceid := ""
+	routineid := ""
+	query := "DELETE FROM configuration_details WHERE id=$1 RETURNING id, timeoffset, deviceid, routineid"
+	err = db.QueryRow(query, request.Id).Scan(&configId, &timeoffset, &deviceid, &routineid)
+
+	if err != nil {
+		return &DeleteConfigurationDatabaseResponse{
+			Message: err.Error(),
+			Error:   err,
+		}
+	}
+
+	config := &model.Configuration{}
+	dev := &model.Device{}
+	dev.SetId(deviceid)
+	offset, _ := strconv.Atoi(timeoffset)
+	config.SetId(configId)
+	config.SetOffset(offset)
+	config.SetDevice(dev)
+	config.SetRoutineId(routineid)
+
+	resp.Configuration = config
+
+	return resp
 }

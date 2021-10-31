@@ -7,13 +7,15 @@ import (
 )
 
 type CreateConfigurationRequest struct {
-	Offset   *int
-	DeviceId string
+	Offset    *int
+	DeviceId  string
+	RoutineId string
 }
 type UpdateConfigurationRequest struct {
-	ConfigId string
-	Offset   *int
-	DeviceId string
+	ConfigId  string
+	Offset    *int
+	DeviceId  string
+	RoutineId string
 }
 type DeleteConfigurationRequest struct {
 	ConfigId string
@@ -53,9 +55,10 @@ func (c *UnprotectedConfigurationService) CreateConfiguration(request *CreateCon
 	}
 	db := configurationdatabaseinteractor.UnprotectedConfigurationDBInteractor{}
 	resp := db.CreateConfiguration(&configurationdatabaseinteractor.CreateConfigurationDBInteractorRequest{
-		ConfigId: "ConfigID",
-		Offset:   request.Offset,
-		DeviceId: request.DeviceId,
+		ConfigId:  "ConfigID",
+		Offset:    request.Offset,
+		DeviceId:  request.DeviceId,
+		RoutineId: request.RoutineId,
 	})
 	return &CreateConfigurationResponse{
 		Configuration: resp.Configuration,
@@ -69,7 +72,6 @@ func (c *UnprotectedConfigurationService) UpdateConfiguration(request *UpdateCon
 	resp := db.UpdateConfiguration(&configurationdatabaseinteractor.UpdateConfigurationDBInteractorRequest{
 		ConfigId: request.ConfigId,
 		Offset:   request.Offset,
-		DeviceId: request.DeviceId,
 	})
 	return &UpdateConfigurationResponse{
 		Configuration: resp.Configuration,

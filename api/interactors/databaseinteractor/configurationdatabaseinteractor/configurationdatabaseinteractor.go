@@ -6,14 +6,16 @@ import (
 )
 
 type CreateConfigurationDBInteractorRequest struct {
-	ConfigId string
-	Offset   *int
-	DeviceId string
+	ConfigId  string
+	Offset    *int
+	DeviceId  string
+	RoutineId string
 }
 type UpdateConfigurationDBInteractorRequest struct {
-	ConfigId string
-	Offset   *int
-	DeviceId string
+	ConfigId  string
+	Offset    *int
+	DeviceId  string
+	RoutineId string
 }
 type DeleteConfigurationDBInteractorRequest struct {
 	ConfigId string
@@ -46,7 +48,14 @@ type UnprotectedConfigurationDBInteractor struct {
 
 func (c *UnprotectedConfigurationDBInteractor) CreateConfiguration(request *CreateConfigurationDBInteractorRequest) *CreateConfigurationDBInteractorResponse {
 	db := &postgres.UnprotectedConfigurationDB{}
-	resp := db.CreateConfiguration(&postgres.CreateConfigurationDatabaseRequest{})
+	config := &model.Configuration{}
+	dev := &model.Device{}
+	dev.SetId(request.DeviceId)
+	config.SetId(request.ConfigId)
+	config.SetOffset(*request.Offset)
+	config.SetRoutineId(request.RoutineId)
+	config.SetDevice(dev)
+	resp := db.CreateConfiguration(&postgres.CreateConfigurationDatabaseRequest{Configuration: config})
 	return &CreateConfigurationDBInteractorResponse{
 		Configuration: resp.Configuration,
 		Message:       resp.Message,
@@ -56,7 +65,12 @@ func (c *UnprotectedConfigurationDBInteractor) CreateConfiguration(request *Crea
 
 func (c *UnprotectedConfigurationDBInteractor) UpdateConfiguration(request *UpdateConfigurationDBInteractorRequest) *UpdateConfigurationDBInteractorResponse {
 	db := &postgres.UnprotectedConfigurationDB{}
-	resp := db.UpdateConfiguration(&postgres.UpdateConfigurationDatabaseRequest{})
+	config := &model.Configuration{}
+	config.SetId(request.ConfigId)
+	config.SetOffset(*request.Offset)
+	resp := db.UpdateConfiguration(&postgres.UpdateConfigurationDatabaseRequest{
+		Configuration: config,
+	})
 	return &UpdateConfigurationDBInteractorResponse{
 		Configuration: resp.Configuration,
 		Message:       resp.Message,
@@ -66,7 +80,9 @@ func (c *UnprotectedConfigurationDBInteractor) UpdateConfiguration(request *Upda
 
 func (c *UnprotectedConfigurationDBInteractor) DeleteConfiguration(request *DeleteConfigurationDBInteractorRequest) *DeleteConfigurationDBInteractorResponse {
 	db := &postgres.UnprotectedConfigurationDB{}
-	resp := db.DeleteConfiguration(&postgres.DeleteConfigurationDatabaseRequest{})
+	resp := db.DeleteConfiguration(&postgres.DeleteConfigurationDatabaseRequest{
+		Id: request.ConfigId,
+	})
 	return &DeleteConfigurationDBInteractorResponse{
 		Configuration: resp.Configuration,
 		Message:       resp.Message,

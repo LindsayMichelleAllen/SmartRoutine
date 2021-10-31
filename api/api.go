@@ -3,10 +3,12 @@ package main
 import (
 	dvcMngr "api/services/devicemanagement"
 	rtnMngr "api/services/routinemanagement"
+	cfgMngr "api/services/routinemanagement/configurationmanagement"
 	userAcctMngr "api/services/useraccountmanagement"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func main() {
@@ -188,6 +190,73 @@ func main() {
 			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
 			resp := basicRtnMngr.DeleteRoutine(&rtnMngr.RoutineDeleteRequest{
 				Id: routineId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routine/configuration/create", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			offset := new(int)
+			offsetInput, _ := strconv.Atoi(r.FormValue("offset"))
+			*offset = offsetInput
+			deviceId := r.FormValue("deviceId")
+			routineId := r.FormValue("routineId")
+
+			basicCfgMngr := cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.CreateConfiguration(&cfgMngr.CreateConfigurationRequest{
+				Offset:    offset,
+				DeviceId:  deviceId,
+				RoutineId: routineId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routine/configuration/update", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			configId := r.FormValue("configId")
+			offset := new(int)
+			offsetInput, _ := strconv.Atoi(r.FormValue("offset"))
+			*offset = offsetInput
+
+			basicCfgMngr := cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.UpdateConfiguration(&cfgMngr.UpdateConfigurationRequest{
+				ConfigId: configId,
+				Offset:   offset,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routine/configuration/delete", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			configId := r.FormValue("configId")
+
+			basicCfgMngr := cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.DeleteConfiguration(&cfgMngr.DeleteConfigurationRequest{
+				ConfigId: configId,
 			})
 
 			if resp.Error != nil {
