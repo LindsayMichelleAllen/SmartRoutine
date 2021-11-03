@@ -17,6 +17,22 @@ const (
 	TBL_USER    = "profile_details"
 )
 
+type GetUserDatabaseRequest struct {
+	Id string
+}
+
+type GetUserDatabaseResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
+}
+
+type GetUsersDatabaseResponse struct {
+	Users   []*model.UserProfile
+	Message string
+	Error   error
+}
+
 type CreateUserDatabaseRequest struct {
 	Username string
 	Name     string
@@ -184,6 +200,96 @@ func getDatabase() (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func (u *UserProfileDB) GetUserProfile(request *GetUserDatabaseRequest) *GetUserDatabaseResponse {
+	if request.Id == "" {
+		return &GetUserDatabaseResponse{
+			Message: "Id not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+
+	db, err := getDatabase()
+	if err != nil {
+		return &GetUserDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+	resp := &GetUserDatabaseResponse{Message: "Successfully Queried User Profile", Error: nil}
+	username := ""
+	displayname := ""
+
+	query := "SELECT username, displayname FROM profile_details WHERE id=$1"
+
+	err = db.QueryRow(query, request.Id).Scan(&username, &displayname)
+
+	if err != nil {
+		return &GetUserDatabaseResponse{
+			Message: "Query Failed",
+			Error:   err,
+		}
+	}
+
+	usr := &model.UserProfile{}
+	usr.SetId(request.Id)
+	usr.SetUsername(username)
+	usr.SetName(displayname)
+	resp.User = usr
+
+	return resp
+}
+
+func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
+	db, err := getDatabase()
+	if err != nil {
+		return &GetUsersDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	resp := &GetUsersDatabaseResponse{Message: "Successfully Queried All User Profiles", Error: nil}
+
+	query := "SELECT * FROM profile_details"
+	rows, err := db.Query(query)
+
+	if err != nil {
+		return &GetUsersDatabaseResponse{
+			Message: "Query Failed",
+			Error:   err,
+		}
+	}
+
+	defer rows.Close()
+	usrs := make([]*model.UserProfile, 0)
+	for rows.Next() {
+		var id string
+		var username string
+		var displayname string
+		err = rows.Scan(&id, &username, &displayname)
+		if err != nil {
+			// handle this error
+			panic(err)
+		}
+		usr := &model.UserProfile{}
+		usr.SetId(id)
+		usr.SetUsername(username)
+		usr.SetName(displayname)
+		usrs = append(usrs, usr)
+	}
+	// get any error encountered during iteration
+	err = rows.Err()
+	if err != nil {
+		return &GetUsersDatabaseResponse{
+			Message: err.Error(),
+			Error:   err,
+		}
+	}
+
+	resp.Users = usrs
+	return resp
 }
 
 func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *CreateUserDatabaseResponse {

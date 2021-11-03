@@ -2,7 +2,25 @@ package userdatabaseinteractor
 
 import (
 	"api/postgres"
+	"api/services/model"
+	"errors"
 )
+
+type GetUserInteractorRequest struct {
+	Id string
+}
+
+type GetUserInteractorResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
+}
+
+type GetUsersInteractorResponse struct {
+	Users   []*model.UserProfile
+	Message string
+	Error   error
+}
 
 type CreateUserInteractorRequest struct {
 	Username string
@@ -45,6 +63,8 @@ type DeleteUserInteractorResponse struct {
 }
 
 type UserServiceInteractor interface {
+	GetUserProfile(request *GetUserInteractorRequest) *GetUserInteractorResponse
+	GetUserProfiles() *GetUsersInteractorResponse
 	CreateUserProfile(request *CreateUserInteractorRequest) *CreateUserInteractorResponse
 	UpdateUserProfile(request *UpdateUserInteractorRequest) *UpdateUserInteractorResponse
 	DeleteUserProfile(request *DeleteUserInteractorRequest) *DeleteUserInteractorResponse
@@ -52,6 +72,32 @@ type UserServiceInteractor interface {
 
 type UserAccountManagementServiceInteractor struct {
 	// intentionally left empty
+}
+
+func (u *UserAccountManagementServiceInteractor) GetUserProfile(request *GetUserInteractorRequest) *GetUserInteractorResponse {
+	if request.Id == "" {
+		return &GetUserInteractorResponse{
+			Message: "Id not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	db := &postgres.UserProfileDB{}
+	resp := db.GetUserProfile(&postgres.GetUserDatabaseRequest{Id: request.Id})
+	return &GetUserInteractorResponse{
+		User:    resp.User,
+		Message: resp.Message,
+		Error:   resp.Error,
+	}
+}
+
+func (u *UserAccountManagementServiceInteractor) GetUserProfiles() *GetUsersInteractorResponse {
+	db := &postgres.UserProfileDB{}
+	resp := db.GetUserProfiles()
+	return &GetUsersInteractorResponse{
+		Users:   resp.Users,
+		Message: resp.Message,
+		Error:   resp.Error,
+	}
 }
 
 func (u *UserAccountManagementServiceInteractor) CreateUserProfile(request *CreateUserInteractorRequest) *CreateUserInteractorResponse {
