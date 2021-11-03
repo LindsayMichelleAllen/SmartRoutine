@@ -77,6 +77,42 @@ type UserProfileDB struct {
 	// intentionally left empty
 }
 
+type GetDeviceDatabaseRequest struct {
+	Id string
+}
+
+type GetDeviceDatabaseResponse struct {
+	Device  *model.Device
+	Message string
+	Error   error
+}
+
+type GetDevicesDatabaseResponse struct {
+	Devices []*model.Device
+	Message string
+	Error   error
+}
+
+type GetUserDevicesDatabaseRequest struct {
+	UserId string
+}
+
+type GetUserDevicesDatabaseResponse struct {
+	Devices []*model.Device
+	Message string
+	Error   error
+}
+
+type GetRoutineDevicesDatabaseRequest struct {
+	RoutineId string
+}
+
+type GetRoutineDevicesDatabaseResponse struct {
+	Devices []*model.Device
+	Message string
+	Error   error
+}
+
 type CreateDeviceDatabaseRequest struct {
 	Id     string
 	UserId string
@@ -116,7 +152,17 @@ type DeleteDeviceDatabaseResponse struct {
 	Error   error
 }
 
-type DeviceDB struct {
+type DeviceDBInterface interface {
+	GetDevice(request *GetDeviceDatabaseRequest) *GetDeviceDatabaseResponse
+	GetDevices() *GetDevicesDatabaseResponse
+	GetUserDevices(request *GetUserDevicesDatabaseRequest) *GetUserDevicesDatabaseResponse
+	GetRoutineDevices(request *GetRoutineDevicesDatabaseRequest) *GetRoutineDevicesDatabaseResponse
+	CreateDevice(request *CreateDeviceDatabaseRequest) *CreateDeviceDatabaseResponse
+	UpdateDevice(request *UpdateDeviceDatabaseRequest) *UpdateDeviceDatabaseResponse
+	DeleteDevice(request *DeleteDeviceDatabaseRequest) *DeleteDeviceDatabaseResponse
+}
+
+type UnprotectedDeviceDB struct {
 	// intentionally left empty
 }
 
@@ -370,7 +416,61 @@ func (u *UserProfileDB) DeleteUserProfile(request *DeleteUserDatabaseRequest) *D
 	return resp
 }
 
-func (d *DeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest) *CreateDeviceDatabaseResponse {
+func (u *UnprotectedDeviceDB) GetDevice(request *GetDeviceDatabaseRequest) *GetDeviceDatabaseResponse {
+	if request.Id == "" {
+		return &GetDeviceDatabaseResponse{
+			Message: "Device ID not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &GetDeviceDatabaseResponse{
+			Message: "Unable To Connect To Database",
+			Error:   err,
+		}
+	}
+
+	resp := &GetDeviceDatabaseResponse{Message: "Successfully Queried Device", Error: nil}
+	id := ""
+	userid := ""
+	devicename := ""
+
+	query := "SELECT * FROM device_details WHERE id=$1"
+	err = db.QueryRow(query, request.Id).Scan(&id, &userid, &devicename)
+
+	if err != nil {
+		return &GetDeviceDatabaseResponse{
+			Message: "Device Query Failed",
+			Error:   err,
+		}
+	}
+
+	dev := &model.Device{}
+	dev.SetId(id)
+	dev.SetUserId(userid)
+	dev.SetName(devicename)
+
+	resp.Device = dev
+
+	return resp
+}
+
+func (u *UnprotectedDeviceDB) GetDevices() *GetDevicesDatabaseResponse {
+
+}
+
+func (u *UnprotectedDeviceDB) GetUserDevices(request *GetUserDevicesDatabaseRequest) *GetUserDevicesDatabaseResponse {
+
+}
+
+func (u *UnprotectedDeviceDB) GetRoutineDevices(request *GetRoutineDevicesDatabaseRequest) *GetRoutineDevicesDatabaseResponse {
+
+}
+
+func (d *UnprotectedDeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest) *CreateDeviceDatabaseResponse {
 	db, err := getDatabase()
 
 	if err != nil {
@@ -394,7 +494,7 @@ func (d *DeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest) *CreateDev
 	return resp
 }
 
-func (d *DeviceDB) UpdateDevice(request *UpdateDeviceDatabaseRequest) *UpdateDeviceDatabaseResponse {
+func (d *UnprotectedDeviceDB) UpdateDevice(request *UpdateDeviceDatabaseRequest) *UpdateDeviceDatabaseResponse {
 	db, err := getDatabase()
 
 	if err != nil {
@@ -418,7 +518,7 @@ func (d *DeviceDB) UpdateDevice(request *UpdateDeviceDatabaseRequest) *UpdateDev
 	return resp
 }
 
-func (d *DeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest) *DeleteDeviceDatabaseResponse {
+func (d *UnprotectedDeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest) *DeleteDeviceDatabaseResponse {
 	db, err := getDatabase()
 
 	if err != nil {
