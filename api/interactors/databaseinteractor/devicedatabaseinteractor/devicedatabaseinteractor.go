@@ -54,7 +54,7 @@ type BasicDeviceDBInteractor struct {
 }
 
 func (d *BasicDeviceDBInteractor) CreateDevice(request *CreateDeviceRequest) *CreateDeviceResponse {
-	dbInt := &postgres.DeviceDB{}
+	dbInt := &postgres.UnprotectedDeviceDB{}
 	resp := dbInt.CreateDevice(&postgres.CreateDeviceDatabaseRequest{
 		Id:     request.Id,
 		Name:   request.Name,
@@ -78,7 +78,7 @@ func (d *BasicDeviceDBInteractor) CreateDevice(request *CreateDeviceRequest) *Cr
 }
 
 func (d *BasicDeviceDBInteractor) UpdateDevice(request *UpdateDeviceRequest) *UpdateDeviceRespose {
-	dbInt := &postgres.DeviceDB{}
+	dbInt := &postgres.UnprotectedDeviceDB{}
 	resp := dbInt.UpdateDevice(&postgres.UpdateDeviceDatabaseRequest{
 		Id:   request.Id,
 		Name: request.Name,
@@ -101,7 +101,7 @@ func (d *BasicDeviceDBInteractor) UpdateDevice(request *UpdateDeviceRequest) *Up
 }
 
 func (d *BasicDeviceDBInteractor) DeleteDevice(request *DeleteDeviceRequest) *DeleteDeviceResponse {
-	dbInt := &postgres.DeviceDB{}
+	dbInt := &postgres.UnprotectedDeviceDB{}
 	resp := dbInt.DeleteDevice(&postgres.DeleteDeviceDatabaseRequest{
 		Id: request.Id,
 	})

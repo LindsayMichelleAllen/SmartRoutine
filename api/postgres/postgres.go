@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	_ "github.com/lib/pq"
 )
@@ -459,15 +460,165 @@ func (u *UnprotectedDeviceDB) GetDevice(request *GetDeviceDatabaseRequest) *GetD
 }
 
 func (u *UnprotectedDeviceDB) GetDevices() *GetDevicesDatabaseResponse {
+	db, err := getDatabase()
+	if err != nil {
+		return &GetDevicesDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
 
+	resp := &GetDevicesDatabaseResponse{Message: "Successfully Queried All User Profiles", Error: nil}
+
+	query := "SELECT * FROM device_details"
+	rows, err := db.Query(query)
+
+	if err != nil {
+		return &GetDevicesDatabaseResponse{
+			Message: "Query Failed",
+			Error:   err,
+		}
+	}
+
+	defer rows.Close()
+	devs := make([]*model.Device, 0)
+	for rows.Next() {
+		var id string
+		var name string
+		var userid string
+		err = rows.Scan(&id, &name, &userid)
+		if err != nil {
+			// handle this error
+			panic(err)
+		}
+		dev := &model.Device{}
+		dev.SetId(id)
+		dev.SetName(name)
+		dev.SetUserId(userid)
+		devs = append(devs, dev)
+	}
+	// get any error encountered during iteration
+	err = rows.Err()
+	if err != nil {
+		return &GetDevicesDatabaseResponse{
+			Message: err.Error(),
+			Error:   err,
+		}
+	}
+
+	resp.Devices = devs
+	return resp
 }
 
 func (u *UnprotectedDeviceDB) GetUserDevices(request *GetUserDevicesDatabaseRequest) *GetUserDevicesDatabaseResponse {
+	if request.UserId == "" {
+		return &GetUserDevicesDatabaseResponse{
+			Message: "UserId not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
 
+	db, err := getDatabase()
+
+	if err != nil {
+		return &GetUserDevicesDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	resp := &GetUserDevicesDatabaseResponse{Message: "Successfully Queried User Devices", Error: nil}
+	query := "SELECT * FROM device_details WHERE userid=$1"
+
+	rows, err := db.Query(query)
+
+	defer rows.Close()
+	devs := make([]*model.Device, 0)
+	for rows.Next() {
+		var id string
+		var name string
+		var userid string
+		err := rows.Scan(&id, &name, &userid)
+		if err != nil {
+			return &GetUserDevicesDatabaseResponse{
+				Message: err.Error(),
+				Error:   err,
+			}
+		}
+		dev := &model.Device{}
+		dev.SetId(id)
+		dev.SetName(name)
+		dev.SetUserId(userid)
+		devs = append(devs, dev)
+	}
+
+	resp.Devices = devs
+	return resp
 }
 
 func (u *UnprotectedDeviceDB) GetRoutineDevices(request *GetRoutineDevicesDatabaseRequest) *GetRoutineDevicesDatabaseResponse {
+	if request.RoutineId == "" {
+		return &GetRoutineDevicesDatabaseResponse{
+			Message: "RoutineId not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
 
+	db, err := getDatabase()
+
+	if err != nil {
+		return &GetRoutineDevicesDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	resp := &GetRoutineDevicesDatabaseResponse{Message: "Successfully Queried Routine Devices", Error: nil}
+	query := "SELECT deviceid FROM configuration_details WHERE routineid=$1"
+
+	rows, err := db.Query(query, request.RoutineId)
+
+	defer rows.Close()
+	devids := make([]string, 0)
+	for rows.Next() {
+		var id string
+		err := rows.Scan(&id)
+		if err != nil {
+			return &GetRoutineDevicesDatabaseResponse{
+				Message: err.Error(),
+				Error:   err,
+			}
+		}
+		devids = append(devids, id)
+	}
+
+	query = fmt.Sprintf("SELECT COUNT(id) FROM tags WHERE id IN (%s)", strings.Join(devids, ", "))
+	rows, err = db.Query(query)
+
+	defer rows.Close()
+	devs := make([]*model.Device, 0)
+	for rows.Next() {
+		var id string
+		var name string
+		var userid string
+		err := rows.Scan(&id, &name, &userid)
+		if err != nil {
+			return &GetRoutineDevicesDatabaseResponse{
+				Message: err.Error(),
+				Error:   err,
+			}
+		}
+
+		dev := &model.Device{}
+		dev.SetId(id)
+		dev.SetName(name)
+		dev.SetUserId(userid)
+
+		devs = append(devs, dev)
+	}
+
+	resp.Devices = devs
+	return resp
 }
 
 func (d *UnprotectedDeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest) *CreateDeviceDatabaseResponse {
