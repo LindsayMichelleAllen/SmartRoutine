@@ -46,50 +46,86 @@ func main() {
 
 									fmt.Println(resp)
 
-								data = url.Values{
-									"name":   {"DeviceName"},
-									"userId": {"123456789"},
-								}
+			data := url.Values{
+				"name":   {"DeviceName"},
+				"userId": {"123456789"},
+			}
 
-								resp, err = http.PostForm("http://localhost:8080/device/create", data)
+			resp, err := http.PostForm("http://localhost:8080/device/create", data)
 
-								if err != nil {
-									log.Fatal(err)
-								}
+			if err != nil {
+				log.Fatal(err)
+			}
 
-								fmt.Println(resp)
-
-						data := url.Values{
-							"name":     {"NewDeviceName"},
-							"deviceId": {"976431852"},
-						}
-
-						resp, err := http.PostForm("http://localhost:8080/device/update", data)
-
-						if err != nil {
-							log.Fatal(err)
-						}
-
-						fmt.Println(resp)
+			fmt.Println(resp)
 
 					data := url.Values{
+						"name":     {"NewDeviceName"},
 						"deviceId": {"976431852"},
 					}
 
-					resp, err := http.PostForm("http://localhost:8080/device/delete", data)
+					resp, err := http.PostForm("http://localhost:8080/device/update", data)
+
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					fmt.Println(resp)
+
+				data := url.Values{
+					"deviceId": {"976431852"},
+				}
+
+				resp, err := http.PostForm("http://localhost:8080/device/delete", data)
+
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(resp)
+
+
+			data = url.Values{
+				"userId": {"123456789"},
+				"name":   {"RoutineName"},
+			}
+
+			resp, err = http.PostForm("http://localhost:8080/routine/create", data)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(resp)
+
+					data := url.Values{
+						"routineId": {"RoutineID"},
+						"name":      {"NewRoutineName1"},
+					}
+
+					resp, err := http.PostForm("http://localhost:8080/routine/update", data)
 
 					if err != nil {
 						log.Fatal(err)
 					}
 					fmt.Println(resp)
 
+				data := url.Values{
+					"routineId": {"RoutineID"},
+				}
 
-			data := url.Values{
-				"userId": {"123456789"},
-				"name":   {"RoutineName"},
+				resp, err := http.PostForm("http://localhost:8080/routine/delete", data)
+
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Println(resp)
+
+			data = url.Values{
+				"offset":    {"10"},
+				"deviceId":  {"976431852"},
+				"routineId": {"RoutineID"},
 			}
 
-			resp, err := http.PostForm("http://localhost:8080/routine/create", data)
+			resp, err = http.PostForm("http://localhost:8080/routine/configuration/create", data)
 
 			if err != nil {
 				log.Fatal(err)
@@ -97,11 +133,11 @@ func main() {
 			fmt.Println(resp)
 
 		data := url.Values{
-			"routineId": {"RoutineID"},
-			"name":      {"NewRoutineName1"},
+			"configId": {"ConfigID"},
+			"offset":   {"20"},
 		}
 
-		resp, err := http.PostForm("http://localhost:8080/routine/update", data)
+		resp, err := http.PostForm("http://localhost:8080/routine/configuration/update", data)
 
 		if err != nil {
 			log.Fatal(err)
@@ -109,13 +145,14 @@ func main() {
 		fmt.Println(resp)
 	*/
 	data := url.Values{
-		"routineId": {"RoutineID"},
+		"configId": {"ConfigID"},
 	}
 
-	resp, err := http.PostForm("http://localhost:8080/routine/delete", data)
+	resp, err := http.PostForm("http://localhost:8080/routine/configuration/delete", data)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(resp)
+
 }
