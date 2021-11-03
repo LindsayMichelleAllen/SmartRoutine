@@ -250,12 +250,12 @@ func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
 		}
 	}
 
-	resp := &GetUsersDatabaseResponse{Message: "Successfully Queried User Profile", Error: nil}
+	resp := &GetUsersDatabaseResponse{Message: "Successfully Queried All User Profiles", Error: nil}
 
 	query := "SELECT * FROM profile_details"
 	rows, err := db.Query(query)
 
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		return &GetUsersDatabaseResponse{
 			Message: "Query Failed",
 			Error:   err,

@@ -16,6 +16,37 @@ func main() {
 		fmt.Fprintf(w, "Landing Page")
 	})
 
+	http.HandleFunc("/user/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			r.ParseForm()
+			id := r.FormValue("userId")
+
+			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+			userResponse := basicUsrMngr.GetUserProfile(&userAcctMngr.UserProfileGetRequest{
+				Id: id,
+			})
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+			}
+		}
+	})
+
+	http.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+			userResponse := basicUsrMngr.GetUserProfiles()
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				for _, user := range userResponse.Users {
+					fmt.Fprintf(w, user.GetUsername()+", "+user.GetName()+", "+user.GetId(), 200)
+				}
+			}
+		}
+	})
+
 	http.HandleFunc("/create/user", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			r.ParseForm()
