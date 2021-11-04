@@ -57,7 +57,7 @@ func (r *UnprotectedRoutineService) CreateRoutine(request *RoutineCreateRequest)
 	}
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
 	resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{
-		Id:     "RoutineID", // TODO: generate routine id
+		Id:     "976431852", // TODO: generate routine id
 		Name:   request.Name,
 		UserId: request.UserId,
 	})

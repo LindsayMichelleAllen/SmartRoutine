@@ -585,6 +585,13 @@ func (u *UnprotectedDeviceDB) GetRoutineDevices(request *GetRoutineDevicesDataba
 
 	rows, err := db.Query(query, request.RoutineId)
 
+	if err != nil {
+		return &GetRoutineDevicesDatabaseResponse{
+			Message: "Query Failed (deviceid from configuration)",
+			Error:   err,
+		}
+	}
+
 	defer rows.Close()
 	devids := make([]string, 0)
 	for rows.Next() {
@@ -599,8 +606,15 @@ func (u *UnprotectedDeviceDB) GetRoutineDevices(request *GetRoutineDevicesDataba
 		devids = append(devids, id)
 	}
 
-	query = fmt.Sprintf("SELECT COUNT(id) FROM tags WHERE id IN (%s)", strings.Join(devids, ", "))
+	query = fmt.Sprintf("SELECT * FROM device_details WHERE id IN ('%s')", strings.Join(devids, "', '"))
 	rows, err = db.Query(query)
+
+	if err != nil {
+		return &GetRoutineDevicesDatabaseResponse{
+			Message: "Query Failed (deviceid from configuration)",
+			Error:   err,
+		}
+	}
 
 	defer rows.Close()
 	devs := make([]*model.Device, 0)
