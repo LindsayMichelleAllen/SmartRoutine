@@ -19,66 +19,66 @@ func main() {
 			log.Fatal(err)
 		}
 
-		data = url.Values{
-			"userId": {"123456789"},
-		}
+			data = url.Values{
+				"userId": {"123456789"},
+			}
 
-		_, err = http.PostForm("http://localhost:8080/user/", data)
+			_, err = http.PostForm("http://localhost:8080/user/", data)
 
-		if err != nil {
-			log.Fatal(err)
-		}
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		_, err = http.Get("http://localhost:8080/users/")
+			_, err = http.Get("http://localhost:8080/users/")
 
-		if err != nil {
-			log.Fatal(err)
-		}
+			if err != nil {
+				log.Fatal(err)
+			}
 
 
+
+
+													data := url.Values{
+														"username": {"LJamSupreme"},
+														"name":     {"Lindsay Allen"},
+														"id":       {"123456789"},
+													}
+
+													resp, err := http.PostForm("http://localhost:8080/modify/user", data)
+
+													if err != nil {
+														log.Fatal(err)
+													}
 
 
 												data := url.Values{
-													"username": {"LJamSupreme"},
-													"name":     {"Lindsay Allen"},
-													"id":       {"123456789"},
+													"id": {"123456789"},
 												}
 
-												resp, err := http.PostForm("http://localhost:8080/modify/user", data)
+												resp, err := http.PostForm("http://localhost:8080/delete/user", data)
 
 												if err != nil {
 													log.Fatal(err)
 												}
 
+												fmt.Println(resp)
 
-											data := url.Values{
-												"id": {"123456789"},
-											}
+		data = url.Values{
+			"name":   {"DeviceName"},
+			"userId": {"123456789"},
+		}
 
-											resp, err := http.PostForm("http://localhost:8080/delete/user", data)
+		_, err = http.PostForm("http://localhost:8080/device/create", data)
 
-											if err != nil {
-												log.Fatal(err)
-											}
-
-											fmt.Println(resp)
+		if err != nil {
+			log.Fatal(err)
+		}
 	*/
 	data := url.Values{
-		"name":   {"DeviceName"},
-		"userId": {"123456789"},
-	}
-
-	_, err := http.PostForm("http://localhost:8080/device/create", data)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	data = url.Values{
 		"deviceid": {"987654321"},
 	}
 
-	_, err = http.PostForm("http://localhost:8080/device/", data)
+	_, err := http.PostForm("http://localhost:8080/device/", data)
 
 	if err != nil {
 		log.Fatal(err)
@@ -90,6 +90,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	data = url.Values{
+		"userid": {"123456789"},
+	}
+
+	_, err = http.PostForm("http://localhost:8080/device/user", data)
 	/*
 
 						data := url.Values{
