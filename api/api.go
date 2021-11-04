@@ -108,6 +108,69 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/device/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			deviceid := r.FormValue("deviceid")
+
+			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
+			resp := basicDvcSrvc.GetDevice(&dvcMngr.GetDeviceRequest{Id: deviceid})
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/device/all", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+
+			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
+			resp := basicDvcSrvc.GetDevices()
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/device/user", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			userid := r.FormValue("userid")
+
+			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
+			resp := basicDvcSrvc.GetUserDevices(&dvcMngr.GetUserDevicesRequest{UserId: userid})
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/device/routine", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			routineid := r.FormValue("routineid")
+
+			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
+			resp := basicDvcSrvc.GetRoutineDevices(&dvcMngr.GetRoutineDevicesRequest{RoutineId: routineid})
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
 	http.HandleFunc("/device/create", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
