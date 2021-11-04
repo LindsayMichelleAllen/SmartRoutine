@@ -6,6 +6,18 @@ import (
 	"errors"
 )
 
+type GetDeviceRequest struct {
+	Id string
+}
+
+type GetUserDevicesRequest struct {
+	UserId string
+}
+
+type GetRoutineDevicesRequest struct {
+	RoutineId string
+}
+
 type DeviceCreateRequest struct {
 	Name   string
 	UserId string
@@ -18,6 +30,30 @@ type DeviceUpdateRequest struct {
 
 type DeviceDeleteRequest struct {
 	Id string
+}
+
+type GetDeviceResponse struct {
+	Device  *model.Device
+	Message string
+	Error   error
+}
+
+type GetDevicesResponse struct {
+	Devices []*model.Device
+	Message string
+	Error   error
+}
+
+type GetUserDevicesResponse struct {
+	Devices []*model.Device
+	Message string
+	Error   error
+}
+
+type GetRoutineDevicesResponse struct {
+	Devices []*model.Device
+	Message string
+	Error   error
 }
 
 type DeviceCreateResponse struct {
@@ -39,13 +75,59 @@ type DeviceDeleteResponse struct {
 }
 
 type DeviceService interface {
-	CreateDevice(*DeviceCreateRequest) *DeviceCreateResponse
-	UpdateDevice(*DeviceUpdateRequest) *DeviceUpdateResponse
-	DeleteDevice(*DeviceDeleteRequest) *DeviceDeleteResponse
+	GetDevice(request *GetDeviceRequest) *GetDeviceResponse
+	GetDevices() *GetDevicesResponse
+	GetUserDevices(request *GetUserDevicesRequest) *GetUserDevicesResponse
+	GetRoutineDevices(request *GetRoutineDevicesRequest) *GetRoutineDevicesResponse
+	CreateDevice(request *DeviceCreateRequest) *DeviceCreateResponse
+	UpdateDevice(request *DeviceUpdateRequest) *DeviceUpdateResponse
+	DeleteDevice(request *DeviceDeleteRequest) *DeviceDeleteResponse
 }
 
 type UnprotectedDeviceService struct {
 	// intentionally left empty
+}
+
+func (d *UnprotectedDeviceService) GetDevice(request *GetDeviceRequest) *GetDeviceResponse {
+	if request.Id == "" {
+		return &GetDeviceResponse{
+			Message: "Device Id not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
+	resp := dbInt.GetDevice(&devicedatabaseinteractor.GetDeviceInteractorRequest{Id: request.Id})
+	return (*GetDeviceResponse)(resp)
+}
+
+func (d *UnprotectedDeviceService) GetDevices() *GetDevicesResponse {
+	dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
+	resp := dbInt.GetDevices()
+	return (*GetDevicesResponse)(resp)
+}
+
+func (d *UnprotectedDeviceService) GetUserDevices(request *GetUserDevicesRequest) *GetUserDevicesResponse {
+	if request.UserId == "" {
+		return &GetUserDevicesResponse{
+			Message: "User Id not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
+	resp := dbInt.GetUserDevices(&devicedatabaseinteractor.GetUserDevicesInteractorRequest{UserId: request.UserId})
+	return (*GetUserDevicesResponse)(resp)
+}
+
+func (d *UnprotectedDeviceService) GetRoutineDevices(request *GetRoutineDevicesRequest) *GetRoutineDevicesResponse {
+	if request.RoutineId == "" {
+		return &GetRoutineDevicesResponse{
+			Message: "Routine Id not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
+	resp := dbInt.GetRoutineDevices(&devicedatabaseinteractor.GetRoutineDevicesInteractorRequest{RoutineId: request.RoutineId})
+	return (*GetRoutineDevicesResponse)(resp)
 }
 
 func (d *UnprotectedDeviceService) CreateDevice(request *DeviceCreateRequest) *DeviceCreateResponse {
@@ -55,10 +137,10 @@ func (d *UnprotectedDeviceService) CreateDevice(request *DeviceCreateRequest) *D
 			Error:   errors.New("missing input field"),
 		}
 	}
-	dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
+	dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
 	// TODO randomly generate device id
 	resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
-		Id:     "976431852",
+		Id:     "987654321",
 		Name:   request.Name,
 		UserId: request.UserId,
 	})
@@ -89,7 +171,7 @@ func (d *UnprotectedDeviceService) UpdateDevice(request *DeviceUpdateRequest) *D
 			Error:   errors.New("missing input field"),
 		}
 	}
-	dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
+	dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
 	resp := dbInt.UpdateDevice(&devicedatabaseinteractor.UpdateDeviceRequest{
 		Id:   request.Id,
 		Name: request.Name,
@@ -108,7 +190,7 @@ func (d *UnprotectedDeviceService) DeleteDevice(request *DeviceDeleteRequest) *D
 			Error:   errors.New("missing input field"),
 		}
 	}
-	dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
+	dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
 	resp := dbInt.DeleteDevice(&devicedatabaseinteractor.DeleteDeviceRequest{
 		Id: request.Id,
 	})

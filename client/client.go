@@ -7,74 +7,90 @@ import (
 )
 
 func main() {
+	/*
+		data := url.Values{
+			"username": {"LJam"},
+			"name":     {"Lindsay"},
+		}
 
+		_, err := http.PostForm("http://localhost:8080/create/user", data)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		data = url.Values{
+			"userId": {"123456789"},
+		}
+
+		_, err = http.PostForm("http://localhost:8080/user/", data)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = http.Get("http://localhost:8080/users/")
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+
+
+
+												data := url.Values{
+													"username": {"LJamSupreme"},
+													"name":     {"Lindsay Allen"},
+													"id":       {"123456789"},
+												}
+
+												resp, err := http.PostForm("http://localhost:8080/modify/user", data)
+
+												if err != nil {
+													log.Fatal(err)
+												}
+
+
+											data := url.Values{
+												"id": {"123456789"},
+											}
+
+											resp, err := http.PostForm("http://localhost:8080/delete/user", data)
+
+											if err != nil {
+												log.Fatal(err)
+											}
+
+											fmt.Println(resp)
+	*/
 	data := url.Values{
-		"username": {"LJam"},
-		"name":     {"Lindsay"},
+		"name":   {"DeviceName"},
+		"userId": {"123456789"},
 	}
 
-	_, err := http.PostForm("http://localhost:8080/create/user", data)
+	_, err := http.PostForm("http://localhost:8080/device/create", data)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	data = url.Values{
-		"userId": {"123456789"},
+		"deviceid": {"987654321"},
 	}
 
-	_, err = http.PostForm("http://localhost:8080/user/", data)
+	_, err = http.PostForm("http://localhost:8080/device/", data)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	_, err = http.Get("http://localhost:8080/users/")
+	_, err = http.Get("http://localhost:8080/device/all")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	/*
-
-
-											data := url.Values{
-												"username": {"LJamSupreme"},
-												"name":     {"Lindsay Allen"},
-												"id":       {"123456789"},
-											}
-
-											resp, err := http.PostForm("http://localhost:8080/modify/user", data)
-
-											if err != nil {
-												log.Fatal(err)
-											}
-
-
-										data := url.Values{
-											"id": {"123456789"},
-										}
-
-										resp, err := http.PostForm("http://localhost:8080/delete/user", data)
-
-										if err != nil {
-											log.Fatal(err)
-										}
-
-										fmt.Println(resp)
-
-				data := url.Values{
-					"name":   {"DeviceName"},
-					"userId": {"123456789"},
-				}
-
-				resp, err := http.PostForm("http://localhost:8080/device/create", data)
-
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				fmt.Println(resp)
 
 						data := url.Values{
 							"name":     {"NewDeviceName"},
