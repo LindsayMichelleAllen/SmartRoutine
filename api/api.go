@@ -109,7 +109,7 @@ func main() {
 	})
 
 	http.HandleFunc("/device/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
+		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
@@ -140,7 +140,7 @@ func main() {
 	})
 
 	http.HandleFunc("/device/user", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
+		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
@@ -156,11 +156,11 @@ func main() {
 	})
 
 	http.HandleFunc("/device/routine", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
+		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
-			routineid := r.FormValue("routineid")
+			routineid := r.FormValue("routineId")
 
 			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
 			resp := basicDvcSrvc.GetRoutineDevices(&dvcMngr.GetRoutineDevicesRequest{RoutineId: routineid})

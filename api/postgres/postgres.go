@@ -440,7 +440,7 @@ func (u *UnprotectedDeviceDB) GetDevice(request *GetDeviceDatabaseRequest) *GetD
 	devicename := ""
 
 	query := "SELECT * FROM device_details WHERE id=$1"
-	err = db.QueryRow(query, request.Id).Scan(&id, &userid, &devicename)
+	err = db.QueryRow(query, request.Id).Scan(&id, &devicename, &userid)
 
 	if err != nil {
 		return &GetDeviceDatabaseResponse{
@@ -468,7 +468,7 @@ func (u *UnprotectedDeviceDB) GetDevices() *GetDevicesDatabaseResponse {
 		}
 	}
 
-	resp := &GetDevicesDatabaseResponse{Message: "Successfully Queried All User Profiles", Error: nil}
+	resp := &GetDevicesDatabaseResponse{Message: "Successfully Queried All Devices", Error: nil}
 
 	query := "SELECT * FROM device_details"
 	rows, err := db.Query(query)
@@ -530,7 +530,14 @@ func (u *UnprotectedDeviceDB) GetUserDevices(request *GetUserDevicesDatabaseRequ
 	resp := &GetUserDevicesDatabaseResponse{Message: "Successfully Queried User Devices", Error: nil}
 	query := "SELECT * FROM device_details WHERE userid=$1"
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(query, request.UserId)
+
+	if err != nil {
+		return &GetUserDevicesDatabaseResponse{
+			Message: "User Devices Query Failed",
+			Error:   err,
+		}
+	}
 
 	defer rows.Close()
 	devs := make([]*model.Device, 0)
@@ -578,6 +585,13 @@ func (u *UnprotectedDeviceDB) GetRoutineDevices(request *GetRoutineDevicesDataba
 
 	rows, err := db.Query(query, request.RoutineId)
 
+	if err != nil {
+		return &GetRoutineDevicesDatabaseResponse{
+			Message: "Query Failed (deviceid from configuration)",
+			Error:   err,
+		}
+	}
+
 	defer rows.Close()
 	devids := make([]string, 0)
 	for rows.Next() {
@@ -592,8 +606,15 @@ func (u *UnprotectedDeviceDB) GetRoutineDevices(request *GetRoutineDevicesDataba
 		devids = append(devids, id)
 	}
 
-	query = fmt.Sprintf("SELECT COUNT(id) FROM tags WHERE id IN (%s)", strings.Join(devids, ", "))
+	query = fmt.Sprintf("SELECT * FROM device_details WHERE id IN ('%s')", strings.Join(devids, "', '"))
 	rows, err = db.Query(query)
+
+	if err != nil {
+		return &GetRoutineDevicesDatabaseResponse{
+			Message: "Query Failed (deviceid from configuration)",
+			Error:   err,
+		}
+	}
 
 	defer rows.Close()
 	devs := make([]*model.Device, 0)
