@@ -167,6 +167,15 @@ type UnprotectedDeviceDB struct {
 	// intentionally left empty
 }
 
+type GetRoutineDatabaseRequest struct {
+	RoutineId string
+}
+type GetUserRoutinesDatabaseRequest struct {
+	UserId string
+}
+type GetDeviceRoutinesDatabaseRequest struct {
+	DeviceId string
+}
 type CreateRoutineDatabaseRequest struct {
 	Routine *model.Routine
 }
@@ -175,6 +184,26 @@ type UpdateRoutineDatabaseRequest struct {
 }
 type DeleteRoutineDatabaseRequest struct {
 	Id string
+}
+type GetRoutineDatabaseResponse struct {
+	Routine *model.Routine
+	Message string
+	Error   error
+}
+type GetRoutinesDatabaseResponse struct {
+	Routines []*model.Routine
+	Message  string
+	Error    error
+}
+type GetUserRoutinesDatabaseResponse struct {
+	Routines []*model.Routine
+	Message  string
+	Error    error
+}
+type GetDeviceRoutinesDatabaseResponse struct {
+	Routines []*model.Routine
+	Message  string
+	Error    error
 }
 type CreateRoutineDatabaseResponse struct {
 	Routine *model.Routine
@@ -714,6 +743,70 @@ func (d *UnprotectedDeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest)
 	return resp
 }
 
+func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *GetRoutineDatabaseResponse {
+	if request.RoutineId == "" {
+		return &GetRoutineDatabaseResponse{
+			Message: "Routine Id not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	db, err := getDatabase()
+
+	if err != nil {
+		return &GetRoutineDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	var id, name, userId string
+
+	query := "SELECT * FROM routine_details WHERE id=$1"
+	err = db.QueryRow(query, request.RoutineId).Scan(&id, &name, &userId)
+
+	if err != nil {
+		return &GetRoutineDatabaseResponse{
+			Message: "Routine Query Failed",
+			Error:   err,
+		}
+	}
+
+	query = "SELECT * FROM configuration_details WHERE routineid=$1"
+	rows, err := db.Query(query, request.RoutineId)
+
+	defer rows.Close()
+	configs := make([]*model.Configuration, 0)
+	for rows.Next() {
+		var configId, deviceId, routineId string
+		var timeoffset int
+		err = rows.Scan(&configId, &timeoffset, &deviceId, &routineId)
+		if err != nil {
+			return &GetRoutineDatabaseResponse{
+				Message: err.Error(),
+				Error:   err,
+			}
+		}
+		config := &model.Configuration{}
+		config.SetId(configId)
+		config.SetRoutineId(routineId)
+		config.SetOffset(timeoffset)
+		configs = append(configs, config)
+	}
+
+	routine := &model.Routine{}
+	routine.PopulateRoutine(id, name, userId, configs)
+
+	return &GetRoutineDatabaseResponse{Routine: routine, Message: "Successfully Queried Routine", Error: nil}
+}
+func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
+
+}
+func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseRequest) *GetUserRoutinesDatabaseResponse {
+
+}
+func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatabaseRequest) *GetDeviceRoutinesDatabaseResponse {
+
+}
 func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse {
 	if request.Routine == nil {
 		return &CreateRoutineDatabaseResponse{
