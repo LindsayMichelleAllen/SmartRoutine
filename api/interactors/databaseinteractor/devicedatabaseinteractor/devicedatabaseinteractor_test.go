@@ -9,7 +9,7 @@ import (
 
 func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 	t.Run("CreateDevice", func(t *testing.T) {
-		dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
+		dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
 		t.Run("should create device with userid, name, and id", func(t *testing.T) {
 			resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
 				Id:     "TestDeviceId",
@@ -45,7 +45,7 @@ func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 		})
 	})
 	t.Run("UpdateDevice", func(t *testing.T) {
-		dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
+		dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
 		t.Run("should update device with name and id", func(t *testing.T) {
 			resp := dbInt.UpdateDevice(&devicedatabaseinteractor.UpdateDeviceRequest{
 				Id:   "TestDeviceId",
@@ -70,7 +70,7 @@ func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 		})
 	})
 	t.Run("DeleteDevice", func(t *testing.T) {
-		dbInt := &devicedatabaseinteractor.BasicDeviceDBInteractor{}
+		dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
 		t.Run("should delete device with valid id", func(t *testing.T) {
 			resp := dbInt.DeleteDevice(&devicedatabaseinteractor.DeleteDeviceRequest{
 				Id: "TestDeviceId",

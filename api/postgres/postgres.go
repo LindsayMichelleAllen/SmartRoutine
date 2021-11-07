@@ -759,10 +759,13 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 		}
 	}
 
-	var id, name, userId string
+	var name, userid string
 
-	query := "SELECT * FROM routine_details WHERE id=$1"
-	err = db.QueryRow(query, request.RoutineId).Scan(&id, &name, &userId)
+	query := `SELECT r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
+			  FROM routine_details r, configuration_details c, device_details d 
+			  WHERE r.id = $1 AND r.id = c.routineid AND c.deviceid = d.id`
+
+	rows, err := db.Query(query, request.RoutineId)
 
 	if err != nil {
 		return &GetRoutineDatabaseResponse{
@@ -771,35 +774,97 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 		}
 	}
 
-	query = "SELECT * FROM configuration_details WHERE routineid=$1"
-	rows, err := db.Query(query, request.RoutineId)
-
 	defer rows.Close()
 	configs := make([]*model.Configuration, 0)
 	for rows.Next() {
-		var configId, deviceId, routineId string
+		var routineName, userId, configId, deviceId, deviceName string
 		var timeoffset int
-		err = rows.Scan(&configId, &timeoffset, &deviceId, &routineId)
+		err = rows.Scan(&routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetRoutineDatabaseResponse{
 				Message: err.Error(),
 				Error:   err,
 			}
 		}
+		name = routineName
+		userid = userId
 		config := &model.Configuration{}
+		dev := &model.Device{}
+		dev.SetId(deviceId)
+		dev.SetName(deviceName)
+		dev.SetUserId(userId)
 		config.SetId(configId)
-		config.SetRoutineId(routineId)
+		config.SetRoutineId(request.RoutineId)
 		config.SetOffset(timeoffset)
+		config.SetDevice(dev)
 		configs = append(configs, config)
 	}
 
 	routine := &model.Routine{}
-	routine.PopulateRoutine(id, name, userId, configs)
+	routine.PopulateRoutine(request.RoutineId, name, userid, configs)
 
 	return &GetRoutineDatabaseResponse{Routine: routine, Message: "Successfully Queried Routine", Error: nil}
 }
+
+/*
 func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
 
+	db, err := getDatabase()
+
+	if err != nil {
+		return &GetRoutinesDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	var id, name, userid string
+
+	query := `SELECT r.id, r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
+			  FROM routine_details r, configuration_details c, device_details d
+			  WHERE r.id == c.routineid AND c.deviceid == d.id`
+
+	rows, err := db.Query(query)
+
+	if err != nil {
+		return &GetRoutinesDatabaseResponse{
+			Message: "Routine Query Failed",
+			Error:   err,
+		}
+	}
+
+	defer rows.Close()
+	configs := make([]*model.Configuration, 0)
+	for rows.Next() {
+		var routineId, routineName, userId, configId, deviceId, deviceName string
+		var timeoffset int
+		err = rows.Scan(&routineId, &routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
+		if err != nil {
+			return &GetRoutinesDatabaseResponse{
+				Message: err.Error(),
+				Error:   err,
+			}
+		}
+		id = routineId
+		name = routineName
+		userid = userId
+		config := &model.Configuration{}
+		dev := &model.Device{}
+		dev.SetId(deviceId)
+		dev.SetName(deviceName)
+		dev.SetUserId(userId)
+		config.SetId(configId)
+		config.SetRoutineId(routineId)
+		config.SetOffset(timeoffset)
+		config.SetDevice(dev)
+		configs = append(configs, config)
+	}
+
+	routines := make([]*model.Routine, 0)
+	routine := &model.Routine{}
+	routine.PopulateRoutine(id, name, userid, configs)
+
+	return &GetRoutinesDatabaseResponse{Routines: routines, Message: "Successfully Queried Routines", Error: nil}
 }
 func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseRequest) *GetUserRoutinesDatabaseResponse {
 
@@ -807,6 +872,7 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatabaseRequest) *GetDeviceRoutinesDatabaseResponse {
 
 }
+*/
 func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse {
 	if request.Routine == nil {
 		return &CreateRoutineDatabaseResponse{

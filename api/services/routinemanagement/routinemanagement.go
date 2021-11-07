@@ -100,6 +100,7 @@ func (r *UnprotectedRoutineService) GetRoutine(request *GetRoutineRequest) *GetR
 	return (*GetRoutineResponse)(resp)
 }
 
+/*
 func (r *UnprotectedRoutineService) GetRoutines() *GetRoutinesResponse {
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
 	resp := dbInt.GetRoutines()
@@ -129,7 +130,7 @@ func (r *UnprotectedRoutineService) GetUserRoutines(request *GetUserRoutinesRequ
 	resp := dbInt.GetUserRoutines(&routinedatabaseinteractor.GetUserRoutinesInteractorRequest{UserId: request.UserId})
 	return (*GetUserRoutinesResponse)(resp)
 }
-
+*/
 func (r *UnprotectedRoutineService) CreateRoutine(request *RoutineCreateRequest) *RoutineCreateResponse {
 	if request.Name == "" || request.UserId == "" {
 		return &RoutineCreateResponse{

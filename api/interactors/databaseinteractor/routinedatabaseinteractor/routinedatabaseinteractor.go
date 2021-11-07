@@ -95,6 +95,8 @@ func (r *UnprotectedRoutineDBInteractor) GetRoutine(request *GetRoutineInteracto
 	resp := db.GetRoutine(&postgres.GetRoutineDatabaseRequest{RoutineId: request.RoutineId})
 	return (*GetRoutineInteractorResponse)(resp)
 }
+
+/*
 func (r *UnprotectedRoutineDBInteractor) GetRoutines() *GetRoutinesInteractorResponse {
 	db := &postgres.UnprotectedRoutineDB{}
 	resp := db.GetRoutines()
@@ -122,7 +124,7 @@ func (r *UnprotectedRoutineDBInteractor) GetUserRoutines(request *GetUserRoutine
 	resp := db.GetUserRoutines(&postgres.GetUserRoutinesDatabaseRequest{UserId: request.UserId})
 	return (*GetUserRoutinesInteractorResponse)(resp)
 }
-
+*/
 func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateInteractorRequest) *RoutineCreateInteractorResponse {
 	if request.Id == "" || request.Name == "" || request.UserId == "" {
 		return &RoutineCreateInteractorResponse{

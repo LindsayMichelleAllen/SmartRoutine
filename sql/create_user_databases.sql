@@ -12,7 +12,6 @@ CREATE TABLE configuration_details ( id VARCHAR(9) NOT NULL PRIMARY KEY, timeoff
     Each configuration can only have one device
     Each configuration can only be associated with one routine
 */
-
 /*
 profile_details{
     id      <-----------------
