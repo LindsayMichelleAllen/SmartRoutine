@@ -229,6 +229,22 @@ type UnprotectedRoutineDB struct {
 	/* intentionally left empty */
 }
 
+type GetConfigurationDatabaseRequest struct {
+	ConfigId string
+}
+
+type GetUserConfiguraitonsDatabaseRequest struct {
+	UserId string
+}
+
+type GetDeviceConfigurationsDatabaseRequest struct {
+	DeviceId string
+}
+
+type GetRoutineConfigurationsDatabaseRequest struct {
+	RoutineId string
+}
+
 type CreateConfigurationDatabaseRequest struct {
 	Configuration *model.Configuration
 }
@@ -238,6 +254,37 @@ type UpdateConfigurationDatabaseRequest struct {
 type DeleteConfigurationDatabaseRequest struct {
 	Id string
 }
+
+type GetConfigurationDatabaseResponse struct {
+	Configuration *model.Configuration
+	Message       string
+	Error         error
+}
+
+type GetConfigurationsDatabaseResponse struct {
+	Configurations []*model.Configuration
+	Message        string
+	Error          error
+}
+
+type GetUserConfiguraitonsDatabaseResponse struct {
+	Configurations []*model.Configuration
+	Message        string
+	Error          error
+}
+
+type GetDeviceConfigurationsDatabaseResponse struct {
+	Configurations []*model.Configuration
+	Message        string
+	Error          error
+}
+
+type GetRoutineConfigurationsDatabaseResponse struct {
+	Configurations []*model.Configuration
+	Message        string
+	Error          error
+}
+
 type CreateConfigurationDatabaseResponse struct {
 	Configuration *model.Configuration
 	Message       string
@@ -254,6 +301,11 @@ type DeleteConfigurationDatabaseResponse struct {
 	Error         error
 }
 type ConfigurationDBInterface interface {
+	GetConfiguration(request *GetConfigurationDatabaseRequest) *GetConfigurationDatabaseResponse
+	GetConfigurations() *GetConfigurationsDatabaseResponse
+	GetUserConfigurations(request *GetUserConfiguraitonsDatabaseRequest) *GetUserConfiguraitonsDatabaseResponse
+	GetDeviceConfigurations(request *GetDeviceConfigurationsDatabaseRequest) *GetDeviceConfigurationsDatabaseResponse
+	GetRoutineConfigurations(request *GetRoutineConfigurationsDatabaseRequest) *GetRoutineConfigurationsDatabaseResponse
 	CreateConfiguration(request *CreateConfigurationDatabaseRequest) *CreateConfigurationDatabaseResponse
 	UpdateConfiguration(request *UpdateConfigurationDatabaseRequest) *UpdateConfigurationDatabaseResponse
 	DeleteConfiguration(request *DeleteConfigurationDatabaseRequest) *DeleteConfigurationDatabaseResponse
@@ -1067,7 +1119,6 @@ func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatab
 	}
 
 	return &GetDeviceRoutinesDatabaseResponse{Routines: routines, Message: "Successfully Queried Device Routines", Error: nil}
-
 }
 
 func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse {
@@ -1164,6 +1215,26 @@ func (r *UnprotectedRoutineDB) DeleteRoutine(request *DeleteRoutineDatabaseReque
 		Message: "Successfully removed routine!",
 		Error:   nil,
 	}
+}
+
+func (c *UnprotectedConfigurationDB) GetConfiguration(request *GetConfigurationDatabaseRequest) *GetConfigurationDatabaseResponse {
+
+}
+
+func (c *UnprotectedConfigurationDB) GetConfigurations() *GetConfigurationsDatabaseResponse {
+
+}
+
+func (c *UnprotectedConfigurationDB) GetUserConfigurations(request *GetUserConfiguraitonsDatabaseRequest) *GetUserConfiguraitonsDatabaseResponse {
+
+}
+
+func (c *UnprotectedConfigurationDB) GetDeviceConfigurations(request *GetDeviceConfigurationsDatabaseRequest) *GetDeviceConfigurationsDatabaseResponse {
+
+}
+
+func (c *UnprotectedConfigurationDB) GetRoutineConfigurations(request *GetRoutineConfigurationsDatabaseRequest) *GetRoutineConfigurationsDatabaseResponse {
+
 }
 
 func (c *UnprotectedConfigurationDB) CreateConfiguration(request *CreateConfigurationDatabaseRequest) *CreateConfigurationDatabaseResponse {
