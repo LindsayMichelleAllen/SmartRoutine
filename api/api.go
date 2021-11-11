@@ -250,6 +250,22 @@ func main() {
 			fmt.Fprint(w, "Success", 200)
 		}
 	})
+
+	http.HandleFunc("/routines/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetRoutines()
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
 	http.HandleFunc("/routine/create", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {

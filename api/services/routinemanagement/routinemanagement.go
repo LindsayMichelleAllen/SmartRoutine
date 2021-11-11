@@ -100,13 +100,13 @@ func (r *UnprotectedRoutineService) GetRoutine(request *GetRoutineRequest) *GetR
 	return (*GetRoutineResponse)(resp)
 }
 
-/*
 func (r *UnprotectedRoutineService) GetRoutines() *GetRoutinesResponse {
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
 	resp := dbInt.GetRoutines()
 	return (*GetRoutinesResponse)(resp)
 }
 
+/*
 func (r *UnprotectedRoutineService) GetDeviceRoutines(request *GetDeviceRoutinesRequest) *GetDeviceRoutinesResponse {
 	if request.DeviceId == "" {
 		return &GetDeviceRoutinesResponse{
