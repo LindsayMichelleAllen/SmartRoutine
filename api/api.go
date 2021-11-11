@@ -266,6 +266,24 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/routines/user/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			userId := r.FormValue("userid")
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetUserRoutines(&rtnMngr.GetUserRoutinesRequest{
+				UserId: userId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
 	http.HandleFunc("/routine/create", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {

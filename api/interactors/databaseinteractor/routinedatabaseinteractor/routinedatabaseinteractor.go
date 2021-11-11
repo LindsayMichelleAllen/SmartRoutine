@@ -114,7 +114,7 @@ func (r *UnprotectedRoutineDBInteractor) GetDeviceRoutines(request *GetDeviceRou
 	resp := db.GetDeviceRoutines(&postgres.GetDeviceRoutinesDatabaseRequest{DeviceId: request.DeviceId})
 	return (*GetDeviceRoutinesInteractorResponse)(resp)
 }
-
+*/
 func (r *UnprotectedRoutineDBInteractor) GetUserRoutines(request *GetUserRoutinesInteractorRequest) *GetUserRoutinesInteractorResponse {
 	if request.UserId == "" {
 		return &GetUserRoutinesInteractorResponse{
@@ -126,7 +126,7 @@ func (r *UnprotectedRoutineDBInteractor) GetUserRoutines(request *GetUserRoutine
 	resp := db.GetUserRoutines(&postgres.GetUserRoutinesDatabaseRequest{UserId: request.UserId})
 	return (*GetUserRoutinesInteractorResponse)(resp)
 }
-*/
+
 func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateInteractorRequest) *RoutineCreateInteractorResponse {
 	if request.Id == "" || request.Name == "" || request.UserId == "" {
 		return &RoutineCreateInteractorResponse{
