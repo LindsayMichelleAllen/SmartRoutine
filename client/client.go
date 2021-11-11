@@ -227,10 +227,9 @@ func main() {
 			fmt.Println(resp)
 	*/
 	data := url.Values{
-		"routineid": {"976431852"},
+		"deviceid": {"987654321"},
 	}
-
-	_, err := http.PostForm("http://localhost:8080/routine/", data)
+	_, err := http.PostForm("http://localhost:8080/routines/device/", data)
 
 	if err != nil {
 		log.Fatal(err)

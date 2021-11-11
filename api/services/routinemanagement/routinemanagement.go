@@ -106,7 +106,6 @@ func (r *UnprotectedRoutineService) GetRoutines() *GetRoutinesResponse {
 	return (*GetRoutinesResponse)(resp)
 }
 
-/*
 func (r *UnprotectedRoutineService) GetDeviceRoutines(request *GetDeviceRoutinesRequest) *GetDeviceRoutinesResponse {
 	if request.DeviceId == "" {
 		return &GetDeviceRoutinesResponse{
@@ -118,7 +117,7 @@ func (r *UnprotectedRoutineService) GetDeviceRoutines(request *GetDeviceRoutines
 	resp := dbInt.GetDeviceRoutines(&routinedatabaseinteractor.GetDeviceRoutinesInteractorRequest{DeviceId: request.DeviceId})
 	return (*GetDeviceRoutinesResponse)(resp)
 }
-*/
+
 func (r *UnprotectedRoutineService) GetUserRoutines(request *GetUserRoutinesRequest) *GetUserRoutinesResponse {
 	if request.UserId == "" {
 		return &GetUserRoutinesResponse{

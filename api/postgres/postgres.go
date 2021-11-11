@@ -979,11 +979,97 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 	return &GetUserRoutinesDatabaseResponse{Routines: routines, Message: "Successfully Queried User Routines", Error: nil}
 }
 
-/*
 func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatabaseRequest) *GetDeviceRoutinesDatabaseResponse {
+	if request.DeviceId == "" {
+		return &GetDeviceRoutinesDatabaseResponse{
+			Routines: nil,
+			Message:  "Device Id not provided",
+			Error:    errors.New("input field(s) missing"),
+		}
+	}
+
+	db, err := getDatabase()
+
+	if err != nil {
+		return &GetDeviceRoutinesDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+
+	query := `SELECT r.id, r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
+			  FROM routine_details r, configuration_details c, device_details d
+			  WHERE d.id = $1 AND r.id = c.routineid AND c.deviceid = d.id`
+
+	rows, err := db.Query(query, request.DeviceId)
+
+	if err != nil {
+		return &GetDeviceRoutinesDatabaseResponse{
+			Message: "Routine Query Failed",
+			Error:   err,
+		}
+	}
+
+	defer rows.Close()
+	res := make(map[string][][6]string)
+	for rows.Next() {
+		var routineId, routineName, userId, configId, deviceId, deviceName string
+		var timeoffset int
+		err = rows.Scan(&routineId, &routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
+		if err != nil {
+			return &GetDeviceRoutinesDatabaseResponse{
+				Message: err.Error(),
+				Error:   err,
+			}
+		}
+		if value, ok := res[routineId]; ok {
+			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
+			res[routineId] = append(value, temp)
+		} else {
+			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
+			res[routineId] = append(res[routineId], temp)
+		}
+	}
+
+	routines := make([]*model.Routine, 0)
+	for key, val := range res {
+		tempRoutine := &model.Routine{}
+		tempConfigs := make([]*model.Configuration, 0)
+		routineName := ""
+		userId := ""
+		for i, item := range val {
+			if i == 0 {
+				routineName = item[0]
+				userId = item[1]
+			}
+			tempConfig := &model.Configuration{}
+			tempDev := &model.Device{}
+			tempDev.SetUserId(item[1])
+			tempConfig.SetId(item[2])
+			var offset int
+			offset, err = strconv.Atoi(item[3])
+			if err != nil {
+				return &GetDeviceRoutinesDatabaseResponse{
+					Routines: nil,
+					Message:  "Unable to convert offset to integer type",
+					Error:    err,
+				}
+			}
+			tempConfig.SetOffset(offset)
+			tempConfig.SetRoutineId(key)
+			tempDev.SetId(item[4])
+			tempDev.SetName(item[5])
+			tempConfig.SetDevice(tempDev)
+			tempConfigs = append(tempConfigs, tempConfig)
+		}
+		tempRoutine.PopulateRoutine(key, routineName, userId, tempConfigs)
+		routines = append(routines, tempRoutine)
+	}
+
+	return &GetDeviceRoutinesDatabaseResponse{Routines: routines, Message: "Successfully Queried Device Routines", Error: nil}
 
 }
-*/
+
 func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseRequest) *CreateRoutineDatabaseResponse {
 	if request.Routine == nil {
 		return &CreateRoutineDatabaseResponse{
