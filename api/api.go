@@ -232,6 +232,76 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/routine/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			routineid := r.FormValue("routineid")
+
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetRoutine(&rtnMngr.GetRoutineRequest{
+				RoutineId: routineid,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routines/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetRoutines()
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routines/user/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			userId := r.FormValue("userid")
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetUserRoutines(&rtnMngr.GetUserRoutinesRequest{
+				UserId: userId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routines/device/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			deviceId := r.FormValue("deviceid")
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetDeviceRoutines(&rtnMngr.GetDeviceRoutinesRequest{
+				DeviceId: deviceId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
 	http.HandleFunc("/routine/create", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {

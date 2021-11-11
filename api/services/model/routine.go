@@ -7,6 +7,13 @@ type Routine struct {
 	configuration []*Configuration
 }
 
+func (r *Routine) PopulateRoutine(id string, name string, userId string, configurations []*Configuration) {
+	r.SetId(id)
+	r.SetName(name)
+	r.SetUserId(userId)
+	r.SetConfiguration(configurations)
+}
+
 func (r *Routine) GetId() string {
 	return r.id
 }
