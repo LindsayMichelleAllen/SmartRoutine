@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/rs/cors"
 )
@@ -123,6 +124,8 @@ func main() {
 			resp := basicDvcSrvc.GetDevice(&dvcMngr.GetDeviceRequest{Id: deviceid})
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, "[%s]", resp.Device.GetJson())
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -154,6 +157,12 @@ func main() {
 			resp := basicDvcSrvc.GetUserDevices(&dvcMngr.GetUserDevicesRequest{UserId: userid})
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				deviceStrs := []string{}
+				for _, device := range resp.Devices {
+					deviceStrs = append(deviceStrs, device.GetJson())
+				}
+				fmt.Fprintf(w, "[%s]", strings.Join(deviceStrs, ","))
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -170,6 +179,12 @@ func main() {
 			resp := basicDvcSrvc.GetRoutineDevices(&dvcMngr.GetRoutineDevicesRequest{RoutineId: routineid})
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				deviceStrs := []string{}
+				for _, device := range resp.Devices {
+					deviceStrs = append(deviceStrs, device.GetJson())
+				}
+				fmt.Fprintf(w, "[%s]", strings.Join(deviceStrs, ","))
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -233,6 +248,27 @@ func main() {
 				http.Error(w, resp.Error.Error(), 500)
 			}
 			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	mux.HandleFunc("/routine/user", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			userid := r.FormValue("userid")
+
+			basicRtnSrvc := rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnSrvc.GetUserRoutines(&rtnMngr.GetUserRoutinesRequest{UserId: userid})
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				routineStrs := []string{}
+				for _, routine := range resp.Routines {
+					routineStrs = append(routineStrs, routine.GetJson())
+				}
+				fmt.Fprintf(w, "[%s]", strings.Join(routineStrs, ","))
+			}
 		}
 	})
 

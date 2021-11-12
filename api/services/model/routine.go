@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 type Routine struct {
 	id            string
 	name          string
@@ -52,4 +54,28 @@ func (r *Routine) AddToConfiguration(config *Configuration) {
 
 func (r *Routine) ClearConfiguration() {
 	r.configuration = nil
+}
+
+func (r *Routine) GetJsonStruct() interface{} {
+	configs := []interface{}{}
+	for _, c := range r.configuration {
+		configs = append(configs, c.GetJsonStruct())
+	}
+
+	return struct {
+		Id            string
+		Name          string
+		UserId        string
+		Configuration []interface{}
+	}{
+		Id:            r.id,
+		Name:          r.name,
+		UserId:        r.userId,
+		Configuration: configs,
+	}
+}
+
+func (r *Routine) GetJson() string {
+	bytes, _ := json.Marshal(r.GetJsonStruct())
+	return string(bytes)
 }

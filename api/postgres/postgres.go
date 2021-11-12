@@ -959,9 +959,23 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 		}
 	}
 
-	query := `SELECT r.id, r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
-			  FROM routine_details r, configuration_details c, device_details d
-			  WHERE r.userid = $1 AND r.id = c.routineid AND c.deviceid = d.id`
+	// query := `SELECT r.id, r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
+	// 		  FROM routine_details r, configuration_details c, device_details d
+	// 		  WHERE r.userid = $1 AND r.id = c.routineid AND c.deviceid = d.id`
+	query := `
+SELECT
+	r.id,
+	r.routinename,
+	r.userid,
+	c.id,
+	c.timeoffset,
+	d.id,
+	d.devicename
+FROM routine_details r
+LEFT JOIN configuration_details c ON r.id = c.routineid
+LEFT JOIN device_details d ON d.id = c.deviceid
+WHERE r.userid = $1
+`
 
 	rows, err := db.Query(query, request.UserId)
 
@@ -975,8 +989,8 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 	defer rows.Close()
 	res := make(map[string][][6]string)
 	for rows.Next() {
-		var routineId, routineName, userId, configId, deviceId, deviceName string
-		var timeoffset int
+		var routineId, routineName, userId, configId, deviceId, deviceName sql.NullString
+		var timeoffset sql.NullInt32
 		err = rows.Scan(&routineId, &routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetUserRoutinesDatabaseResponse{
@@ -984,12 +998,26 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 				Error:   err,
 			}
 		}
-		if value, ok := res[routineId]; ok {
-			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
-			res[routineId] = append(value, temp)
+		if value, ok := res[routineId.String]; ok {
+			temp := [...]string{
+				routineName.String,
+				userId.String,
+				configId.String,
+				strconv.Itoa(int(timeoffset.Int32)),
+				deviceId.String,
+				deviceName.String,
+			}
+			res[routineId.String] = append(value, temp)
 		} else {
-			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
-			res[routineId] = append(res[routineId], temp)
+			temp := [...]string{
+				routineName.String,
+				userId.String,
+				configId.String,
+				strconv.Itoa(int(timeoffset.Int32)),
+				deviceId.String,
+				deviceName.String,
+			}
+			res[routineId.String] = append(res[routineId.String], temp)
 		}
 	}
 
