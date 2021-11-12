@@ -3,7 +3,24 @@ package configurationdatabaseinteractor
 import (
 	"api/postgres"
 	"api/services/model"
+	"errors"
 )
+
+type GetConfigurationInteractorRequest struct {
+	ConfigId string
+}
+
+type GetUserConfiguraitonsInteractorRequest struct {
+	UserId string
+}
+
+type GetDeviceConfigurationsInteractorRequest struct {
+	DeviceId string
+}
+
+type GetRoutineConfigurationsInteractorRequest struct {
+	RoutineId string
+}
 
 type CreateConfigurationDBInteractorRequest struct {
 	ConfigId  string
@@ -20,6 +37,37 @@ type UpdateConfigurationDBInteractorRequest struct {
 type DeleteConfigurationDBInteractorRequest struct {
 	ConfigId string
 }
+
+type GetConfigurationInteractorResponse struct {
+	Configuration *model.Configuration
+	Message       string
+	Error         error
+}
+
+type GetConfigurationsInteractorResponse struct {
+	Configurations []*model.Configuration
+	Message        string
+	Error          error
+}
+
+type GetUserConfiguraitonsInteractorResponse struct {
+	Configurations []*model.Configuration
+	Message        string
+	Error          error
+}
+
+type GetDeviceConfigurationsInteractorResponse struct {
+	Configurations []*model.Configuration
+	Message        string
+	Error          error
+}
+
+type GetRoutineConfigurationsInteractorResponse struct {
+	Configurations []*model.Configuration
+	Message        string
+	Error          error
+}
+
 type CreateConfigurationDBInteractorResponse struct {
 	Configuration *model.Configuration
 	Message       string
@@ -37,6 +85,11 @@ type DeleteConfigurationDBInteractorResponse struct {
 }
 
 type ConfigurationDBInteractor interface {
+	GetConfiguration(request *GetConfigurationInteractorRequest) *GetConfigurationInteractorResponse
+	GetConfigurations() *GetConfigurationsInteractorResponse
+	GetUserConfigurations(request *GetUserConfiguraitonsInteractorRequest) *GetUserConfiguraitonsInteractorResponse
+	GetDeviceConfigurations(request *GetDeviceConfigurationsInteractorRequest) *GetDeviceConfigurationsInteractorResponse
+	GetRoutineConfigurations(request *GetRoutineConfigurationsInteractorRequest) *GetRoutineConfigurationsInteractorResponse
 	CreateConfiguration(request *CreateConfigurationDBInteractorRequest) *CreateConfigurationDBInteractorResponse
 	UpdateConfiguration(request *UpdateConfigurationDBInteractorRequest) *UpdateConfigurationDBInteractorResponse
 	DeleteConfiguration(request *DeleteConfigurationDBInteractorRequest) *DeleteConfigurationDBInteractorResponse
@@ -44,6 +97,72 @@ type ConfigurationDBInteractor interface {
 
 type UnprotectedConfigurationDBInteractor struct {
 	// intentionally left empty
+}
+
+func (c *UnprotectedConfigurationDBInteractor) GetConfiguration(request *GetConfigurationInteractorRequest) *GetConfigurationInteractorResponse {
+	if request.ConfigId == "" {
+		return &GetConfigurationInteractorResponse{
+			Configuration: nil,
+			Message:       "Config Id not provided",
+			Error:         errors.New("input field(s) missing"),
+		}
+	}
+	db := &postgres.UnprotectedConfigurationDB{}
+	resp := db.GetConfiguration(&postgres.GetConfigurationDatabaseRequest{
+		ConfigId: request.ConfigId,
+	})
+	return (*GetConfigurationInteractorResponse)(resp)
+}
+
+func (c *UnprotectedConfigurationDBInteractor) GetConfigurations() *GetConfigurationsInteractorResponse {
+	db := &postgres.UnprotectedConfigurationDB{}
+	resp := db.GetConfigurations()
+	return (*GetConfigurationsInteractorResponse)(resp)
+}
+
+func (c *UnprotectedConfigurationDBInteractor) GetUserConfigurations(request *GetUserConfiguraitonsInteractorRequest) *GetUserConfiguraitonsInteractorResponse {
+	if request.UserId == "" {
+		return &GetUserConfiguraitonsInteractorResponse{
+			Configurations: nil,
+			Message:        "User Id not provided",
+			Error:          errors.New("input field(s) missing"),
+		}
+	}
+	db := &postgres.UnprotectedConfigurationDB{}
+	resp := db.GetUserConfigurations(&postgres.GetUserConfiguraitonsDatabaseRequest{
+		UserId: request.UserId,
+	})
+	return (*GetUserConfiguraitonsInteractorResponse)(resp)
+}
+
+func (c *UnprotectedConfigurationDBInteractor) GetDeviceConfigurations(request *GetDeviceConfigurationsInteractorRequest) *GetDeviceConfigurationsInteractorResponse {
+	if request.DeviceId == "" {
+		return &GetDeviceConfigurationsInteractorResponse{
+			Configurations: nil,
+			Message:        "Device Id not provided",
+			Error:          errors.New("input field(s) missing"),
+		}
+	}
+	db := &postgres.UnprotectedConfigurationDB{}
+	resp := db.GetDeviceConfigurations(&postgres.GetDeviceConfigurationsDatabaseRequest{
+		DeviceId: request.DeviceId,
+	})
+	return (*GetDeviceConfigurationsInteractorResponse)(resp)
+}
+
+func (c *UnprotectedConfigurationDBInteractor) GetRoutineConfigurations(request *GetRoutineConfigurationsInteractorRequest) *GetRoutineConfigurationsInteractorResponse {
+	if request.RoutineId == "" {
+		return &GetRoutineConfigurationsInteractorResponse{
+			Configurations: nil,
+			Message:        "Routine Id not provided",
+			Error:          errors.New("input field(s) missing"),
+		}
+	}
+	db := &postgres.UnprotectedConfigurationDB{}
+	resp := db.GetRoutineConfigurations(&postgres.GetRoutineConfigurationsDatabaseRequest{
+		RoutineId: request.RoutineId,
+	})
+	return (*GetRoutineConfigurationsInteractorResponse)(resp)
 }
 
 func (c *UnprotectedConfigurationDBInteractor) CreateConfiguration(request *CreateConfigurationDBInteractorRequest) *CreateConfigurationDBInteractorResponse {
