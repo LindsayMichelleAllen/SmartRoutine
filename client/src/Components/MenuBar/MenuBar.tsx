@@ -27,19 +27,33 @@ export default function MenuBar(props: MenuBarProps) {
 
   const navigate = useNavigate();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const [anchorElement, setAnchorElement] = useState<null | HTMLElement>();
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setMenuIsOpen(true);
+    setAnchorElement(e.currentTarget);
+  }
+
+  const handleClickAway = () => {
+    setMenuIsOpen(false);
+    setAnchorElement(null);
+  }
 
   return (
     <Box sx={{ flexGrow: 1 }} >
       <AppBar position="static">
         <Toolbar>
-          <ClickAwayListener onClickAway={() => { setMenuIsOpen(false) }}>
-            <IconButton onClick={() => setMenuIsOpen(true)}>
+          <ClickAwayListener onClickAway={handleClickAway}>
+            <IconButton onClick={handleClick}>
               <MenuIcon />
             </IconButton>
           </ClickAwayListener>
-          <Menu open={menuIsOpen}>
+          <Menu
+            anchorEl={anchorElement}
+            open={menuIsOpen}>
             <MenuItem onClick={() => navigate("/routines")}>Routines</MenuItem>
             <MenuItem onClick={() => navigate("/account")}>Account</MenuItem>
+            <MenuItem onClick={() => navigate("/login")}>Login/Logout</MenuItem>
           </Menu>
           <Typography
             component="div"
