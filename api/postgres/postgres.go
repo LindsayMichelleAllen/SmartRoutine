@@ -1218,23 +1218,252 @@ func (r *UnprotectedRoutineDB) DeleteRoutine(request *DeleteRoutineDatabaseReque
 }
 
 func (c *UnprotectedConfigurationDB) GetConfiguration(request *GetConfigurationDatabaseRequest) *GetConfigurationDatabaseResponse {
+	if request.ConfigId == "" {
+		return &GetConfigurationDatabaseResponse{
+			Configuration: nil,
+			Message:       "Config Id not provided",
+			Error:         errors.New("input field(s) missing"),
+		}
+	}
 
+	db, err := getDatabase()
+	if err != nil {
+		return &GetConfigurationDatabaseResponse{
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+	var id, devId, routineId, devName, userId string
+	var timeoffset int
+	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
+			  FROM configuration_details c, device_details d 
+			  WHERE c.id=$1`
+	err = db.QueryRow(query, request.ConfigId).Scan(&id, &timeoffset, &routineId, &devId, &devName, &userId)
+	if err != nil {
+		return &GetConfigurationDatabaseResponse{
+			Configuration: nil,
+			Message:       err.Error(),
+		}
+	}
+	config := &model.Configuration{}
+	dev := &model.Device{}
+	dev.SetId(devId)
+	dev.SetName(devName)
+	dev.SetUserId(userId)
+	config.SetDevice(dev)
+	config.SetId(id)
+	config.SetRoutineId(routineId)
+	config.SetOffset(timeoffset)
+	return &GetConfigurationDatabaseResponse{Configuration: config, Message: "Successfully Queried Configuration", Error: nil}
 }
 
 func (c *UnprotectedConfigurationDB) GetConfigurations() *GetConfigurationsDatabaseResponse {
+	db, err := getDatabase()
+	if err != nil {
+		return &GetConfigurationsDatabaseResponse{
+			Configurations: nil,
+			Message:        "Unable to connect to database",
+			Error:          err,
+		}
+	}
+	// TODO: Query returning duplicates
+	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
+			  FROM configuration_details c, device_details d`
+	rows, err := db.Query(query)
+	if err != nil {
+		return &GetConfigurationsDatabaseResponse{
+			Configurations: nil,
+			Message:        err.Error(),
+			Error:          err,
+		}
+	}
 
+	var id, devId, routineId, devName, userId string
+	var timeoffset int
+	configs := make([]*model.Configuration, 0)
+	for rows.Next() {
+		err := rows.Scan(&id, &timeoffset, &routineId, &devId, &devName, &userId)
+		if err != nil {
+			return &GetConfigurationsDatabaseResponse{
+				Configurations: nil,
+				Message:        "Issue while scanning row (GetConfgiurations)",
+				Error:          err,
+			}
+		}
+		config := &model.Configuration{}
+		dev := &model.Device{}
+		dev.SetId(devId)
+		dev.SetName(devName)
+		dev.SetUserId(userId)
+		config.SetDevice(dev)
+		config.SetId(id)
+		config.SetRoutineId(routineId)
+		config.SetOffset(timeoffset)
+		configs = append(configs, config)
+	}
+	return &GetConfigurationsDatabaseResponse{Configurations: configs, Message: "Successfully Queried Configurations", Error: nil}
 }
 
 func (c *UnprotectedConfigurationDB) GetUserConfigurations(request *GetUserConfiguraitonsDatabaseRequest) *GetUserConfiguraitonsDatabaseResponse {
+	if request.UserId == "" {
+		return &GetUserConfiguraitonsDatabaseResponse{
+			Configurations: nil,
+			Message:        "User Id not provided",
+			Error:          errors.New("input field(s) missing"),
+		}
+	}
+	db, err := getDatabase()
+	if err != nil {
+		return &GetUserConfiguraitonsDatabaseResponse{
+			Configurations: nil,
+			Message:        "Unable to connect to database",
+			Error:          err,
+		}
+	}
+	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
+			  FROM configuration_details c, device_details d
+			  WHERE d.userid = $1`
+	rows, err := db.Query(query, request.UserId)
+	if err != nil {
+		return &GetUserConfiguraitonsDatabaseResponse{
+			Configurations: nil,
+			Message:        err.Error(),
+			Error:          err,
+		}
+	}
 
+	var id, devId, routineId, devName, userId string
+	var timeoffset int
+	configs := make([]*model.Configuration, 0)
+	for rows.Next() {
+		err := rows.Scan(&id, &timeoffset, &routineId, &devId, &devName, &userId)
+		if err != nil {
+			return &GetUserConfiguraitonsDatabaseResponse{
+				Configurations: nil,
+				Message:        "Issue while scanning row (GetUserConfgiurations)",
+				Error:          err,
+			}
+		}
+		config := &model.Configuration{}
+		dev := &model.Device{}
+		dev.SetId(devId)
+		dev.SetName(devName)
+		dev.SetUserId(userId)
+		config.SetDevice(dev)
+		config.SetId(id)
+		config.SetRoutineId(routineId)
+		config.SetOffset(timeoffset)
+		configs = append(configs, config)
+	}
+	return &GetUserConfiguraitonsDatabaseResponse{Configurations: configs, Message: "Successfully Queried User Configurations", Error: nil}
 }
 
 func (c *UnprotectedConfigurationDB) GetDeviceConfigurations(request *GetDeviceConfigurationsDatabaseRequest) *GetDeviceConfigurationsDatabaseResponse {
+	if request.DeviceId == "" {
+		return &GetDeviceConfigurationsDatabaseResponse{
+			Configurations: nil,
+			Message:        "Device Id not provided",
+			Error:          errors.New("input field(s) missing"),
+		}
+	}
+	db, err := getDatabase()
+	if err != nil {
+		return &GetDeviceConfigurationsDatabaseResponse{
+			Configurations: nil,
+			Message:        "Unable to connect to database",
+			Error:          err,
+		}
+	}
+	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
+			  FROM configuration_details c, device_details d
+			  WHERE d.id = $1`
+	rows, err := db.Query(query, request.DeviceId)
+	if err != nil {
+		return &GetDeviceConfigurationsDatabaseResponse{
+			Configurations: nil,
+			Message:        err.Error(),
+			Error:          err,
+		}
+	}
 
+	var id, devId, routineId, devName, userId string
+	var timeoffset int
+	configs := make([]*model.Configuration, 0)
+	for rows.Next() {
+		err := rows.Scan(&id, &timeoffset, &routineId, &devId, &devName, &userId)
+		if err != nil {
+			return &GetDeviceConfigurationsDatabaseResponse{
+				Configurations: nil,
+				Message:        "Issue while scanning row (GetDeviceConfgiurations)",
+				Error:          err,
+			}
+		}
+		config := &model.Configuration{}
+		dev := &model.Device{}
+		dev.SetId(devId)
+		dev.SetName(devName)
+		dev.SetUserId(userId)
+		config.SetDevice(dev)
+		config.SetId(id)
+		config.SetRoutineId(routineId)
+		config.SetOffset(timeoffset)
+		configs = append(configs, config)
+	}
+	return &GetDeviceConfigurationsDatabaseResponse{Configurations: configs, Message: "Successfully Queried Device Configurations", Error: nil}
 }
 
 func (c *UnprotectedConfigurationDB) GetRoutineConfigurations(request *GetRoutineConfigurationsDatabaseRequest) *GetRoutineConfigurationsDatabaseResponse {
+	if request.RoutineId == "" {
+		return &GetRoutineConfigurationsDatabaseResponse{
+			Configurations: nil,
+			Message:        "Routine Id not provided",
+			Error:          errors.New("input field(s) missing"),
+		}
+	}
+	db, err := getDatabase()
+	if err != nil {
+		return &GetRoutineConfigurationsDatabaseResponse{
+			Configurations: nil,
+			Message:        "Unable to connect to database",
+			Error:          err,
+		}
+	}
+	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
+			  FROM configuration_details c, device_details d
+			  WHERE c.routineid = $1`
+	rows, err := db.Query(query, request.RoutineId)
+	if err != nil {
+		return &GetRoutineConfigurationsDatabaseResponse{
+			Configurations: nil,
+			Message:        err.Error(),
+			Error:          err,
+		}
+	}
 
+	var id, devId, routineId, devName, userId string
+	var timeoffset int
+	configs := make([]*model.Configuration, 0)
+	for rows.Next() {
+		err := rows.Scan(&id, &timeoffset, &routineId, &devId, &devName, &userId)
+		if err != nil {
+			return &GetRoutineConfigurationsDatabaseResponse{
+				Configurations: nil,
+				Message:        "Issue while scanning row (GetRoutineConfgiurations)",
+				Error:          err,
+			}
+		}
+		config := &model.Configuration{}
+		dev := &model.Device{}
+		dev.SetId(devId)
+		dev.SetName(devName)
+		dev.SetUserId(userId)
+		config.SetDevice(dev)
+		config.SetId(id)
+		config.SetRoutineId(routineId)
+		config.SetOffset(timeoffset)
+		configs = append(configs, config)
+	}
+	return &GetRoutineConfigurationsDatabaseResponse{Configurations: configs, Message: "Successfully Queried Routine Configurations", Error: nil}
 }
 
 func (c *UnprotectedConfigurationDB) CreateConfiguration(request *CreateConfigurationDatabaseRequest) *CreateConfigurationDatabaseResponse {

@@ -153,7 +153,7 @@ func (c *UnprotectedConfigurationService) GetRoutineConfigurations(request *GetR
 	if request.RoutineId == "" {
 		return &GetRoutineConfigurationsResponse{
 			Configurations: nil,
-			Message:        "Device Id not provided",
+			Message:        "Routine Id not provided",
 			Error:          errors.New("input field(s) missing"),
 		}
 	}

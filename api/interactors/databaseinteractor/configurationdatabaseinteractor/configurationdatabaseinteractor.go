@@ -124,7 +124,7 @@ func (c *UnprotectedConfigurationDBInteractor) GetUserConfigurations(request *Ge
 	if request.UserId == "" {
 		return &GetUserConfiguraitonsInteractorResponse{
 			Configurations: nil,
-			Message:        "Config Id not provided",
+			Message:        "User Id not provided",
 			Error:          errors.New("input field(s) missing"),
 		}
 	}
@@ -139,7 +139,7 @@ func (c *UnprotectedConfigurationDBInteractor) GetDeviceConfigurations(request *
 	if request.DeviceId == "" {
 		return &GetDeviceConfigurationsInteractorResponse{
 			Configurations: nil,
-			Message:        "Config Id not provided",
+			Message:        "Device Id not provided",
 			Error:          errors.New("input field(s) missing"),
 		}
 	}
@@ -154,7 +154,7 @@ func (c *UnprotectedConfigurationDBInteractor) GetRoutineConfigurations(request 
 	if request.RoutineId == "" {
 		return &GetRoutineConfigurationsInteractorResponse{
 			Configurations: nil,
-			Message:        "Config Id not provided",
+			Message:        "Routine Id not provided",
 			Error:          errors.New("input field(s) missing"),
 		}
 	}
