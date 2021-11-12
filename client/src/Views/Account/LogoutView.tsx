@@ -1,19 +1,21 @@
-import { Box, Button, Typography } from "@mui/material";
-import React from "react";
-import { setLoginState, useLoginState } from "../../Utils/LoginState";
+import { Box, Button, Typography } from '@mui/material';
+import React from 'react';
+import { setLoginState, useLoginState } from '../../Utils/LoginState';
 import { useNavigate } from 'react-router';
 
-export type LogoutViewProps = {
-}
-
-export default function LogoutView(props: LogoutViewProps) {
+/**
+ * The view used to provide the user with a logout option.
+ * 
+ * @returns The view.
+ */
+export default function LogoutView() {
   const loginDetails = useLoginState();
   const navigate = useNavigate();
 
   const handleClick = () => {
     setLoginState(undefined);
     navigate('/');
-  }
+  };
 
   return (
     <Box sx={{
@@ -40,7 +42,7 @@ export default function LogoutView(props: LogoutViewProps) {
           {`Currently logged in as ${loginDetails?.username ?? ''}`}
         </Typography>
         <Button onClick={() => handleClick()}>
-          <Typography variant="body1">
+          <Typography variant="button">
             Log Out
           </Typography>
         </Button>

@@ -16,10 +16,22 @@ import {
 } from 'react-router-dom';
 import React, { useState } from 'react';
 
+/**
+ * The props type for the {@link MenuBar} component.
+ */
 export type MenuBarProps = {
+  /**
+   * The title to render in the navigation bar.
+   */
   title: string;
 }
 
+/**
+ * A navigation header bar that should be rendered across all views.
+ * 
+ * @param props See {@link MenuBarProps}.
+ * @returns The component.
+ */
 export default function MenuBar(props: MenuBarProps) {
   const {
     title,
@@ -32,12 +44,12 @@ export default function MenuBar(props: MenuBarProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setMenuIsOpen(true);
     setAnchorElement(e.currentTarget);
-  }
+  };
 
   const handleClickAway = () => {
     setMenuIsOpen(false);
     setAnchorElement(null);
-  }
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }} >
@@ -51,9 +63,9 @@ export default function MenuBar(props: MenuBarProps) {
           <Menu
             anchorEl={anchorElement}
             open={menuIsOpen}>
-            <MenuItem onClick={() => navigate("/routines")}>Routines</MenuItem>
-            <MenuItem onClick={() => navigate("/account")}>Account</MenuItem>
-            <MenuItem onClick={() => navigate("/login")}>Login/Logout</MenuItem>
+            <MenuItem onClick={() => navigate('/routines')}>Routines</MenuItem>
+            <MenuItem onClick={() => navigate('/account')}>Account</MenuItem>
+            <MenuItem onClick={() => navigate('/login')}>Login/Logout</MenuItem>
           </Menu>
           <Typography
             component="div"
@@ -63,5 +75,5 @@ export default function MenuBar(props: MenuBarProps) {
         </Toolbar>
       </AppBar>
     </Box>
-  )
+  );
 }

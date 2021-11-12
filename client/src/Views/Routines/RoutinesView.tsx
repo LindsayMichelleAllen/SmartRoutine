@@ -1,9 +1,11 @@
 import React from 'react';
 
-export type DevicesViewProps = {
-}
-
-export default function RoutinesViewProps(props: DevicesViewProps) {
+/**
+ * The view used to describe the available routines for the user.
+ * 
+ * @returns The view.
+ */
+export default function RoutinesView() {
   return (
     <></>
   );
