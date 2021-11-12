@@ -3,15 +3,48 @@ package main
 import (
 	dvcMngr "api/services/devicemanagement"
 	rtnMngr "api/services/routinemanagement"
+	cfgMngr "api/services/routinemanagement/configurationmanagement"
 	userAcctMngr "api/services/useraccountmanagement"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Landing Page")
+	})
+
+	http.HandleFunc("/user/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			r.ParseForm()
+			id := r.FormValue("userId")
+
+			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+			userResponse := basicUsrMngr.GetUserProfile(&userAcctMngr.UserProfileGetRequest{
+				Id: id,
+			})
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+			}
+		}
+	})
+
+	http.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+			userResponse := basicUsrMngr.GetUserProfiles()
+			if userResponse.Error != nil {
+				http.Error(w, userResponse.Error.Error(), 500)
+			} else {
+				for _, user := range userResponse.Users {
+					fmt.Fprintf(w, user.GetUsername()+", "+user.GetName()+", "+user.GetId(), 200)
+				}
+			}
+		}
 	})
 
 	http.HandleFunc("/create/user", func(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +105,69 @@ func main() {
 			} else {
 				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
 			}
+		}
+	})
+
+	http.HandleFunc("/device/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			deviceid := r.FormValue("deviceid")
+
+			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
+			resp := basicDvcSrvc.GetDevice(&dvcMngr.GetDeviceRequest{Id: deviceid})
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/device/all", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+
+			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
+			resp := basicDvcSrvc.GetDevices()
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/device/user", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			userid := r.FormValue("userid")
+
+			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
+			resp := basicDvcSrvc.GetUserDevices(&dvcMngr.GetUserDevicesRequest{UserId: userid})
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/device/routine", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			routineid := r.FormValue("routineId")
+
+			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
+			resp := basicDvcSrvc.GetRoutineDevices(&dvcMngr.GetRoutineDevicesRequest{RoutineId: routineid})
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
 		}
 	})
 
@@ -136,6 +232,76 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/routine/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			routineid := r.FormValue("routineid")
+
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetRoutine(&rtnMngr.GetRoutineRequest{
+				RoutineId: routineid,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routines/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetRoutines()
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routines/user/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			userId := r.FormValue("userid")
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetUserRoutines(&rtnMngr.GetUserRoutinesRequest{
+				UserId: userId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/routines/device/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			deviceId := r.FormValue("deviceid")
+			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
+			resp := basicRtnMngr.GetDeviceRoutines(&rtnMngr.GetDeviceRoutinesRequest{
+				DeviceId: deviceId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
 	http.HandleFunc("/routine/create", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
@@ -188,6 +354,165 @@ func main() {
 			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
 			resp := basicRtnMngr.DeleteRoutine(&rtnMngr.RoutineDeleteRequest{
 				Id: routineId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/configuration/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			configId := r.FormValue("configid")
+
+			basicCfgMngr := &cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.GetConfiguration(&cfgMngr.GetConfigurationRequest{
+				ConfigId: configId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/configurations/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+
+			basicCfgMngr := &cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.GetConfigurations()
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/configurations/device/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			deviceId := r.FormValue("deviceid")
+
+			basicCfgMngr := &cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.GetDeviceConfigurations(&cfgMngr.GetDeviceConfigurationsRequest{
+				DeviceId: deviceId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/configurations/user/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			userId := r.FormValue("userid")
+
+			basicCfgMngr := &cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.GetUserConfigurations(&cfgMngr.GetUserConfigurationsRequest{
+				UserId: userId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/configurations/routine/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			routineId := r.FormValue("routineid")
+
+			basicCfgMngr := &cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.GetRoutineConfigurations(&cfgMngr.GetRoutineConfigurationsRequest{
+				RoutineId: routineId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/configuration/create", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			offset := new(int)
+			offsetInput, _ := strconv.Atoi(r.FormValue("offset"))
+			*offset = offsetInput
+			deviceId := r.FormValue("deviceId")
+			routineId := r.FormValue("routineId")
+
+			basicCfgMngr := cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.CreateConfiguration(&cfgMngr.CreateConfigurationRequest{
+				Offset:    offset,
+				DeviceId:  deviceId,
+				RoutineId: routineId,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/configuration/update", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			configId := r.FormValue("configId")
+			offset := new(int)
+			offsetInput, _ := strconv.Atoi(r.FormValue("offset"))
+			*offset = offsetInput
+
+			basicCfgMngr := cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.UpdateConfiguration(&cfgMngr.UpdateConfigurationRequest{
+				ConfigId: configId,
+				Offset:   offset,
+			})
+
+			if resp.Error != nil {
+				http.Error(w, resp.Error.Error(), 500)
+			}
+			fmt.Fprint(w, "Success", 200)
+		}
+	})
+
+	http.HandleFunc("/configuration/delete", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			if err := r.ParseForm(); err != nil {
+				http.Error(w, "Error parsing request", 500)
+			}
+			configId := r.FormValue("configId")
+
+			basicCfgMngr := cfgMngr.UnprotectedConfigurationService{}
+			resp := basicCfgMngr.DeleteConfiguration(&cfgMngr.DeleteConfigurationRequest{
+				ConfigId: configId,
 			})
 
 			if resp.Error != nil {

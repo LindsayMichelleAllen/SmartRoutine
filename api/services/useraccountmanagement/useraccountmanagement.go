@@ -6,6 +6,11 @@ import (
 	"errors"
 )
 
+type UserProfileGetRequest struct {
+	/* unique ID of user */
+	Id string
+}
+
 type UserProfileCreateRequest struct {
 	/* username provided by user */
 	Username string
@@ -22,6 +27,18 @@ type UserProfileUpdateRequest struct {
 type UserProfileDeleteRequest struct {
 	/* unique id of user to be deleted */
 	Id string
+}
+
+type UserProfileGetResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
+}
+
+type UserProfilesGetResponse struct {
+	Users   []*model.UserProfile
+	Message string
+	Error   error
 }
 
 type UserProfileCreateResponse struct {
@@ -43,13 +60,41 @@ type UserProfileDeleteResponse struct {
 }
 
 type UserService interface {
-	CreateUserProfile(*UserProfileCreateRequest) *UserProfileCreateResponse
-	UpdateUserProfile(*UserProfileUpdateRequest) *UserProfileUpdateResponse
-	DeleteUserProfile(*UserProfileDeleteRequest) *UserProfileDeleteResponse
+	GetUserProfile(request *UserProfileGetRequest) *UserProfileGetResponse
+	GetUserProfiles() *UserProfilesGetResponse
+	CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse
+	UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse
+	DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse
 }
 
 type UnprotectedUserService struct {
 	// intentionally left empty
+}
+
+func (u *UnprotectedUserService) GetUserProfile(request *UserProfileGetRequest) *UserProfileGetResponse {
+	if request.Id == "" {
+		return &UserProfileGetResponse{
+			Message: "Id not provided",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
+	resp := dbInteractor.GetUserProfile(&userdatabaseinteractor.GetUserInteractorRequest{Id: request.Id})
+	return &UserProfileGetResponse{
+		User:    resp.User,
+		Message: resp.Message,
+		Error:   resp.Error,
+	}
+}
+
+func (u *UnprotectedUserService) GetUserProfiles() *UserProfilesGetResponse {
+	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
+	resp := dbInteractor.GetUserProfiles()
+	return &UserProfilesGetResponse{
+		Users:   resp.Users,
+		Message: resp.Message,
+		Error:   resp.Error,
+	}
 }
 
 func (u *UnprotectedUserService) CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse {

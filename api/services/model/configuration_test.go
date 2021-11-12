@@ -14,6 +14,7 @@ func setupConfiguration() *model.Configuration {
 	device.SetName("DeviceName")
 	device.SetUserId("DeviceUserID")
 	config.SetId("ConfigurationID")
+	config.SetRoutineId("RoutineID")
 	config.SetOffset(5)
 	config.SetDevice(device)
 	return config
@@ -32,6 +33,9 @@ func TestConfigurationMethods(t *testing.T) {
 			assert.Equal(t, config.GetDevice().GetId(), "DeviceID")
 			assert.Equal(t, config.GetDevice().GetName(), "DeviceName")
 			assert.Equal(t, config.GetDevice().GetUserId(), "DeviceUserID")
+		})
+		t.Run("should be able to get routine id", func(t *testing.T) {
+			assert.Equal(t, config.GetRoutineId(), "RoutineID")
 		})
 	})
 	t.Run("Setters", func(t *testing.T) {
@@ -52,6 +56,11 @@ func TestConfigurationMethods(t *testing.T) {
 			assert.Equal(t, config.GetDevice().GetId(), "NewlyCreatedDeviceID")
 			assert.Equal(t, config.GetDevice().GetName(), "NewlyCreatedDeviceName")
 			assert.Equal(t, config.GetDevice().GetUserId(), "NewlyCreatedDeviceUserID")
+		})
+		t.Run("should be able to set routine id", func(t *testing.T) {
+			assert.Equal(t, config.GetRoutineId(), "RoutineID")
+			config.SetRoutineId("NewRoutineID")
+			assert.Equal(t, config.GetRoutineId(), "NewRoutineID")
 		})
 	})
 }

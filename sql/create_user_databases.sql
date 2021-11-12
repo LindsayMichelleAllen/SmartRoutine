@@ -7,12 +7,11 @@ CREATE TABLE configuration_details ( id VARCHAR(9) NOT NULL PRIMARY KEY, timeoff
 /* 
     If device is deleted, delete all configurations and remove from all routines.
     If routine is deleted, all configurations associated with that routine should be removed.
-    A device can have many configurations
+    A device can belong to zero to many configurations
     A routine can have zero to many configurations
     Each configuration can only have one device
     Each configuration can only be associated with one routine
 */
-
 /*
 profile_details{
     id      <-----------------

@@ -12,7 +12,7 @@ func TestRoutineDBInteractor(t *testing.T) {
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
 	t.Run("CreateRoutine", func(t *testing.T) {
 		t.Run("should return an error if routine id is not provided", func(t *testing.T) {
-			resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{
+			resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateInteractorRequest{
 				Name:   "RoutineName",
 				UserId: "RoutineUserID",
 			})
@@ -20,7 +20,7 @@ func TestRoutineDBInteractor(t *testing.T) {
 			assert.Equal(t, resp.Error, errors.New("input field missing"))
 		})
 		t.Run("should return an error if routine name is not provided", func(t *testing.T) {
-			resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{
+			resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateInteractorRequest{
 				Id:     "RoutineID",
 				UserId: "RoutineUserID",
 			})
@@ -28,7 +28,7 @@ func TestRoutineDBInteractor(t *testing.T) {
 			assert.Equal(t, resp.Error, errors.New("input field missing"))
 		})
 		t.Run("should return an error if user id is not provided", func(t *testing.T) {
-			resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{
+			resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateInteractorRequest{
 				Id:   "RoutineID",
 				Name: "RoutineName",
 			})
@@ -36,7 +36,7 @@ func TestRoutineDBInteractor(t *testing.T) {
 			assert.Equal(t, resp.Error, errors.New("input field missing"))
 		})
 		t.Run("should be able to create routine with valid input fields", func(t *testing.T) {
-			_ = dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateDatabaseRequest{
+			_ = dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateInteractorRequest{
 				Id:     "RoutineID",
 				Name:   "RoutineName",
 				UserId: "RoutineUserID",
@@ -49,21 +49,21 @@ func TestRoutineDBInteractor(t *testing.T) {
 	})
 	t.Run("UpdateRoutine", func(t *testing.T) {
 		t.Run("should return an error if routine id is not provided", func(t *testing.T) {
-			resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateDatabaseRequest{
+			resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateInteractorRequest{
 				Name: "NewRoutineName",
 			})
 			assert.Equal(t, resp.Message, "Input field missing")
 			assert.Equal(t, resp.Error, errors.New("input field missing"))
 		})
 		t.Run("should return an error if routine name is not provided", func(t *testing.T) {
-			resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateDatabaseRequest{
+			resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateInteractorRequest{
 				Id: "RoutineID",
 			})
 			assert.Equal(t, resp.Message, "Input field missing")
 			assert.Equal(t, resp.Error, errors.New("input field missing"))
 		})
 		t.Run("should be able to update routine with valid input fields", func(t *testing.T) {
-			_ = dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateDatabaseRequest{
+			_ = dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateInteractorRequest{
 				Id:   "RoutineID",
 				Name: "RoutineName",
 			})
@@ -75,12 +75,12 @@ func TestRoutineDBInteractor(t *testing.T) {
 	})
 	t.Run("DeleteRoutine", func(t *testing.T) {
 		t.Run("should return an error if routine id is not provided", func(t *testing.T) {
-			resp := dbInt.DeleteRoutine(&routinedatabaseinteractor.RoutineDeleteDatabaseRequest{})
+			resp := dbInt.DeleteRoutine(&routinedatabaseinteractor.RoutineDeleteInteractorRequest{})
 			assert.Equal(t, resp.Message, "Input field missing")
 			assert.Equal(t, resp.Error, errors.New("input field missing"))
 		})
 		t.Run("should be able to create routine with valid input fields", func(t *testing.T) {
-			_ = dbInt.DeleteRoutine(&routinedatabaseinteractor.RoutineDeleteDatabaseRequest{
+			_ = dbInt.DeleteRoutine(&routinedatabaseinteractor.RoutineDeleteInteractorRequest{
 				Id: "RoutineID",
 			})
 			/*
