@@ -1484,7 +1484,7 @@ func (c *UnprotectedConfigurationDB) CreateConfiguration(request *CreateConfigur
 	}
 
 	var id string
-	query := "INSERT INTO configuration_details (id, timeoffset, deviceid, routineid) VALUES(gen_random_uuid(), $1, $2, $3)"
+	query := "INSERT INTO configuration_details (id, timeoffset, deviceid, routineid) VALUES(gen_random_uuid(), $1, $2, $3) RETURNING id"
 	err = db.QueryRow(query,
 		request.Configuration.GetOffset(),
 		request.Configuration.GetDevice().GetId(),

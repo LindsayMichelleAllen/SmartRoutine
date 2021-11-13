@@ -104,19 +104,15 @@ func main() {
 					log.Fatal(err)
 				}
 	*/
-	_, err := http.Get("http://locahost:8080/routines/")
-
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	data := url.Values{
-		"offset":    {"10"},
-		"deviceId":  {"3a6b215d-c337-4a20-8f02-59596b95c8ce"},
-		"routineId": {"976431852"},
+		"offset":    {"20"},
+		"deviceid":  {"3a6b215d-c337-4a20-8f02-59596b95c8ce"},
+		"routineid": {"efde785f-8d0d-4b21-a518-cdaf2e7d0855"},
+		/*"userid":    {"79feb351-2b31-4c7c-925b-86d126e5b84c"},*/
 	}
 
-	_, err = http.PostForm("http://localhost:8080/routine/configuration/create", data)
+	_, err := http.PostForm("http://localhost:8080/configuration/create", data)
 
 	if err != nil {
 		log.Fatal(err)
