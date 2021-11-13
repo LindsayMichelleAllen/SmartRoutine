@@ -128,7 +128,7 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/device/all", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/devices/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)

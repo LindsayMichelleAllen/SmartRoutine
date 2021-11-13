@@ -25,7 +25,6 @@ type GetUsersInteractorResponse struct {
 type CreateUserInteractorRequest struct {
 	Username string
 	Name     string
-	Id       string
 }
 
 type CreateUserInteractorResponse struct {
@@ -105,7 +104,6 @@ func (u *UserAccountManagementServiceInteractor) CreateUserProfile(request *Crea
 	resp := db.CreateUserProfile(&postgres.CreateUserDatabaseRequest{
 		Username: request.Username,
 		Name:     request.Name,
-		Id:       request.Id,
 	})
 
 	return &CreateUserInteractorResponse{
