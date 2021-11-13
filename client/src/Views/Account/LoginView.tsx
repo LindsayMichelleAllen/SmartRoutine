@@ -10,15 +10,22 @@ import { GetLoginURL, ParseLoginResponse } from '../../Utils/BackendIntegration'
 import { setLoginState } from '../../Utils/LoginState';
 import { useNavigate } from 'react-router';
 
-export type LoginViewProps = {
-}
-
-export default function LoginView(props: LoginViewProps) {
+/**
+ * The view used to describe the Login form for a user. Should only be visible the user is not
+ * actively logged-in.
+ * 
+ * @returns The view.
+ */
+export default function LoginView() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // TODO: Setup password auth.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _ = password;
 
   const login = async () => {
     try {
@@ -26,7 +33,7 @@ export default function LoginView(props: LoginViewProps) {
         method: 'POST',
         body: `userId=${username}`,
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
       })
       .then((response) => {
@@ -35,60 +42,78 @@ export default function LoginView(props: LoginViewProps) {
             const loginData = ParseLoginResponse(data);
             console.log(loginData);
             setLoginState(loginData);
-            navigate('/')
-          })
+            navigate('/');
+          });
         } else {
           response.text().then((data) => {
             console.error(data);
             setErrorMessage(data);
-          })
+          });
         }
-      })
+      });
     } catch (e) {
       console.error(e);
     }
-  }
+  };
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     await login();
     setIsLoading(false);
-  }
+  };
+
+  const onClickSignup = () => {
+    navigate('/signup');
+  };
 
   return (
     <Box sx={{
       height: '100%',
       width: '100%',
       display: 'grid',
+      gridTemplateAreas: `
+        "."
+        "form"
+        "signup"
+        "."
+      `,
       justifyContent: 'center',
       alignItems: 'center',
+      gridTemplateRows: '1fr min-content min-content 1fr',
+      rowGap: '12px',
     }}>
       <StyledForm
         sx={{
           display: 'grid',
           gridTemplateAreas: `
             "title"
+            "alert"
             "username"
             "password"
             "submit"
-            "error"
           `,
           textAlign: 'center',
           rowGap: '12px',
+          gridArea: 'form',
         }}
         onSubmit={onSubmit}>
         <Typography variant="h2">
           Log In
         </Typography>
+        <Alert sx={{
+          visibility: !!errorMessage ? 'visible' : 'hidden',
+        }} severity="error">
+          {errorMessage}
+        </Alert>
         <TextField 
           onChange={(e) => setUsername(e.target.value)}
-          label="userId"
+          label="User ID"
           id="userId"
           type="text" />
         <TextField
           onChange={(e) => setPassword(e.target.value)}
-          label="password"
+          label="Password"
           type="password"
           id="Password" />
         <Button type="submit">
@@ -96,18 +121,22 @@ export default function LoginView(props: LoginViewProps) {
             isLoading ? (
               <CircularProgress />
             ) : (
-            <Typography variant="body1">
+            <Typography variant="button">
               Log In
             </Typography>
             )
           }
         </Button>
-        <Alert sx={{
-          visibility: !!errorMessage ? 'visible' : 'hidden',
-        }} severity="error">
-          {errorMessage}
-        </Alert>
       </StyledForm>
+      <Button
+        sx={{
+          gridArea: 'signup',
+        }}
+        onClick={onClickSignup}>
+        <Typography variant="button">
+          Don't have an account? Sign up here.
+        </Typography>
+      </Button>
     </Box>
   );
 }

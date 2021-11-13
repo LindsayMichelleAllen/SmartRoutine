@@ -1,10 +1,16 @@
-import { LoginDetailsBlob } from "./LoginState";
+import { LoginDetailsBlob } from './LoginState';
 
-export const ProdBaseUri = 'http://localhost:8080';
-export const LocalBaseUri = 'http://localhost:8080';
+const ProdBaseUri = 'http://localhost:8080';
+const LocalBaseUri = 'http://localhost:8080';
 
-// https://docs.amplify.aws/lib/auth/social/q/platform/js/#configure-auth-category
+/**
+ * A function used to get the base URL for the backend services. Will automatically target localhost
+ * or the prod env based on the current URL.
+ * 
+ * @returns The root URL for the backend services.
+ */
 export function GetRootURL(): string {
+  // https://docs.amplify.aws/lib/auth/social/q/platform/js/#configure-auth-category
   const isLocalhost = Boolean(
     window.location.hostname === 'localhost' ||
     // [::1] is the IPv6 localhost address.
@@ -18,10 +24,31 @@ export function GetRootURL(): string {
   return isLocalhost ? LocalBaseUri : ProdBaseUri;
 }
 
+/**
+ * Gets the login URL for the current session.
+ * 
+ * @returns The login URL for the current session.
+ */
 export function GetLoginURL() {
-  return `${GetRootURL()}/user/`
+  return `${GetRootURL()}/user/`;
 }
 
+/**
+ * Gets the signup URL for the current session.
+ * 
+ * @returns The signup URL for the current session.
+ */
+export function GetSignupURL() {
+  return `${GetRootURL()}/create/user`;
+}
+
+/**
+ * Evaluates a login response. This resopnse may come either from the login call or from the signup
+ * call.
+ * 
+ * @param response The response to evaluate from a fetch call either to login or to signup.
+ * @returns The evaluated login response. Returns undefined if the string is an invalid response.
+ */
 export function ParseLoginResponse(response: string): LoginDetailsBlob | undefined {
   const values = response.split(', ');
   if (values.length >= 3) {

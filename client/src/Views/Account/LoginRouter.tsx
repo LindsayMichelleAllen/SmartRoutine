@@ -1,13 +1,15 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React from 'react';
 import { useLoginState } from '../../Utils/LoginState';
 import LoginView from './LoginView';
 import LogoutView from './LogoutView';
 
-export type LoginRouterProps = {
-}
-
-export default function LoginRouter(props: LoginRouterProps) {
+/**
+ * A view wrapper used to render either the login or the logout view based on the user's active
+ * login session.
+ * 
+ * @returns The view.
+ */
+export default function LoginRouter() {
   const loginState = useLoginState();
 
   // TODO: Make this more of an authentication than a simple state check.
@@ -15,7 +17,7 @@ export default function LoginRouter(props: LoginRouterProps) {
     <LogoutView />
   ) : (
     <LoginView />
-  )
+  );
 
   return component;
 }

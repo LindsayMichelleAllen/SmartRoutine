@@ -236,7 +236,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/routine/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routine/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -255,7 +255,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/routines/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routines/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -270,7 +270,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/routines/user/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routines/user/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -288,7 +288,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/routines/device/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routines/device/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -306,7 +306,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/routine/create", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routine/create", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -367,7 +367,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/configuration/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configuration/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -386,7 +386,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/configurations/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configurations/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -402,7 +402,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/configurations/device/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configurations/device/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -421,7 +421,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/configurations/user/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configurations/user/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -440,7 +440,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/configurations/routine/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configurations/routine/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -459,7 +459,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/configuration/create", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configuration/create", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -484,7 +484,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/configuration/update", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configuration/update", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -507,7 +507,7 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/configuration/delete", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configuration/delete", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)

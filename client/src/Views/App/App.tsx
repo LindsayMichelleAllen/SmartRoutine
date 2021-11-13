@@ -1,4 +1,3 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React from 'react';
 import {
   BrowserRouter,
@@ -13,16 +12,25 @@ import LoginRouter from '../Account/LoginRouter';
 import LoginView from '../Account/LoginView';
 import SignupView from '../Account/SignupView';
 import RoutinesView from '../Routines/RoutinesView';
-import {
-  styled
-} from '@mui/material/styles';
-import { Box, Paper } from '@mui/material';
+import { Box, createTheme, Paper, ThemeProvider } from '@mui/material';
 
-export type AppProps = {
-}
+const theme = createTheme({
+  components: {
+    MuiButton: {
+      defaultProps: {
+        variant: 'contained',
+      },
+    },
+  },
+});
 
-function App(props: AppProps) {
-  const location = useLocation()
+/**
+ * The main entry point for the application.
+ * 
+ * @returns The view.
+ */
+function App() {
+  const location = useLocation();
 
   return (
     <Box sx={{
@@ -38,7 +46,7 @@ function App(props: AppProps) {
       <MenuBar
         title={location.pathname}
       />
-      <div>
+      <Paper>
         <Routes>
           <Route
             path="/"
@@ -59,15 +67,23 @@ function App(props: AppProps) {
             path="/login"
             element={<LoginView />} />
         </Routes>
-      </div>
+      </Paper>
     </Box>
   );
 }
 
+/**
+ * A wrapper for the default app container. Provides some high-level wrapper elements before
+ * providing the {@link App} view.
+ * 
+ * @returns The wrapper.
+ */
 export default function AppContainer() {
   return (
     <BrowserRouter>
-      <App />
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
     </BrowserRouter>
-  )
+  );
 }
