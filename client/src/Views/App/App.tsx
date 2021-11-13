@@ -13,6 +13,7 @@ import LoginView from '../Account/LoginView';
 import SignupView from '../Account/SignupView';
 import RoutinesView from '../Routines/RoutinesView';
 import { Box, createTheme, Paper, ThemeProvider } from '@mui/material';
+import PrivateRoute from '../../Components/Routing/PrivateRoute';
 
 const theme = createTheme({
   components: {

@@ -127,7 +127,6 @@ export default function SignupView() {
           textAlign: 'center',
           rowGap: '12px',
           gridArea: 'form',
-          minWidth: '480px',
         }}
         onSubmit={onSubmit} >
         <Typography variant="h2">
