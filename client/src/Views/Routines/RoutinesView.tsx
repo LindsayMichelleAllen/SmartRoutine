@@ -11,8 +11,10 @@ import {
  * @returns The view.
  */
 export default function RoutinesView() {
-  const { loginDetails } = useAuth();
+  const authState = useAuth();
   const [routines, setRoutines] = useState<StoredRoutine[]>([]);
+
+  const loginDetails = authState?.loginDetails;
 
   const fetchRoutines = async () => {
     try {

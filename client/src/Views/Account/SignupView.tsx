@@ -30,7 +30,9 @@ export default function SignupView() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const authState = useAuth();
+
+  const signIn = authState?.signIn;
 
   const signup = async () => {
     try {
@@ -49,11 +51,13 @@ export default function SignupView() {
 
       const loginData = ParseLoginResponse(text);
 
-      signIn(loginData);
-      setSuccessMessage(`
-        Success! The user account for ${loginData.username} was created.\n
-        Your user ID is "${loginData.userid}".\n
-        Use this ID to log in again.`);
+      if (signIn) {
+        signIn(loginData);
+        setSuccessMessage(`
+          Success! The user account for ${loginData.username} was created.\n
+          Your user ID is "${loginData.userid}".\n
+          Use this ID to log in again.`);
+      }
     } catch (e) {
       console.error(e);
     } finally {

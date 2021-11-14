@@ -22,7 +22,10 @@ export default function LoginView() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { loginDetails, signIn } = useAuth();
+
+  const authState = useAuth();
+  const signIn = authState?.signIn;
+
 
   // TODO: Setup password auth.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -41,7 +44,9 @@ export default function LoginView() {
       const text = await response.text();
       if (response.ok) {
         const loginData = ParseLoginResponse(text);
-        signIn(loginData);
+        if (signIn) {
+          signIn(loginData);
+        }
       } else {
         console.error(text);
         setErrorMessage(text);

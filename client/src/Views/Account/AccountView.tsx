@@ -8,7 +8,8 @@ import { useAuth } from '../../Utils/LoginState';
  * @returns The view.
  */
 export default function AccountView() {
-  const { loginDetails } = useAuth();
+  const authState = useAuth();
+  const loginDetails = authState?.loginDetails;
 
   return (
     <Box sx={{

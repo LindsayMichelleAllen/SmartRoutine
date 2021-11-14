@@ -9,11 +9,16 @@ import { useNavigate } from 'react-router';
  * @returns The view.
  */
 export default function LogoutView() {
-  const { loginDetails, signOut } = useAuth();
+  const authState = useAuth();
   const navigate = useNavigate();
 
+  const loginDetails = authState?.loginDetails;
+  const signOut = authState?.signOut;
+
   const handleClick = () => {
-    signOut();
+    if (signOut) {
+      signOut();
+    }
     navigate('/');
   };
 
