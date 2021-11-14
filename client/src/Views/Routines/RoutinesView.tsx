@@ -1,7 +1,15 @@
-import { Box, Fab, List, ListItem, ListItemText, Typography } from '@mui/material';
+import {
+  Box,
+  Fab,
+  Typography,
+} from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import RoutineCard from '../../Components/Routines/RoutineCard';
-import { GetRoutinesFetchURL, ParseRoutineArray, StoredRoutine } from '../../Utils/BackendIntegration';
+import {
+  GetRoutinesFetchURL,
+  ParseRoutineArray,
+  StoredRoutine,
+} from '../../Utils/BackendIntegration';
 import AddIcon from '@mui/icons-material/Add';
 import {
   useAuth,

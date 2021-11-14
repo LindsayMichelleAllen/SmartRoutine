@@ -1,18 +1,34 @@
-import { Box, Typography, Alert, TextField, Button, CircularProgress, styled } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Alert,
+  TextField,
+  Button,
+  CircularProgress,
+  styled,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
-import { GetGetRoutineURL, GetUpdateRoutineURL, ParseRoutine, StoredRoutine } from '../../Utils/BackendIntegration';
+import {
+  GetGetRoutineURL,
+  GetUpdateRoutineURL,
+  ParseRoutine,
+  StoredRoutine,
+} from '../../Utils/BackendIntegration';
 import { RoutineIdSearchParam } from '../../Utils/CommonRouting';
 import { ValidRoutineNameChars } from '../../Utils/InputValidation';
 
 /**
+ * A view used for a user to edit the details for a given view.
  * 
+ * @returns The View.
  */
 export default function EditRoutineView() {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchParams, _] = useSearchParams();
   const [routine, setRoutine] = useState<StoredRoutine | undefined>(undefined);
   const navigate = useNavigate();

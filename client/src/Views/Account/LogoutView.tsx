@@ -1,5 +1,9 @@
-import { Box, Button, Typography } from '@mui/material';
-import React, { useEffect } from 'react';
+import {
+  Box,
+  Button,
+  Typography,
+} from '@mui/material';
+import React from 'react';
 import { useAuth } from '../../Utils/LoginState';
 import { useNavigate } from 'react-router';
 

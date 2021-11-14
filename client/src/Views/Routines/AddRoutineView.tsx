@@ -1,18 +1,32 @@
-import { Alert, Box, Button, CircularProgress, styled, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material';
 import React, { useState } from 'react';
-import { GetCreateRoutineURL, ParseRoutine, StoredRoutine } from '../../Utils/BackendIntegration';
+import {
+  GetCreateRoutineURL,
+  ParseRoutine,
+  StoredRoutine,
+ } from '../../Utils/BackendIntegration';
 import { useAuth } from '../../Utils/LoginState';
-import { useNavigate, generatePath } from 'react-router';
-import { DeviceIdSearchParam } from '../../Utils/CommonRouting';
-import { ValidRoutineNameChars } from '../../Utils/InputValidation';
-
-export type AddRoutineViewProps = {
-}
+import {
+  useNavigate,
+} from 'react-router';
+import {
+  ValidRoutineNameChars,
+} from '../../Utils/InputValidation';
 
 /**
- * @param props
+ * A view used for the user to create a new routine.
+ * 
+ * @returns The view.
  */
-export default function AddRoutineView(props: AddRoutineViewProps) {
+export default function AddRoutineView() {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');

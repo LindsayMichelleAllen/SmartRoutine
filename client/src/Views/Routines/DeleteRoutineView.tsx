@@ -1,12 +1,11 @@
 import React from 'react';
 
-export type DeleteRoutineViewProps = {
-}
-
 /**
- * @param props
+ * A view used for a user to verify that they wish to delete a given routine.
+ * 
+ * @returns The view.
  */
-export default function DeleteRoutineView(props: DeleteRoutineViewProps) {
+export default function DeleteRoutineView() {
   return (
     <></>
   );

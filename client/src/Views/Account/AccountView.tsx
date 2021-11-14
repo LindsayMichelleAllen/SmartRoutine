@@ -1,6 +1,17 @@
-import { Alert, Box, Button, CircularProgress, styled, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { GetModifyUserURL, ParseLoginResponse } from '../../Utils/BackendIntegration';
+import {
+  GetModifyUserURL,
+  ParseLoginResponse,
+} from '../../Utils/BackendIntegration';
 import { ValidUserNameChars } from '../../Utils/InputValidation';
 import { useAuth } from '../../Utils/LoginState';
 

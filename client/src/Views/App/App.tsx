@@ -1,4 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -11,15 +15,36 @@ import AccountView from '../Account/AccountView';
 import LoginView from '../Account/LoginView';
 import SignupView from '../Account/SignupView';
 import RoutinesView from '../Routines/RoutinesView';
-import { Box, createTheme, darkScrollbar, Divider, Drawer, PaletteMode, Paper, ThemeProvider } from '@mui/material';
+import {
+  Box,
+  createTheme,
+  Divider,
+  Drawer,
+  PaletteMode,
+  Paper,
+  ThemeProvider,
+} from '@mui/material';
 import PrivateRoute from '../../Components/Routing/PrivateRoute';
 import { AuthProvider } from '../../Utils/LoginState';
 import { purple } from '@mui/material/colors';
-import { ColorProvider, fetchColorPreference, storeColorPreference } from '../../Utils/ColorContext';
+import {
+  ColorProvider,
+  fetchColorPreference,
+  storeColorPreference,
+} from '../../Utils/ColorContext';
 import NavDrawer from '../../Components/NavDrawer/NavDrawer';
 import LogoutView from '../Account/LogoutView';
 import SingleRoutineView from '../Routines/SingleRoutineView';
-import { ADD_ROUTINE_URL, EDIT_ROUTINE_URL } from '../../Utils/CommonRouting';
+import {
+  ACCOUNT_URL,
+  ADD_ROUTINE_URL,
+  EDIT_ROUTINE_URL,
+  LOGIN_URL,
+  LOGOUT_URL,
+  ROUTINES_URL,
+  ROUTINE_URL,
+  SIGNUP_URL,
+} from '../../Utils/CommonRouting';
 import AddRoutineView from '../Routines/AddRoutineView';
 import EditRoutineView from '../Routines/EditRoutineView';
 
@@ -93,31 +118,31 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Navigate replace to="/login" />} />
+            element={<Navigate replace to={LOGIN_URL} />} />
           <Route
-            path="/logout"
-            element={<PrivateRoute authElement={<LogoutView />} fallbackUrl="/login" />} />
+            path={LOGOUT_URL}
+            element={<PrivateRoute authElement={<LogoutView />} fallbackUrl={LOGIN_URL} />} />
           <Route
-            path="/signup"
-            element={<PrivateRoute authElement={<SignupView />} fallbackUrl="/logout" invertPrivacy/>} />
+            path={SIGNUP_URL}
+            element={<PrivateRoute authElement={<SignupView />} fallbackUrl={LOGOUT_URL} invertPrivacy/>} />
           <Route
-            path="/account"
-            element={<PrivateRoute authElement={<AccountView />} fallbackUrl="/login" />} />
+            path={ACCOUNT_URL}
+            element={<PrivateRoute authElement={<AccountView />} fallbackUrl={LOGIN_URL} />} />
           <Route
-            path="/routines"
-            element={<PrivateRoute authElement={<RoutinesView />} fallbackUrl="/login" />} />
+            path={ROUTINES_URL}
+            element={<PrivateRoute authElement={<RoutinesView />} fallbackUrl={LOGIN_URL} />} />
           <Route
-            path="/routine"
-            element={<PrivateRoute authElement={<SingleRoutineView />} fallbackUrl="/login" />} />
+            path={ROUTINE_URL}
+            element={<PrivateRoute authElement={<SingleRoutineView />} fallbackUrl={LOGIN_URL} />} />
           <Route
             path={ADD_ROUTINE_URL}
-            element={<PrivateRoute authElement={<AddRoutineView />} fallbackUrl="/login" />} />
+            element={<PrivateRoute authElement={<AddRoutineView />} fallbackUrl={LOGIN_URL} />} />
           <Route
             path={EDIT_ROUTINE_URL}
-            element={<PrivateRoute authElement={<EditRoutineView />} fallbackUrl="/login" />} />
+            element={<PrivateRoute authElement={<EditRoutineView />} fallbackUrl={LOGIN_URL} />} />
           <Route
-            path="/login"
-            element={<PrivateRoute authElement={<LoginView />} fallbackUrl="/logout" invertPrivacy/>} />
+            path={LOGIN_URL}
+            element={<PrivateRoute authElement={<LoginView />} fallbackUrl={LOGOUT_URL} invertPrivacy/>} />
         </Routes>
       </Paper>
     </Box>

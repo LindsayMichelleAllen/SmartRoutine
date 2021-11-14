@@ -113,36 +113,45 @@ export function GetSignupURL() {
 }
 
 /**
- *
+ * Gets the URL for creating a new routine.
+ * 
+ * @returns The URL for creating a new routine.
  */
 export function GetCreateRoutineURL() {
   return `${GetRootURL()}/routine/create`;
 }
 
 /**
+ * Gets the URL for modifying a user's information.
  * 
- * @returns 
+ * @returns The URL for modifying a user's information.
  */
 export function GetModifyUserURL() {
   return `${GetRootURL()}/modify/user`;
 }
 
 /**
- *
+ * Gets the URL for deleting a routine.
+ * 
+ * @returns The URL for deleting a routine.
  */
 export function GetDeleteRoutineURL() {
   return `${GetRootURL()}/routine/delete`;
 }
 
 /**
- *
+ * Gets the URL for modifying a given routine.
+ * 
+ * @returns The URL for modifying a routine.
  */
 export function GetUpdateRoutineURL() {
   return `${GetRootURL()}/routine/update`;
 }
 
 /**
- *
+ * Gets the URL for fetching a routine.
+ * 
+ * @returns The URL for fetching a routine.
  */
 export function GetGetRoutineURL() {
   return `${GetRootURL()}/routine/`;

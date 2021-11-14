@@ -1,10 +1,25 @@
-import { Divider, List, ListItem, ListItemAvatar, ListItemText, Paper, Toolbar, Typography } from '@mui/material';
+import {
+  Divider,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Paper,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../Utils/LoginState';
 import LoginIcon from '@mui/icons-material/Login';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AltRouteIcon from '@mui/icons-material/AltRoute';
+import {
+  ACCOUNT_URL,
+  LOGIN_URL,
+  ROUTINES_URL,
+  LOGOUT_URL,
+} from '../../Utils/CommonRouting';
 
 /**
  * A generic type used to describe a singular navigation item in the nav view.
@@ -36,12 +51,12 @@ const protectedNavItems: NavItem[] = [
   {
     icon: (<AccountCircleIcon />),
     label: 'Account',
-    route: '/account',
+    route: ACCOUNT_URL,
   },
   {
     icon: (<AltRouteIcon />),
     label: 'Routines',
-    route: '/routines',
+    route: ROUTINES_URL,
   }
 ];
 
@@ -97,12 +112,12 @@ export default function NavDrawer(props: NavDrawerProps) {
     ? {
       icon: (<LoginIcon />),
       label: 'Login Page',
-      route: '/login',
+      route: LOGIN_URL,
     }
     : {
       icon: (<LoginIcon />),
       label: 'Logout Page',
-      route: '/logout',
+      route: LOGOUT_URL,
     };
 
     const navOptions = [

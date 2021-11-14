@@ -4,13 +4,13 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { RoutineIdSearchParam } from '../../Utils/CommonRouting';
 
-export type SingleRoutineViewProps = {
-}
-
 /**
- * @param props
+ * A view used to describe a single routine to the user.
+ * 
+ * @returns The view.
  */
-export default function SingleRoutineView(props: SingleRoutineViewProps) {
+export default function SingleRoutineView() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchParams, _] = useSearchParams();
   console.log(searchParams);
 
