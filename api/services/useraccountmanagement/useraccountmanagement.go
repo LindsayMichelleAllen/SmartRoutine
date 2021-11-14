@@ -164,7 +164,7 @@ func (u *UnprotectedUserService) DeleteUserProfile(request *UserProfileDeleteReq
 
 	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
 	resp := dbInteractor.DeleteUserProfile(&userdatabaseinteractor.DeleteUserInteractorRequest{
-		Id: "123456789",
+		Id: request.Id,
 	})
 
 	user := &model.UserProfile{}

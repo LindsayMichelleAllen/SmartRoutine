@@ -37,5 +37,6 @@ routine_details{       |     |
     id   <--------------     |
     userid -------------------
     name
+    basealarm
 }
 */

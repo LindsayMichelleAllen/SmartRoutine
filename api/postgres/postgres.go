@@ -809,9 +809,9 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 		}
 	}
 
-	var name, userid string
+	var name, basealarm, userid string
 
-	query := `SELECT r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
+	query := `SELECT r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
 			  FROM routine_details r, configuration_details c, device_details d 
 			  WHERE r.id = $1 AND r.id = c.routineid AND c.deviceid = d.id`
 
@@ -827,9 +827,9 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 	defer rows.Close()
 	configs := make([]*model.Configuration, 0)
 	for rows.Next() {
-		var routineName, userId, configId, deviceId, deviceName string
+		var routineName, baseAlarm, userId, configId, deviceId, deviceName string
 		var timeoffset int
-		err = rows.Scan(&routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
+		err = rows.Scan(&routineName, &baseAlarm, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetRoutineDatabaseResponse{
 				Message: err.Error(),
@@ -837,6 +837,7 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 			}
 		}
 		name = routineName
+		basealarm = baseAlarm
 		userid = userId
 		config := &model.Configuration{}
 		dev := &model.Device{}
@@ -851,7 +852,7 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 	}
 
 	routine := &model.Routine{}
-	routine.PopulateRoutine(request.RoutineId, name, userid, configs)
+	routine.PopulateRoutine(request.RoutineId, name, userid, basealarm, configs)
 
 	return &GetRoutineDatabaseResponse{Routine: routine, Message: "Successfully Queried Routine", Error: nil}
 }
@@ -867,7 +868,7 @@ func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
 		}
 	}
 
-	query := `SELECT r.id, r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
+	query := `SELECT r.id, r.routinename, r.userid, r.basealarm, c.id, c.timeoffset, d.id, d.devicename
 			  FROM routine_details r, configuration_details c, device_details d
 			  WHERE r.id = c.routineid AND c.deviceid = d.id`
 
@@ -881,11 +882,11 @@ func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
 	}
 
 	defer rows.Close()
-	res := make(map[string][][6]string)
+	res := make(map[string][][7]string)
 	for rows.Next() {
-		var routineId, routineName, userId, configId, deviceId, deviceName string
+		var routineId, routineName, basealarm, userId, configId, deviceId, deviceName string
 		var timeoffset int
-		err = rows.Scan(&routineId, &routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
+		err = rows.Scan(&routineId, &routineName, &basealarm, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetRoutinesDatabaseResponse{
 				Message: err.Error(),
@@ -893,10 +894,10 @@ func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
 			}
 		}
 		if value, ok := res[routineId]; ok {
-			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
+			temp := [...]string{routineName, basealarm, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
 			res[routineId] = append(value, temp)
 		} else {
-			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
+			temp := [...]string{routineName, basealarm, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
 			res[routineId] = append(res[routineId], temp)
 		}
 	}
@@ -907,17 +908,19 @@ func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
 		tempConfigs := make([]*model.Configuration, 0)
 		routineName := ""
 		userId := ""
+		basealarm := ""
 		for i, item := range val {
 			if i == 0 {
 				routineName = item[0]
-				userId = item[1]
+				basealarm = item[1]
+				userId = item[2]
 			}
 			tempConfig := &model.Configuration{}
 			tempDev := &model.Device{}
-			tempDev.SetUserId(item[1])
-			tempConfig.SetId(item[2])
+			tempDev.SetUserId(item[2])
+			tempConfig.SetId(item[3])
 			var offset int
-			offset, err = strconv.Atoi(item[3])
+			offset, err = strconv.Atoi(item[4])
 			if err != nil {
 				return &GetRoutinesDatabaseResponse{
 					Routines: nil,
@@ -927,12 +930,12 @@ func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
 			}
 			tempConfig.SetOffset(offset)
 			tempConfig.SetRoutineId(key)
-			tempDev.SetId(item[4])
-			tempDev.SetName(item[5])
+			tempDev.SetId(item[5])
+			tempDev.SetName(item[6])
 			tempConfig.SetDevice(tempDev)
 			tempConfigs = append(tempConfigs, tempConfig)
 		}
-		tempRoutine.PopulateRoutine(key, routineName, userId, tempConfigs)
+		tempRoutine.PopulateRoutine(key, routineName, userId, basealarm, tempConfigs)
 		routines = append(routines, tempRoutine)
 	}
 
@@ -957,7 +960,7 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 		}
 	}
 
-	query := `SELECT r.id, r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
+	query := `SELECT r.id, r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
 			  FROM routine_details r, configuration_details c, device_details d
 			  WHERE r.userid = $1 AND r.id = c.routineid AND c.deviceid = d.id`
 
@@ -971,11 +974,11 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 	}
 
 	defer rows.Close()
-	res := make(map[string][][6]string)
+	res := make(map[string][][7]string)
 	for rows.Next() {
-		var routineId, routineName, userId, configId, deviceId, deviceName string
+		var routineId, routineName, basealarm, userId, configId, deviceId, deviceName string
 		var timeoffset int
-		err = rows.Scan(&routineId, &routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
+		err = rows.Scan(&routineId, &routineName, &basealarm, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetUserRoutinesDatabaseResponse{
 				Message: err.Error(),
@@ -983,10 +986,10 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 			}
 		}
 		if value, ok := res[routineId]; ok {
-			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
+			temp := [...]string{routineName, basealarm, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
 			res[routineId] = append(value, temp)
 		} else {
-			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
+			temp := [...]string{routineName, basealarm, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
 			res[routineId] = append(res[routineId], temp)
 		}
 	}
@@ -997,17 +1000,19 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 		tempConfigs := make([]*model.Configuration, 0)
 		routineName := ""
 		userId := ""
+		basealarm := ""
 		for i, item := range val {
 			if i == 0 {
 				routineName = item[0]
-				userId = item[1]
+				basealarm = item[1]
+				userId = item[2]
 			}
 			tempConfig := &model.Configuration{}
 			tempDev := &model.Device{}
-			tempDev.SetUserId(item[1])
-			tempConfig.SetId(item[2])
+			tempDev.SetUserId(item[2])
+			tempConfig.SetId(item[3])
 			var offset int
-			offset, err = strconv.Atoi(item[3])
+			offset, err = strconv.Atoi(item[4])
 			if err != nil {
 				return &GetUserRoutinesDatabaseResponse{
 					Routines: nil,
@@ -1017,12 +1022,12 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 			}
 			tempConfig.SetOffset(offset)
 			tempConfig.SetRoutineId(key)
-			tempDev.SetId(item[4])
-			tempDev.SetName(item[5])
+			tempDev.SetId(item[5])
+			tempDev.SetName(item[6])
 			tempConfig.SetDevice(tempDev)
 			tempConfigs = append(tempConfigs, tempConfig)
 		}
-		tempRoutine.PopulateRoutine(key, routineName, userId, tempConfigs)
+		tempRoutine.PopulateRoutine(key, routineName, userId, basealarm, tempConfigs)
 		routines = append(routines, tempRoutine)
 	}
 
@@ -1047,7 +1052,7 @@ func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatab
 		}
 	}
 
-	query := `SELECT r.id, r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
+	query := `SELECT r.id, r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
 			  FROM routine_details r, configuration_details c, device_details d
 			  WHERE d.id = $1 AND r.id = c.routineid AND c.deviceid = d.id`
 
@@ -1061,11 +1066,11 @@ func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatab
 	}
 
 	defer rows.Close()
-	res := make(map[string][][6]string)
+	res := make(map[string][][7]string)
 	for rows.Next() {
-		var routineId, routineName, userId, configId, deviceId, deviceName string
+		var routineId, routineName, basealarm, userId, configId, deviceId, deviceName string
 		var timeoffset int
-		err = rows.Scan(&routineId, &routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
+		err = rows.Scan(&routineId, &routineName, &basealarm, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetDeviceRoutinesDatabaseResponse{
 				Message: err.Error(),
@@ -1073,10 +1078,10 @@ func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatab
 			}
 		}
 		if value, ok := res[routineId]; ok {
-			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
+			temp := [...]string{routineName, basealarm, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
 			res[routineId] = append(value, temp)
 		} else {
-			temp := [...]string{routineName, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
+			temp := [...]string{routineName, basealarm, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
 			res[routineId] = append(res[routineId], temp)
 		}
 	}
@@ -1086,18 +1091,20 @@ func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatab
 		tempRoutine := &model.Routine{}
 		tempConfigs := make([]*model.Configuration, 0)
 		routineName := ""
+		basealarm := ""
 		userId := ""
 		for i, item := range val {
 			if i == 0 {
 				routineName = item[0]
-				userId = item[1]
+				basealarm = item[1]
+				userId = item[2]
 			}
 			tempConfig := &model.Configuration{}
 			tempDev := &model.Device{}
-			tempDev.SetUserId(item[1])
-			tempConfig.SetId(item[2])
+			tempDev.SetUserId(item[2])
+			tempConfig.SetId(item[3])
 			var offset int
-			offset, err = strconv.Atoi(item[3])
+			offset, err = strconv.Atoi(item[4])
 			if err != nil {
 				return &GetDeviceRoutinesDatabaseResponse{
 					Routines: nil,
@@ -1107,12 +1114,12 @@ func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatab
 			}
 			tempConfig.SetOffset(offset)
 			tempConfig.SetRoutineId(key)
-			tempDev.SetId(item[4])
-			tempDev.SetName(item[5])
+			tempDev.SetId(item[5])
+			tempDev.SetName(item[6])
 			tempConfig.SetDevice(tempDev)
 			tempConfigs = append(tempConfigs, tempConfig)
 		}
-		tempRoutine.PopulateRoutine(key, routineName, userId, tempConfigs)
+		tempRoutine.PopulateRoutine(key, routineName, userId, basealarm, tempConfigs)
 		routines = append(routines, tempRoutine)
 	}
 
@@ -1138,8 +1145,8 @@ func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseReque
 
 	resp := &CreateRoutineDatabaseResponse{Routine: request.Routine, Message: "Successfully Created Routine", Error: nil}
 	var id string
-	query := "INSERT INTO routine_details (id, routinename, userid) VALUES(gen_random_uuid(), $1, $2) RETURNING id"
-	err = db.QueryRow(query, request.Routine.GetName(), request.Routine.GetUserId()).Scan(&id)
+	query := "INSERT INTO routine_details (id, basealarm, routinename, userid) VALUES(gen_random_uuid(), $1, $2, $3) RETURNING id"
+	err = db.QueryRow(query, request.Routine.GetBaseAlarm(), request.Routine.GetName(), request.Routine.GetUserId()).Scan(&id)
 
 	if err != nil && err != sql.ErrNoRows {
 		return &CreateRoutineDatabaseResponse{

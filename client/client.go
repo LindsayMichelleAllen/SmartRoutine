@@ -359,5 +359,6 @@ func deleteConfiguration(id string) *http.Response {
 }
 
 func main() {
-	_ = createUserProfile("Lindsay", "LJam")
+	/* userid : 9b3c86dd-155a-453d-9c7b-a9e4dbdf6a8a */
+	_ = createDevice("deviceName", "9b3c86dd-155a-453d-9c7b-a9e4dbdf6a8a")
 }

@@ -313,11 +313,13 @@ func main() {
 			}
 			name := r.FormValue("name")
 			userId := r.FormValue("userid")
+			basealarm := r.FormValue("basealarm")
 
 			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
 			resp := basicRtnMngr.CreateRoutine(&rtnMngr.RoutineCreateRequest{
-				Name:   name,
-				UserId: userId,
+				Name:      name,
+				UserId:    userId,
+				Basealarm: basealarm,
 			})
 
 			if resp.Error != nil {
@@ -334,11 +336,13 @@ func main() {
 			}
 			name := r.FormValue("name")
 			routineId := r.FormValue("routineid")
+			basealarm := r.FormValue("basealarm")
 
 			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
 			resp := basicRtnMngr.UpdateRoutine(&rtnMngr.RoutineUpdateRequest{
-				Name: name,
-				Id:   routineId,
+				Basealarm: basealarm,
+				Name:      name,
+				Id:        routineId,
 			})
 
 			if resp.Error != nil {
