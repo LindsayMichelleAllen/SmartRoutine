@@ -173,7 +173,6 @@ func (c *UnprotectedConfigurationService) CreateConfiguration(request *CreateCon
 	}
 	db := configurationdatabaseinteractor.UnprotectedConfigurationDBInteractor{}
 	resp := db.CreateConfiguration(&configurationdatabaseinteractor.CreateConfigurationDBInteractorRequest{
-		ConfigId:  "ConfigID",
 		Offset:    request.Offset,
 		DeviceId:  request.DeviceId,
 		RoutineId: request.RoutineId,

@@ -17,7 +17,6 @@ type GetDeviceRoutinesInteractorRequest struct {
 }
 
 type RoutineCreateInteractorRequest struct {
-	Id     string
 	Name   string
 	UserId string
 }
@@ -127,7 +126,7 @@ func (r *UnprotectedRoutineDBInteractor) GetUserRoutines(request *GetUserRoutine
 }
 
 func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateInteractorRequest) *RoutineCreateInteractorResponse {
-	if request.Id == "" || request.Name == "" || request.UserId == "" {
+	if request.Name == "" || request.UserId == "" {
 		return &RoutineCreateInteractorResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
@@ -135,7 +134,7 @@ func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateInt
 	}
 
 	routine := &model.Routine{}
-	routine.PopulateRoutine(request.Id, request.Name, request.UserId, make([]*model.Configuration, 0))
+	routine.PopulateRoutine("", request.Name, request.UserId, make([]*model.Configuration, 0))
 
 	db := &postgres.UnprotectedRoutineDB{}
 	resp := db.CreateRoutine(&postgres.CreateRoutineDatabaseRequest{Routine: routine})

@@ -23,7 +23,6 @@ type GetRoutineConfigurationsInteractorRequest struct {
 }
 
 type CreateConfigurationDBInteractorRequest struct {
-	ConfigId  string
 	Offset    *int
 	DeviceId  string
 	RoutineId string
@@ -170,7 +169,6 @@ func (c *UnprotectedConfigurationDBInteractor) CreateConfiguration(request *Crea
 	config := &model.Configuration{}
 	dev := &model.Device{}
 	dev.SetId(request.DeviceId)
-	config.SetId(request.ConfigId)
 	config.SetOffset(*request.Offset)
 	config.SetRoutineId(request.RoutineId)
 	config.SetDevice(dev)
