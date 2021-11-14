@@ -226,10 +226,11 @@ func createRoutine(name string, userid string, basealarm string) *http.Response 
 	return resp
 }
 
-func updateRoutine(name string, routineid string) *http.Response {
+func updateRoutine(name string, routineid string, basealarm string) *http.Response {
 	data := url.Values{
 		"name":      {name},
 		"routineid": {routineid},
+		"basealarm": {basealarm},
 	}
 	resp, err := http.PostForm("http://localhost:8080/routine/update/", data)
 
