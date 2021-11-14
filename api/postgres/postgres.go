@@ -868,7 +868,7 @@ func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
 		}
 	}
 
-	query := `SELECT r.id, r.routinename, r.userid, r.basealarm, c.id, c.timeoffset, d.id, d.devicename
+	query := `SELECT r.id, r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
 			  FROM routine_details r, configuration_details c, device_details d
 			  WHERE r.id = c.routineid AND c.deviceid = d.id`
 
