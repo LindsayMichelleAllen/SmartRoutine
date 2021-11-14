@@ -129,7 +129,7 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/device/all", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/devices/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -327,7 +327,7 @@ func main() {
 				http.Error(w, "Error parsing request", 500)
 			}
 			name := r.FormValue("name")
-			userId := r.FormValue("userId")
+			userId := r.FormValue("userid")
 
 			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
 			resp := basicRtnMngr.CreateRoutine(&rtnMngr.RoutineCreateRequest{
@@ -505,8 +505,8 @@ func main() {
 			offset := new(int)
 			offsetInput, _ := strconv.Atoi(r.FormValue("offset"))
 			*offset = offsetInput
-			deviceId := r.FormValue("deviceId")
-			routineId := r.FormValue("routineId")
+			deviceId := r.FormValue("deviceid")
+			routineId := r.FormValue("routineid")
 
 			basicCfgMngr := cfgMngr.UnprotectedConfigurationService{}
 			resp := basicCfgMngr.CreateConfiguration(&cfgMngr.CreateConfigurationRequest{

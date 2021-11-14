@@ -14,7 +14,7 @@ import (
 const (
 	DB_USER     = "postgres"
 	DB_PASSWORD = "postgres"
-	DB_NAME     = "user_profile"
+	DB_NAME     = "smart_routine_db"
 	TBL_USER    = "profile_details"
 )
 
@@ -37,7 +37,6 @@ type GetUsersDatabaseResponse struct {
 type CreateUserDatabaseRequest struct {
 	Username string
 	Name     string
-	Id       string
 }
 
 type CreateUserDatabaseResponse struct {
@@ -115,7 +114,6 @@ type GetRoutineDevicesDatabaseResponse struct {
 }
 
 type CreateDeviceDatabaseRequest struct {
-	Id     string
 	UserId string
 	Name   string
 }
@@ -432,9 +430,9 @@ func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *C
 
 	resp := &CreateUserDatabaseResponse{Message: "Successfully added user", Error: nil}
 
-	query := "INSERT INTO profile_details (id, username, displayname) VALUES ($1, $2, $3) RETURNING id, username, displayname"
+	query := "INSERT INTO profile_details (id, username, displayname) VALUES (gen_random_uuid(), $1, $2) RETURNING id, username, displayname"
 
-	err = db.QueryRow(query, request.Id, request.Username, request.Name).Scan(&resp.Id, &resp.Username, &resp.Name)
+	err = db.QueryRow(query, request.Username, request.Name).Scan(&resp.Id, &resp.Username, &resp.Name)
 
 	if err != nil {
 		return &CreateUserDatabaseResponse{
@@ -734,8 +732,8 @@ func (d *UnprotectedDeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest)
 	}
 
 	resp := &CreateDeviceDatabaseResponse{Message: "Successfully created device!", Error: nil}
-	query := "INSERT INTO device_details (id, userid, devicename) VALUES ($1, $2, $3) RETURNING id, userid, devicename"
-	err = db.QueryRow(query, request.Id, request.UserId, request.Name).Scan(&resp.Id, &resp.UserId, &resp.Name)
+	query := "INSERT INTO device_details (id, userid, devicename) VALUES (gen_random_uuid(), $1, $2) RETURNING id, userid, devicename"
+	err = db.QueryRow(query, request.UserId, request.Name).Scan(&resp.Id, &resp.UserId, &resp.Name)
 
 	if err != nil {
 		return &CreateDeviceDatabaseResponse{
@@ -1166,8 +1164,10 @@ func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseReque
 		}
 	}
 
-	query := "INSERT INTO routine_details (id, routinename, userid) VALUES($1, $2, $3)"
-	err = db.QueryRow(query, request.Routine.GetId(), request.Routine.GetName(), request.Routine.GetUserId()).Scan()
+	resp := &CreateRoutineDatabaseResponse{Routine: request.Routine, Message: "Successfully Created Routine", Error: nil}
+	var id string
+	query := "INSERT INTO routine_details (id, routinename, userid) VALUES(gen_random_uuid(), $1, $2) RETURNING id"
+	err = db.QueryRow(query, request.Routine.GetName(), request.Routine.GetUserId()).Scan(&id)
 
 	if err != nil && err != sql.ErrNoRows {
 		return &CreateRoutineDatabaseResponse{
@@ -1176,7 +1176,7 @@ func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseReque
 		}
 	}
 
-	resp := &CreateRoutineDatabaseResponse{Routine: request.Routine, Message: "Successfully Created Routine", Error: nil}
+	request.Routine.SetId(id)
 
 	return resp
 }
@@ -1511,12 +1511,12 @@ func (c *UnprotectedConfigurationDB) CreateConfiguration(request *CreateConfigur
 		}
 	}
 
-	query := "INSERT INTO configuration_details (id, timeoffset, deviceid, routineid) VALUES($1, $2, $3, $4)"
+	var id string
+	query := "INSERT INTO configuration_details (id, timeoffset, deviceid, routineid) VALUES(gen_random_uuid(), $1, $2, $3) RETURNING id"
 	err = db.QueryRow(query,
-		request.Configuration.GetId(),
 		request.Configuration.GetOffset(),
 		request.Configuration.GetDevice().GetId(),
-		request.Configuration.GetRoutineId()).Scan()
+		request.Configuration.GetRoutineId()).Scan(&id)
 
 	if err != nil && err != sql.ErrNoRows {
 		return &CreateConfigurationDatabaseResponse{
@@ -1525,6 +1525,7 @@ func (c *UnprotectedConfigurationDB) CreateConfiguration(request *CreateConfigur
 		}
 	}
 
+	request.Configuration.SetId(id)
 	resp := &CreateConfigurationDatabaseResponse{Configuration: request.Configuration, Message: "Sucessfully Created Configuration", Error: nil}
 
 	return resp

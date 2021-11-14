@@ -111,7 +111,6 @@ func (u *UnprotectedUserService) CreateUserProfile(request *UserProfileCreateReq
 	resp := dbInteractor.CreateUserProfile(&userdatabaseinteractor.CreateUserInteractorRequest{
 		Username: request.Username,
 		Name:     request.Name,
-		Id:       "123456789",
 	})
 
 	user := &model.UserProfile{}
