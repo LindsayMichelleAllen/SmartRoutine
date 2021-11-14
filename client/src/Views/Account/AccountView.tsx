@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
-import { useLoginState } from '../../Utils/LoginState';
+import { useAuth } from '../../Utils/LoginState';
 
 /**
  * The view used to describe a user's account and its specific details.
@@ -8,7 +8,7 @@ import { useLoginState } from '../../Utils/LoginState';
  * @returns The view.
  */
 export default function AccountView() {
-  const loginDetails = useLoginState();
+  const { loginDetails } = useAuth();
 
   return (
     <Box sx={{

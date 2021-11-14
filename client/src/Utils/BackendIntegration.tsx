@@ -109,7 +109,7 @@ export function GetLoginURL() {
  * @returns The signup URL for the current session.
  */
 export function GetSignupURL() {
-  return `${GetRootURL()}/create/user`;
+  return `${GetRootURL()}/create/user/`;
 }
 
 /**
@@ -118,7 +118,7 @@ export function GetSignupURL() {
  * @returns The routines fetch URL for the current user.
  */
 export function GetRoutinesFetchURL() {
-  return `${GetRootURL()}/routine/user`;
+  return `${GetRootURL()}/routines/user/`;
 }
 
 /**
@@ -216,7 +216,7 @@ export function ParseDevice(jsonInput: string): StoredDevice | undefined {
  * @param jsonInput The JSON string input to evaluate.
  * @returns The parsed object, if applicable. Undefined if the conversion is not possible.
  */
- export function ParseConfiguration(jsonInput: string): StoredConfiguration | undefined {
+export function ParseConfiguration(jsonInput: string): StoredConfiguration | undefined {
   let result: StoredConfiguration | undefined = undefined;
   const parsedObject = JSON.parse(jsonInput);
 
@@ -234,10 +234,9 @@ export function ParseDevice(jsonInput: string): StoredDevice | undefined {
  * @param jsonInput The JSON string input to evaluate.
  * @returns The parsed object, if applicable. Undefined if the conversion is not possible.
  */
- export function ParseRoutine(jsonInput: string): StoredRoutine | undefined {
+export function ParseRoutine(jsonInput: string): StoredRoutine | undefined {
   let result: StoredRoutine | undefined = undefined;
   const parsedObject = JSON.parse(jsonInput);
-
   if (instanceOfStoredRoutine(parsedObject)) {
     result = parsedObject;
   }
@@ -252,9 +251,22 @@ export function ParseDevice(jsonInput: string): StoredDevice | undefined {
  * @param jsonInput The JSON string input to evaluate.
  * @returns The parsed object, if applicable. Undefined if the conversion is not possible.
  */
- export function ParseRoutineArray(jsonInput: string): StoredRoutine[] | undefined {
+export function ParseRoutineArray(jsonInput: string): StoredRoutine[] | undefined {
+  let openingBracket: number | undefined = undefined;
+  let closingBracket: number | undefined = undefined;
+
+  [...jsonInput].forEach((c, i) => {
+    if (openingBracket === undefined) {
+      openingBracket = c === '[' ? i : undefined;
+    }
+    // The '+1' is to adjust for the 0/1-indexing mismatch between .substring() and an item's index.
+    closingBracket = c === ']' ? i + 1 : closingBracket;
+  });
+  
+  const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
+
   let result: StoredRoutine[] | undefined = undefined;
-  const parsedObject = JSON.parse(jsonInput) as StoredRoutine[];
+  const parsedObject = JSON.parse(inputSubstr) as StoredRoutine[];
 
   if (Array.isArray(parsedObject)) {
     result = parsedObject.filter((i) => instanceOfStoredRoutine(i));

@@ -1,16 +1,24 @@
 import React from 'react';
-import { Navigate, Route, RouteProps } from 'react-router';
-import { useLoginState } from '../../Utils/LoginState';
+import { Navigate } from 'react-router';
+import { useAuth } from '../../Utils/LoginState';
 
 export type PrivateRouteProps = {
-  element?: JSX.Element;
+  authElement?: JSX.Element;
+  fallbackUrl?: string;
+  invertPrivacy?: boolean;
 };
 
+/**
+ * @param props
+ */
 export default function PrivateRoute(props: PrivateRouteProps) {
   const {
-    element,
+    authElement,
+    fallbackUrl,
+    invertPrivacy,
   } = props;
 
-  const loginState = useLoginState();
-  return !!loginState ? element : (<Navigate to="/login" />);
+  const { loginDetails } = useAuth();
+  const doReturnElement = !!invertPrivacy !== !!loginDetails;
+  return doReturnElement ? authElement : (<Navigate to={fallbackUrl} />);
 }

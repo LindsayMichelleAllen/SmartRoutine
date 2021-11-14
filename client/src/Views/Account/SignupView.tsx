@@ -8,15 +8,12 @@ import {
   styled,
 } from '@mui/material';
 import {
-  GetSignupURL,
-  ParseLoginResponse,
+  GetSignupURL, ParseLoginResponse,
 } from '../../Utils/BackendIntegration';
 import React, {
   useState,
 } from 'react';
-import {
-  setLoginState,
-} from '../../Utils/LoginState';
+import { useAuth } from '../../Utils/LoginState';
 
 const validUserChars = /^[0-9a-zA-Z]+$/;
 
@@ -33,34 +30,30 @@ export default function SignupView() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
 
   const signup = async () => {
     try {
-      await fetch(GetSignupURL(), {
+      const response = await fetch(GetSignupURL(), {
         method: 'POST',
         body: `username=${username}&name=${name}`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-      })
-      .then((response) => {
-        if (response.ok) {
-          response.text().then((data) => {
-            const loginData = ParseLoginResponse(data);
-            console.log(loginData);
-            setLoginState(loginData);
-            setSuccessMessage(`
-              Success! The user account for ${loginData.username} was created.\n
-              Your user ID is "${loginData.userid}".\n
-              Use this ID to log in again.`);
-          });
-        } else {
-          response.text().then((data) => {
-            console.error(data);
-            setErrorMessage(data);
-          });
-        }
       });
+
+      const text = await response.text();
+      if (!response.ok) {
+        throw text;
+      }
+
+      const loginData = ParseLoginResponse(text);
+
+      signIn(loginData);
+      setSuccessMessage(`
+        Success! The user account for ${loginData.username} was created.\n
+        Your user ID is "${loginData.userid}".\n
+        Use this ID to log in again.`);
     } catch (e) {
       console.error(e);
     } finally {

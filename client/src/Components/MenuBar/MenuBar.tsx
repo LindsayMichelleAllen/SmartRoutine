@@ -1,20 +1,19 @@
 import {
   AppBar,
   Box,
-  ClickAwayListener,
   IconButton,
-  Menu,
-  MenuItem,
+  styled,
   Toolbar,
   Typography,
 } from '@mui/material';
 import {
+  DarkMode,
+  LightMode,
   Menu as MenuIcon,
 } from '@mui/icons-material';
-import {
-  useNavigate,
-} from 'react-router-dom';
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
+import { useColorMode } from '../../Utils/ColorContext';
+import { SxProps, Theme } from '@mui/system';
 
 /**
  * The props type for the {@link MenuBar} component.
@@ -24,6 +23,8 @@ export type MenuBarProps = {
    * The title to render in the navigation bar.
    */
   title: string;
+  sx?: SxProps<Theme>
+  handleClickMenu: () => void;
 }
 
 /**
@@ -35,45 +36,46 @@ export type MenuBarProps = {
 export default function MenuBar(props: MenuBarProps) {
   const {
     title,
+    sx,
+    handleClickMenu,
   } = props;
 
-  const navigate = useNavigate();
-  const [menuIsOpen, setMenuIsOpen] = useState(false);
-  const [anchorElement, setAnchorElement] = useState<null | HTMLElement>();
+  const colorState = useColorMode();
+  const colorModeButton = useMemo(() => colorState?.colorMode === 'dark'
+    ? (<DarkMode />)
+    : (<LightMode />),
+    [colorState],
+  );
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setMenuIsOpen(true);
-    setAnchorElement(e.currentTarget);
-  };
-
-  const handleClickAway = () => {
-    setMenuIsOpen(false);
-    setAnchorElement(null);
+  const toggleColorMode = () => {
+    if (colorState !== undefined) {
+      colorState.colorMode === 'dark'
+        ? colorState.setColorMode('light')
+        : colorState.setColorMode('dark');
+    }
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }} >
+    <Box sx={{ ...sx, flexGrow: 1 }} >
       <AppBar position="static">
         <Toolbar>
-          <ClickAwayListener onClickAway={handleClickAway}>
-            <IconButton onClick={handleClick}>
-              <MenuIcon />
-            </IconButton>
-          </ClickAwayListener>
-          <Menu
-            anchorEl={anchorElement}
-            open={menuIsOpen}>
-            <MenuItem onClick={() => navigate('/routines')}>Routines</MenuItem>
-            <MenuItem onClick={() => navigate('/account')}>Account</MenuItem>
-            <MenuItem onClick={() => navigate('/login')}>Login/Logout</MenuItem>
-          </Menu>
+          <IconButton sx={{ display: { xs: 'block', sm: 'none' } }} onClick={handleClickMenu}>
+            <MenuIcon />
+          </IconButton>
           <Typography
             component="div"
             variant="h6" sx={{ flexGrow: 1 }}>
-            SmartRoutine{title}
+            {title}
           </Typography>
+          <StyledDiv>
+            <IconButton onClick={toggleColorMode}>
+              {colorModeButton}
+            </IconButton>
+          </StyledDiv>
         </Toolbar>
       </AppBar>
     </Box>
   );
 }
+
+const StyledDiv = styled('div')``;

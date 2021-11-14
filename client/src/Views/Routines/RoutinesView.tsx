@@ -1,8 +1,9 @@
-import { Box, Typography } from '@mui/material';
+import { Box, List, ListItem, ListItemText, Typography } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
-import RoutineCard from '../../Components/Routines/RoutineCard';
 import { GetRoutinesFetchURL, ParseRoutineArray, StoredRoutine } from '../../Utils/BackendIntegration';
-import { useLoginState } from '../../Utils/LoginState';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 
 /**
  * The view used to describe the available routines for the user.
@@ -10,48 +11,45 @@ import { useLoginState } from '../../Utils/LoginState';
  * @returns The view.
  */
 export default function RoutinesView() {
-  const loginState = useLoginState();
+  const { loginDetails } = useAuth();
   const [routines, setRoutines] = useState<StoredRoutine[]>([]);
 
-  const getRoutines = async () => {
+  const fetchRoutines = async () => {
     try {
-      await fetch(GetRoutinesFetchURL(), {
+      const response = await fetch(GetRoutinesFetchURL(), {
         method: 'POST',
-        body: `userid=${loginState.userid ?? ''}`,
+        body: `userid=${loginDetails.userid ?? ''}`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-      })
-        .then((response) => {
-          if (response.ok) {
-            response.text().then((data) => {
-              const routinesData = ParseRoutineArray(data);
-              if (routinesData !== undefined) {
-                setRoutines(routinesData);
-              } else {
-                console.error('There was an error parsing the stored routines.');
-              }
-            });
-          } else {
-            console.error('There was an error parsing the stored routines.');
-          }
-        });
-    } catch (e) {
-      console.error(e);
+      });
+
+      const text = await response.text();
+
+      if (response.ok) {
+        const routinesData = await ParseRoutineArray(text);
+        if (routinesData !== undefined) {
+          setRoutines(routinesData);
+        }
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
   useEffect(() => {
-    if (loginState !== undefined) {
-      getRoutines();
+    if (loginDetails !== undefined) {
+      fetchRoutines();
     }
-  }, [loginState]);
+  }, [loginDetails]);
 
   console.log(routines);
 
-  const routineCards: JSX.Element[] = useMemo(() => routines.map((r) => (
-    <RoutineCard routine={r} key={r.Id} />
-  )), [routines]);
+  const routinesListItems: JSX.Element[] = useMemo(() => routines.map((r) => (
+    <ListItem>
+      <ListItemText primary={r.Name} />
+    </ListItem>
+  )), []);
 
   return (
     <Box sx={{
@@ -74,11 +72,14 @@ export default function RoutinesView() {
         variant="h2">
         Routines
       </Typography>
-      <Box sx={{
+      {/* <Box sx={{
         gridArea: 'routines',
       }}>
         {routineCards}
-      </Box>
+      </Box> */}
+      <List sx={{ gridArea: 'routines' }}>
+        {routinesListItems}
+      </List>
     </Box>
   );
 }

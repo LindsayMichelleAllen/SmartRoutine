@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -8,22 +8,18 @@ import {
 } from 'react-router-dom';
 import MenuBar from '../../Components/MenuBar/MenuBar';
 import AccountView from '../Account/AccountView';
-import LoginRouter from '../Account/LoginRouter';
 import LoginView from '../Account/LoginView';
 import SignupView from '../Account/SignupView';
 import RoutinesView from '../Routines/RoutinesView';
-import { Box, createTheme, Paper, ThemeProvider } from '@mui/material';
+import { Box, createTheme, Divider, Drawer, PaletteMode, Paper, ThemeProvider } from '@mui/material';
 import PrivateRoute from '../../Components/Routing/PrivateRoute';
+import { AuthProvider } from '../../Utils/LoginState';
+import { purple } from '@mui/material/colors';
+import { ColorProvider, fetchColorPreference, storeColorPreference } from '../../Utils/ColorContext';
+import NavDrawer from '../../Components/NavDrawer/NavDrawer';
+import LogoutView from '../Account/LogoutView';
 
-const theme = createTheme({
-  components: {
-    MuiButton: {
-      defaultProps: {
-        variant: 'contained',
-      },
-    },
-  },
-});
+const navDrawerWidth = 240;
 
 /**
  * The main entry point for the application.
@@ -32,6 +28,21 @@ const theme = createTheme({
  */
 function App() {
   const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const formattedLocation = useMemo(() => {
+    let formattedRoute = '';
+
+    if (location.pathname.includes('/')) {
+      formattedRoute = location.pathname.split('/')[1];
+    }
+
+    if (formattedRoute.length > 1) {
+      formattedRoute = formattedRoute.slice(0, 1).toUpperCase() + formattedRoute.slice(1);
+    }
+
+    return formattedRoute;
+  }, [location]);
 
   return (
     <Box sx={{
@@ -39,34 +50,61 @@ function App() {
       height: '100%',
       width: '100%',
       gridTemplateAreas: `
-        "menubar"
-        "body"
+        "nav menubar"
+        "nav divider"
+        "nav body"
       `,
-      gridTemplateRows: 'min-content auto'
-    }}>
+      gridTemplateRows: 'min-content min-content auto',
+      gridTemplateColumns: {
+        xs: '0px auto',
+        sm: `${navDrawerWidth}px auto`,
+      }
+    }}
+    >
+      <Box sx={{gridArea: 'nav'}} component="nav" >
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          ModalProps={{
+            keepMounted: true, // https://mui.com/components/drawers/ Better Perf on Mobile.
+          }}
+          sx = {{ display: { xs: 'block', sm: 'none' } }}>
+          <NavDrawer onNavigate={() => setMobileOpen(false)} drawerWidthPixels={navDrawerWidth} />
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          open
+          sx={{ display: { xs: 'none', sm: 'block' } }}>
+          <NavDrawer drawerWidthPixels={navDrawerWidth} />
+        </Drawer>
+      </Box>
       <MenuBar
-        title={location.pathname}
+        sx={{ gridArea: 'menubar' }}
+        title={formattedLocation}
+        handleClickMenu={() => setMobileOpen(true)}
       />
-      <Paper>
+      <Divider sx={{ gridArea: 'divider' }} />
+      <Paper square >
         <Routes>
           <Route
             path="/"
             element={<Navigate replace to="/login" />} />
           <Route
-            path="/login"
-            element={<LoginRouter />} />
+            path="/logout"
+            element={<PrivateRoute authElement={<LogoutView />} fallbackUrl="/login" />} />
           <Route
             path="/signup"
-            element={<SignupView />} />
+            element={<PrivateRoute authElement={<SignupView />} fallbackUrl="/logout" invertPrivacy/>} />
           <Route
             path="/account"
-            element={<AccountView />} />
+            element={<PrivateRoute authElement={<AccountView />} fallbackUrl="/login" />} />
           <Route
             path="/routines"
-            element={<RoutinesView />} />
+            element={<PrivateRoute authElement={<RoutinesView />} fallbackUrl="/login" />} />
           <Route
             path="/login"
-            element={<LoginView />} />
+            element={<PrivateRoute authElement={<LoginView />} fallbackUrl="/logout" invertPrivacy/>} />
         </Routes>
       </Paper>
     </Box>
@@ -80,11 +118,46 @@ function App() {
  * @returns The wrapper.
  */
 export default function AppContainer() {
+  const [colorMode, setColorMode] = useState<PaletteMode>('dark');
+
+  const theme = useMemo(() => createTheme({
+    palette: {
+      primary: purple,
+      mode: colorMode,
+    },
+    components: {
+      MuiButton: {
+        defaultProps: {
+          variant: 'contained',
+        },
+      },
+      MuiAppBar: {
+        defaultProps: {
+          enableColorOnDark: true,
+        }
+      }
+    },
+  }), [colorMode]);
+
+  const updateColorPreference = (preferredColorMode: PaletteMode) => {
+    storeColorPreference(preferredColorMode);
+    setColorMode(preferredColorMode);
+  };
+
+  useEffect(() => {
+    const colorPreference = fetchColorPreference();
+    setColorMode(colorPreference);
+  }, []);
+
   return (
     <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
+      <ColorProvider colorState={{colorMode, setColorMode: updateColorPreference}}>
+        <ThemeProvider theme={theme}>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ThemeProvider>
+      </ColorProvider>
     </BrowserRouter>
   );
 }

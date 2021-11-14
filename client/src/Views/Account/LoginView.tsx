@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Box, Button, CircularProgress, TextField, Typography,
@@ -7,8 +7,8 @@ import {
   styled
 } from '@mui/material/styles';
 import { GetLoginURL, ParseLoginResponse } from '../../Utils/BackendIntegration';
-import { setLoginState } from '../../Utils/LoginState';
 import { useNavigate } from 'react-router';
+import { useAuth } from '../../Utils/LoginState';
 
 /**
  * The view used to describe the Login form for a user. Should only be visible the user is not
@@ -22,6 +22,7 @@ export default function LoginView() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { loginDetails, signIn } = useAuth();
 
   // TODO: Setup password auth.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,38 +30,40 @@ export default function LoginView() {
 
   const login = async () => {
     try {
-      await fetch(GetLoginURL(), {
+      const response = await fetch(GetLoginURL(), {
         method: 'POST',
         body: `userId=${username}`,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-      })
-      .then((response) => {
-        if (response.ok) {
-          response.text().then((data) => {
-            const loginData = ParseLoginResponse(data);
-            console.log(loginData);
-            setLoginState(loginData);
-            navigate('/');
-          });
-        } else {
-          response.text().then((data) => {
-            console.error(data);
-            setErrorMessage(data);
-          });
-        }
       });
+
+      const text = await response.text();
+      if (response.ok) {
+        const loginData = ParseLoginResponse(text);
+        signIn(loginData);
+      } else {
+        console.error(text);
+        setErrorMessage(text);
+      }
     } catch (e) {
       console.error(e);
+      setErrorMessage(e);
+      throw e;
     }
   };
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    await login();
-    setIsLoading(false);
+    try {
+      await login();
+      navigate('/');
+    } catch (e) {
+      // Only set loading to false if the login failed. If we try to set it on a success, that gets
+      // called after navigate which leads to the 'memory leak' React error.
+      setIsLoading(false);
+    }
   };
 
   const onClickSignup = () => {
