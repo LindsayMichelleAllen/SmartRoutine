@@ -1,9 +1,13 @@
-import { Box, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Box, Fab, List, ListItem, ListItemText, Typography } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
+import RoutineCard from '../../Components/Routines/RoutineCard';
 import { GetRoutinesFetchURL, ParseRoutineArray, StoredRoutine } from '../../Utils/BackendIntegration';
+import AddIcon from '@mui/icons-material/Add';
 import {
   useAuth,
 } from '../../Utils/LoginState';
+import { useNavigate } from 'react-router';
+import { ADD_ROUTINE_URL } from '../../Utils/CommonRouting';
 
 /**
  * The view used to describe the available routines for the user.
@@ -11,8 +15,10 @@ import {
  * @returns The view.
  */
 export default function RoutinesView() {
-  const authState = useAuth();
   const [routines, setRoutines] = useState<StoredRoutine[]>([]);
+
+  const navigate = useNavigate();
+  const authState = useAuth();
 
   const loginDetails = authState?.loginDetails;
 
@@ -47,11 +53,9 @@ export default function RoutinesView() {
 
   console.log(routines);
 
-  const routinesListItems: JSX.Element[] = useMemo(() => routines.map((r) => (
-    <ListItem>
-      <ListItemText primary={r.Name} />
-    </ListItem>
-  )), []);
+  const routineCards = useMemo(() => routines.map((r) => (
+    <RoutineCard routine={r} />
+  )), [routines]);
 
   return (
     <Box sx={{
@@ -59,29 +63,45 @@ export default function RoutinesView() {
       width: '100%',
       display: 'grid',
       gridTemplateAreas: `
-        "title title title"
-        ". routines ."
+        "title"
+        "routines"
       `,
       gridTemplateRows: 'min-content 1fr',
-      gridTemplateColumns: '1fr max-content 1fr',
       rowGap: '48px',
       textAlign: 'center',
     }}>
       <Typography
-        sx={{
-          gridArea: 'title'
-        }}
+        sx={{ gridArea: 'title' }}
         variant="h2">
         Routines
       </Typography>
-      {/* <Box sx={{
+      <Box sx={{
         gridArea: 'routines',
+        display: 'grid',
+        columnGap: '12px',
+        rowGap: '12px',
+        padding: '12px',
+        justifyContent: 'center',
+        paddingBottom: '128px', // Add some extra space so the FAB doesn't overlay the actions.
+        gridTemplateColumns: {
+          sm: '220px 220px',
+          xs: '1fr',
+        },
+        width: {
+          sm: 'auto',
+        }
       }}>
         {routineCards}
-      </Box> */}
-      <List sx={{ gridArea: 'routines' }}>
-        {routinesListItems}
-      </List>
+      </Box>
+      <Fab sx={{
+        position: 'absolute',
+        bottom: '24px',
+        right: '24px',
+      }}
+        color='primary'
+        onClick={() => navigate(ADD_ROUTINE_URL)}>
+        <AddIcon />
+      </Fab>
     </Box>
   );
 }

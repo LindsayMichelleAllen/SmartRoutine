@@ -109,7 +109,43 @@ export function GetLoginURL() {
  * @returns The signup URL for the current session.
  */
 export function GetSignupURL() {
-  return `${GetRootURL()}/create/user/`;
+  return `${GetRootURL()}/create/user`;
+}
+
+/**
+ *
+ */
+export function GetCreateRoutineURL() {
+  return `${GetRootURL()}/routine/create`;
+}
+
+/**
+ * 
+ * @returns 
+ */
+export function GetModifyUserURL() {
+  return `${GetRootURL()}/modify/user`;
+}
+
+/**
+ *
+ */
+export function GetDeleteRoutineURL() {
+  return `${GetRootURL()}/routine/delete`;
+}
+
+/**
+ *
+ */
+export function GetUpdateRoutineURL() {
+  return `${GetRootURL()}/routine/update`;
+}
+
+/**
+ *
+ */
+export function GetGetRoutineURL() {
+  return `${GetRootURL()}/routine/`;
 }
 
 /**
@@ -235,10 +271,28 @@ export function ParseConfiguration(jsonInput: string): StoredConfiguration | und
  * @returns The parsed object, if applicable. Undefined if the conversion is not possible.
  */
 export function ParseRoutine(jsonInput: string): StoredRoutine | undefined {
+  let openingBracket: number | undefined = undefined;
+  let closingBracket: number | undefined = undefined;
+
+  [...jsonInput].forEach((c, i) => {
+    if (openingBracket === undefined) {
+      openingBracket = c === '{' ? i : undefined;
+    }
+    // The '+1' is to adjust for the 0/1-indexing mismatch between .substring() and an item's index.
+    closingBracket = c === '}' ? i + 1 : closingBracket;
+  });
+
+  const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
+
   let result: StoredRoutine | undefined = undefined;
-  const parsedObject = JSON.parse(jsonInput);
-  if (instanceOfStoredRoutine(parsedObject)) {
-    result = parsedObject;
+
+  try {
+    const parsedObject = JSON.parse(inputSubstr);
+    if (instanceOfStoredRoutine(parsedObject)) {
+      result = parsedObject;
+    }
+  } catch (e) {
+    console.error(e);
   }
 
   return result;
@@ -266,10 +320,15 @@ export function ParseRoutineArray(jsonInput: string): StoredRoutine[] | undefine
   const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
 
   let result: StoredRoutine[] | undefined = undefined;
-  const parsedObject = JSON.parse(inputSubstr) as StoredRoutine[];
 
-  if (Array.isArray(parsedObject)) {
-    result = parsedObject.filter((i) => instanceOfStoredRoutine(i));
+  try {
+    const parsedObject = JSON.parse(inputSubstr) as StoredRoutine[];
+
+    if (Array.isArray(parsedObject)) {
+      result = parsedObject.filter((i) => instanceOfStoredRoutine(i));
+    }
+  } catch (e) {
+    console.error(e);
   }
 
   return result;

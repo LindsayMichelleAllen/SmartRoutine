@@ -1,7 +1,10 @@
-import { Avatar, Box, Card, CardContent, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+import { Avatar, Box, Button, Card, CardActions, CardContent, IconButton, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
 import React, { useMemo } from 'react';
-import { StoredRoutine } from '../../Utils/BackendIntegration';
-import SettingsIcon from '@mui/icons-material/Settings';
+import { GetDeleteRoutineURL, StoredRoutine } from '../../Utils/BackendIntegration';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
+import { EDIT_ROUTINE_URL } from '../../Utils/CommonRouting';
 
 export type RoutineCardProps = {
   routine: StoredRoutine;
@@ -15,49 +18,36 @@ export default function RoutineCard(props: RoutineCardProps) {
     routine,
   } = props;
 
-  const listItems: JSX.Element[] = useMemo(() => routine.Configuration.map((c) => (
-    <ListItem sx={{
-    }}
-      key={c.Id}>
-      <ListItemAvatar>
-        <Avatar>
-          <SettingsIcon />
-        </Avatar>
-      </ListItemAvatar>
-      <ListItemText primary={c.Id} secondary={`Offset: ${c.Offset}`} />
-    </ListItem>
-  )), [routine.Configuration]);
+  const navigate = useNavigate();
 
   return (
     <Card sx={{
-      minWidth: '480px',
-      textAlign: 'left',
+      maxWidth: {
+        sm: '480px',
+        xs: '100%',
+      },
     }}
-      variant="outlined">
+      variant="outlined"
+    >
       <CardContent sx={{
-        display: 'grid',
-        gridTemplateAreas: `
-          "routinetitle"
-          "."
-          "configurationstitle"
-          "configurationlist"
-        `,
       }}>
-        <Typography sx={{ paddingBottom: '12px', gridArea: 'routinetitle' }} variant="h4">
+        <Typography variant="h6" sx={{ gridArea: 'routine_title' }}>
           {routine.Name}
         </Typography>
-        <Typography sx={{ gridArea: 'configurationstitle' }} variant="h6" color="text.secondary">
-          Configurations
+        <Typography variant="caption" sx={{ gridArea: 'device_count' }}>
+          {routine.Configuration.length} devices connected
         </Typography>
-        <List
-          sx={{
-            gridArea: 'configurationlist',
-            display: 'flex',
-            bgcolor: 'background.paper',
-          }}>
-          {listItems}
-        </List>
       </CardContent>
+      <CardActions sx={{
+        justifyContent: 'end',
+      }}>
+        <IconButton title="Edit" onClick={() => navigate(`${EDIT_ROUTINE_URL}?routineid=${routine.Id}`)}>
+          <EditIcon />
+        </IconButton>
+        <IconButton title="Delete">
+          <DeleteIcon />
+        </IconButton>
+      </CardActions>
     </Card>
   );
 }

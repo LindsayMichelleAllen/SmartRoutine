@@ -811,9 +811,18 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 
 	var name, userid string
 
-	query := `SELECT r.routinename, r.userid, c.id, c.timeoffset, d.id, d.devicename
-			  FROM routine_details r, configuration_details c, device_details d 
-			  WHERE r.id = $1 AND r.id = c.routineid AND c.deviceid = d.id`
+	query := `
+SELECT
+	r.routinename,
+	r.userid,
+	c.id,
+	c.timeoffset,
+	d.id,
+	d.devicename
+FROM routine_details r
+LEFT JOIN configuration_details c ON r.id = c.routineid
+LEFT JOIN device_details d ON d.id = c.deviceid
+WHERE r.id = $1`
 
 	rows, err := db.Query(query, request.RoutineId)
 
@@ -827,8 +836,8 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 	defer rows.Close()
 	configs := make([]*model.Configuration, 0)
 	for rows.Next() {
-		var routineName, userId, configId, deviceId, deviceName string
-		var timeoffset int
+		var routineName, userId, configId, deviceId, deviceName sql.NullString
+		var timeoffset sql.NullInt32
 		err = rows.Scan(&routineName, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetRoutineDatabaseResponse{
@@ -836,16 +845,16 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 				Error:   err,
 			}
 		}
-		name = routineName
-		userid = userId
+		name = routineName.String
+		userid = userId.String
 		config := &model.Configuration{}
 		dev := &model.Device{}
-		dev.SetId(deviceId)
-		dev.SetName(deviceName)
-		dev.SetUserId(userId)
-		config.SetId(configId)
+		dev.SetId(deviceId.String)
+		dev.SetName(deviceName.String)
+		dev.SetUserId(userId.String)
+		config.SetId(configId.String)
 		config.SetRoutineId(request.RoutineId)
-		config.SetOffset(timeoffset)
+		config.SetOffset(int(timeoffset.Int32))
 		config.SetDevice(dev)
 		configs = append(configs, config)
 	}

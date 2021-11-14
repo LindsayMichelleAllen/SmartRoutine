@@ -251,6 +251,8 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else if resp.Routine != nil {
+				fmt.Fprint(w, resp.Routine.GetJson())
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -337,6 +339,8 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else if resp.Routine != nil {
+				fmt.Fprint(w, resp.Routine.GetJson())
 			}
 			fmt.Fprint(w, "Success", 200)
 		}

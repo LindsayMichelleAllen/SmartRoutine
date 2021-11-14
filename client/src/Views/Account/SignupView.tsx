@@ -14,8 +14,7 @@ import React, {
   useState,
 } from 'react';
 import { useAuth } from '../../Utils/LoginState';
-
-const validUserChars = /^[0-9a-zA-Z]+$/;
+import { ValidUserNameChars } from '../../Utils/InputValidation';
 
 /**
  * The view used to provide the user with a means to create a new account.
@@ -71,10 +70,8 @@ export default function SignupView() {
   const validateInput = (): string | undefined => {
     if (password !== confirmPassword) {
       return 'Passwords do not match.';
-    } else if (!username.match(validUserChars)) {
+    } else if (!username.match(ValidUserNameChars)) {
       return 'Please only use letters and numbers in your username.';
-    } else if (!name.match(validUserChars)) {
-      return 'Please only use letters and numbers in your name.';
     }
 
     return undefined;
@@ -165,13 +162,9 @@ export default function SignupView() {
           type="password" />
         <Button type="submit">
           {
-            isLoading ? (
-              <CircularProgress />
-            ) : (
-              <Typography variant="button">
-                Sign Up
-              </Typography>
-            )
+            isLoading
+              ? (<CircularProgress />)
+              : (<Typography variant="button">Sign Up</Typography>)
           }
         </Button>
       </StyledForm>
