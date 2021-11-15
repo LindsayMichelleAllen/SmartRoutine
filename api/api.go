@@ -23,7 +23,7 @@ func main() {
 	mux.HandleFunc("/user/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			r.ParseForm()
-			id := r.FormValue("userId")
+			id := r.FormValue("id")
 
 			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
 			userResponse := basicUsrMngr.GetUserProfile(&userAcctMngr.UserProfileGetRequest{
@@ -51,7 +51,7 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/create/user", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/user/create/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			r.ParseForm()
 			username := r.FormValue("username")
@@ -70,7 +70,7 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/modify/user", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/user/update/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -93,7 +93,7 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/delete/user", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/user/delete/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -117,10 +117,10 @@ func main() {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
-			deviceid := r.FormValue("deviceid")
+			id := r.FormValue("id")
 
 			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
-			resp := basicDvcSrvc.GetDevice(&dvcMngr.GetDeviceRequest{Id: deviceid})
+			resp := basicDvcSrvc.GetDevice(&dvcMngr.GetDeviceRequest{Id: id})
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
 			}
@@ -143,7 +143,7 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/device/user", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/device/user/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -159,12 +159,12 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/device/routine", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/device/routine/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
-			routineid := r.FormValue("routineId")
+			routineid := r.FormValue("routineid")
 
 			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
 			resp := basicDvcSrvc.GetRoutineDevices(&dvcMngr.GetRoutineDevicesRequest{RoutineId: routineid})
@@ -175,13 +175,13 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/device/create", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/device/create/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
 			name := r.FormValue("name")
-			userId := r.FormValue("userId")
+			userId := r.FormValue("userid")
 
 			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
 			resp := basicDvcSrvc.CreateDevice(&dvcMngr.DeviceCreateRequest{
@@ -196,13 +196,13 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/device/update", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/device/update/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
 			name := r.FormValue("name")
-			deviceId := r.FormValue("deviceId")
+			deviceId := r.FormValue("deviceid")
 
 			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
 			resp := basicDvcSrvc.UpdateDevice(&dvcMngr.DeviceUpdateRequest{
@@ -217,16 +217,16 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/device/delete", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/device/delete/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
-			deviceId := r.FormValue("deviceId")
+			id := r.FormValue("id")
 
 			basicDvcSrvc := dvcMngr.UnprotectedDeviceService{}
 			resp := basicDvcSrvc.DeleteDevice(&dvcMngr.DeviceDeleteRequest{
-				Id: deviceId,
+				Id: id,
 			})
 
 			if resp.Error != nil {
@@ -306,18 +306,20 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/routine/create", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routine/create/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
 			name := r.FormValue("name")
 			userId := r.FormValue("userid")
+			basealarm := r.FormValue("basealarm")
 
 			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
 			resp := basicRtnMngr.CreateRoutine(&rtnMngr.RoutineCreateRequest{
-				Name:   name,
-				UserId: userId,
+				Name:      name,
+				UserId:    userId,
+				Basealarm: basealarm,
 			})
 
 			if resp.Error != nil {
@@ -327,18 +329,20 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/routine/update", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routine/update/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
 			name := r.FormValue("name")
-			routineId := r.FormValue("routineId")
+			routineId := r.FormValue("routineid")
+			basealarm := r.FormValue("basealarm")
 
 			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
 			resp := basicRtnMngr.UpdateRoutine(&rtnMngr.RoutineUpdateRequest{
-				Name: name,
-				Id:   routineId,
+				Basealarm: basealarm,
+				Name:      name,
+				Id:        routineId,
 			})
 
 			if resp.Error != nil {
@@ -348,16 +352,16 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/routine/delete", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/routine/delete/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
-			routineId := r.FormValue("routineId")
+			id := r.FormValue("id")
 
 			basicRtnMngr := &rtnMngr.UnprotectedRoutineService{}
 			resp := basicRtnMngr.DeleteRoutine(&rtnMngr.RoutineDeleteRequest{
-				Id: routineId,
+				Id: id,
 			})
 
 			if resp.Error != nil {
@@ -372,11 +376,11 @@ func main() {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
-			configId := r.FormValue("configid")
+			id := r.FormValue("id")
 
 			basicCfgMngr := &cfgMngr.UnprotectedConfigurationService{}
 			resp := basicCfgMngr.GetConfiguration(&cfgMngr.GetConfigurationRequest{
-				ConfigId: configId,
+				ConfigId: id,
 			})
 
 			if resp.Error != nil {
@@ -459,7 +463,7 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/configuration/create", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configuration/create/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
@@ -484,12 +488,12 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/configuration/update", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configuration/update/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
-			configId := r.FormValue("configId")
+			configId := r.FormValue("configid")
 			offset := new(int)
 			offsetInput, _ := strconv.Atoi(r.FormValue("offset"))
 			*offset = offsetInput
@@ -507,16 +511,16 @@ func main() {
 		}
 	})
 
-	mux.HandleFunc("/configuration/delete", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/configuration/delete/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Error parsing request", 500)
 			}
-			configId := r.FormValue("configId")
+			id := r.FormValue("id")
 
 			basicCfgMngr := cfgMngr.UnprotectedConfigurationService{}
 			resp := basicCfgMngr.DeleteConfiguration(&cfgMngr.DeleteConfigurationRequest{
-				ConfigId: configId,
+				ConfigId: id,
 			})
 
 			if resp.Error != nil {

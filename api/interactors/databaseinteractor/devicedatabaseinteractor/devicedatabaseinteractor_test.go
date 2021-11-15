@@ -12,7 +12,6 @@ func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 		dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
 		t.Run("should create device with userid, name, and id", func(t *testing.T) {
 			resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
-				Id:     "TestDeviceId",
 				Name:   "TestDeviceName",
 				UserId: "TestUserId",
 			})
@@ -21,7 +20,6 @@ func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 		})
 		t.Run("should return an error if userid is not provided", func(t *testing.T) {
 			resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
-				Id:   "TestDeviceId",
 				Name: "TestDeviceName",
 			})
 			assert.Equal(t, resp.Error.Error(), "not yet implemented")
@@ -29,7 +27,6 @@ func TestDeviceManagementDBInteractorMethods(t *testing.T) {
 		})
 		t.Run("should return an error if name is not provided", func(t *testing.T) {
 			resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
-				Id:     "TestDeviceId",
 				UserId: "TestUserId",
 			})
 			assert.Equal(t, resp.Error.Error(), "not yet implemented")

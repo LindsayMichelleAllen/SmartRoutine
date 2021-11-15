@@ -140,7 +140,6 @@ func (d *UnprotectedDeviceService) CreateDevice(request *DeviceCreateRequest) *D
 	dbInt := &devicedatabaseinteractor.UnprotectedDeviceDBInteractor{}
 	// TODO randomly generate device id
 	resp := dbInt.CreateDevice(&devicedatabaseinteractor.CreateDeviceRequest{
-		Id:     "987654321",
 		Name:   request.Name,
 		UserId: request.UserId,
 	})

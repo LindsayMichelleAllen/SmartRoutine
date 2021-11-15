@@ -1,8 +1,8 @@
-CREATE EXTENSION pgcrypto;
 CREATE DATABASE smart_routine_db;
+CREATE EXTENSION pgcrypto;
 CREATE TABLE profile_details ( id uuid DEFAULT gen_random_uuid() PRIMARY KEY, username VARCHAR(25) NOT NULL, displayname VARCHAR(50) NOT NULL);
 CREATE TABLE device_details ( id uuid DEFAULT gen_random_uuid() PRIMARY KEY, devicename VARCHAR(25) NOT NULL, userid uuid NOT NULL REFERENCES profile_details(id));
-CREATE TABLE routine_details ( id uuid DEFAULT gen_random_uuid() PRIMARY KEY, routinename VARCHAR(25) NOT NULL, userid uuid NOT NULL REFERENCES profile_details(id));
+CREATE TABLE routine_details ( id uuid DEFAULT gen_random_uuid() PRIMARY KEY, basealarm TIME with time zone NOT NULL, routinename VARCHAR(25) NOT NULL, userid uuid NOT NULL REFERENCES profile_details(id));
 CREATE TABLE configuration_details ( id uuid DEFAULT gen_random_uuid() PRIMARY KEY, timeoffset INTEGER NOT NULL, deviceid uuid NOT NULL REFERENCES device_details(id), routineid uuid NOT NULL REFERENCES routine_details(id));
 
 /* 
@@ -37,5 +37,6 @@ routine_details{       |     |
     id   <--------------     |
     userid -------------------
     name
+    basealarm
 }
 */
