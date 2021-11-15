@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 /* The Device object is used to represent a controllable apparatus */
 type Device struct {
 	/* unique ID used to identify devices */
@@ -32,4 +34,21 @@ func (d *Device) GetName() string {
 
 func (d *Device) GetUserId() string {
 	return d.userId
+}
+
+func (d *Device) GetJsonStruct() interface{} {
+	return struct {
+		Id     string
+		Name   string
+		UserID string
+	}{
+		Id:     d.id,
+		Name:   d.name,
+		UserID: d.userId,
+	}
+}
+
+func (d *Device) GetJson() string {
+	bytes, _ := json.Marshal(d.GetJsonStruct())
+	return string(bytes)
 }

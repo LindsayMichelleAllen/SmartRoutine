@@ -1,4 +1,8 @@
-import React from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -8,21 +12,47 @@ import {
 } from 'react-router-dom';
 import MenuBar from '../../Components/MenuBar/MenuBar';
 import AccountView from '../Account/AccountView';
-import LoginRouter from '../Account/LoginRouter';
 import LoginView from '../Account/LoginView';
 import SignupView from '../Account/SignupView';
 import RoutinesView from '../Routines/RoutinesView';
-import { Box, createTheme, Paper, ThemeProvider } from '@mui/material';
+import {
+  Box,
+  createTheme,
+  Divider,
+  Drawer,
+  PaletteMode,
+  Paper,
+  ThemeProvider,
+} from '@mui/material';
+import PrivateRoute from '../../Components/Routing/PrivateRoute';
+import { AuthProvider } from '../../Utils/LoginState';
+import { purple } from '@mui/material/colors';
+import {
+  ColorProvider,
+  fetchColorPreference,
+  storeColorPreference,
+} from '../../Utils/ColorContext';
+import NavDrawer from '../../Components/NavDrawer/NavDrawer';
+import LogoutView from '../Account/LogoutView';
+import SingleRoutineView from '../Routines/SingleRoutineView';
+import {
+  ACCOUNT_URL,
+  ADD_ROUTINE_URL,
+  EDIT_ROUTINE_URL,
+  LOGIN_URL,
+  LOGOUT_URL,
+  ROUTINES_URL,
+  ROUTINE_URL,
+  SIGNUP_URL,
+} from '../../Utils/CommonRouting';
+import AddRoutineView from '../Routines/AddRoutineView';
+import EditRoutineView from '../Routines/EditRoutineView';
+import {
+  LocalizationProvider,
+} from '@mui/lab';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
 
-const theme = createTheme({
-  components: {
-    MuiButton: {
-      defaultProps: {
-        variant: 'contained',
-      },
-    },
-  },
-});
+const navDrawerWidth = 240;
 
 /**
  * The main entry point for the application.
@@ -31,6 +61,21 @@ const theme = createTheme({
  */
 function App() {
   const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const formattedLocation = useMemo(() => {
+    let formattedRoute = '';
+
+    if (location.pathname.includes('/')) {
+      formattedRoute = location.pathname.split('/')[1];
+    }
+
+    if (formattedRoute.length > 1) {
+      formattedRoute = formattedRoute.slice(0, 1).toUpperCase() + formattedRoute.slice(1);
+    }
+
+    return formattedRoute;
+  }, [location]);
 
   return (
     <Box sx={{
@@ -38,34 +83,70 @@ function App() {
       height: '100%',
       width: '100%',
       gridTemplateAreas: `
-        "menubar"
-        "body"
+        "nav menubar"
+        "nav divider"
+        "nav body"
       `,
-      gridTemplateRows: 'min-content auto'
-    }}>
+      gridTemplateRows: 'min-content min-content 1fr',
+      gridTemplateColumns: {
+        xs: '0px auto',
+        sm: `${navDrawerWidth}px auto`,
+      }
+    }}
+    >
+      <Box sx={{gridArea: 'nav'}} component="nav" >
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          ModalProps={{
+            keepMounted: true, // https://mui.com/components/drawers/ Better Perf on Mobile.
+          }}
+          sx = {{ display: { xs: 'block', sm: 'none' } }}>
+          <NavDrawer onNavigate={() => setMobileOpen(false)} drawerWidthPixels={navDrawerWidth} />
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          open
+          sx={{ display: { xs: 'none', sm: 'block' } }}>
+          <NavDrawer drawerWidthPixels={navDrawerWidth} />
+        </Drawer>
+      </Box>
       <MenuBar
-        title={location.pathname}
+        sx={{ gridArea: 'menubar' }}
+        title={formattedLocation}
+        handleClickMenu={() => setMobileOpen(true)}
       />
-      <Paper>
+      <Divider sx={{ gridArea: 'divider' }} />
+      <Paper square sx={{ overflowY: 'auto' }} >
         <Routes>
           <Route
             path="/"
-            element={<Navigate replace to="/login" />} />
+            element={<Navigate replace to={LOGIN_URL} />} />
           <Route
-            path="/login"
-            element={<LoginRouter />} />
+            path={LOGOUT_URL}
+            element={<PrivateRoute authElement={<LogoutView />} fallbackUrl={LOGIN_URL} />} />
           <Route
-            path="/signup"
-            element={<SignupView />} />
+            path={SIGNUP_URL}
+            element={<PrivateRoute authElement={<SignupView />} fallbackUrl={LOGOUT_URL} invertPrivacy/>} />
           <Route
-            path="/account"
-            element={<AccountView />} />
+            path={ACCOUNT_URL}
+            element={<PrivateRoute authElement={<AccountView />} fallbackUrl={LOGIN_URL} />} />
           <Route
-            path="/routines"
-            element={<RoutinesView />} />
+            path={ROUTINES_URL}
+            element={<PrivateRoute authElement={<RoutinesView />} fallbackUrl={LOGIN_URL} />} />
           <Route
-            path="/login"
-            element={<LoginView />} />
+            path={ROUTINE_URL}
+            element={<PrivateRoute authElement={<SingleRoutineView />} fallbackUrl={LOGIN_URL} />} />
+          <Route
+            path={ADD_ROUTINE_URL}
+            element={<PrivateRoute authElement={<AddRoutineView />} fallbackUrl={LOGIN_URL} />} />
+          <Route
+            path={EDIT_ROUTINE_URL}
+            element={<PrivateRoute authElement={<EditRoutineView />} fallbackUrl={LOGIN_URL} />} />
+          <Route
+            path={LOGIN_URL}
+            element={<PrivateRoute authElement={<LoginView />} fallbackUrl={LOGOUT_URL} invertPrivacy/>} />
         </Routes>
       </Paper>
     </Box>
@@ -79,11 +160,48 @@ function App() {
  * @returns The wrapper.
  */
 export default function AppContainer() {
+  const [colorMode, setColorMode] = useState<PaletteMode>('dark');
+
+  const theme = useMemo(() => createTheme({
+    palette: {
+      primary: purple,
+      mode: colorMode,
+    },
+    components: {
+      MuiButton: {
+        defaultProps: {
+          variant: 'contained',
+        },
+      },
+      MuiAppBar: {
+        defaultProps: {
+          enableColorOnDark: true,
+        }
+      },
+    },
+  }), [colorMode]);
+
+  const updateColorPreference = (preferredColorMode: PaletteMode) => {
+    storeColorPreference(preferredColorMode);
+    setColorMode(preferredColorMode);
+  };
+
+  useEffect(() => {
+    const colorPreference = fetchColorPreference();
+    setColorMode(colorPreference);
+  }, []);
+
   return (
     <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
+      <ColorProvider colorState={{colorMode, setColorMode: updateColorPreference}}>
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </LocalizationProvider>
+        </ThemeProvider>
+      </ColorProvider>
     </BrowserRouter>
   );
 }

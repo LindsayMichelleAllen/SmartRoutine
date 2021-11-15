@@ -8,17 +8,13 @@ import {
   styled,
 } from '@mui/material';
 import {
-  GetSignupURL,
-  ParseLoginResponse,
+  GetSignupURL, ParseLoginResponse,
 } from '../../Utils/BackendIntegration';
 import React, {
   useState,
 } from 'react';
-import {
-  setLoginState,
-} from '../../Utils/LoginState';
-
-const validUserChars = /^[0-9a-zA-Z]+$/;
+import { useAuth } from '../../Utils/LoginState';
+import { ValidUserNameChars } from '../../Utils/InputValidation';
 
 /**
  * The view used to provide the user with a means to create a new account.
@@ -33,34 +29,34 @@ export default function SignupView() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const authState = useAuth();
+
+  const signIn = authState?.signIn;
 
   const signup = async () => {
     try {
-      await fetch(GetSignupURL(), {
+      const response = await fetch(GetSignupURL(), {
         method: 'POST',
         body: `username=${username}&name=${name}`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
-      })
-      .then((response) => {
-        if (response.ok) {
-          response.text().then((data) => {
-            const loginData = ParseLoginResponse(data);
-            console.log(loginData);
-            setLoginState(loginData);
-            setSuccessMessage(`
-              Success! The user account for ${loginData.username} was created.\n
-              Your user ID is "${loginData.userid}".\n
-              Use this ID to log in again.`);
-          });
-        } else {
-          response.text().then((data) => {
-            console.error(data);
-            setErrorMessage(data);
-          });
-        }
       });
+
+      const text = await response.text();
+      if (!response.ok) {
+        throw text;
+      }
+
+      const loginData = ParseLoginResponse(text);
+
+      if (signIn) {
+        signIn(loginData);
+        setSuccessMessage(`
+          Success! The user account for ${loginData.username} was created.\n
+          Your user ID is "${loginData.userid}".\n
+          Use this ID to log in again.`);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -74,10 +70,8 @@ export default function SignupView() {
   const validateInput = (): string | undefined => {
     if (password !== confirmPassword) {
       return 'Passwords do not match.';
-    } else if (!username.match(validUserChars)) {
+    } else if (!username.match(ValidUserNameChars)) {
       return 'Please only use letters and numbers in your username.';
-    } else if (!name.match(validUserChars)) {
-      return 'Please only use letters and numbers in your name.';
     }
 
     return undefined;
@@ -127,7 +121,6 @@ export default function SignupView() {
           textAlign: 'center',
           rowGap: '12px',
           gridArea: 'form',
-          minWidth: '480px',
         }}
         onSubmit={onSubmit} >
         <Typography variant="h2">
@@ -169,13 +162,9 @@ export default function SignupView() {
           type="password" />
         <Button type="submit">
           {
-            isLoading ? (
-              <CircularProgress />
-            ) : (
-              <Typography variant="button">
-                Sign Up
-              </Typography>
-            )
+            isLoading
+              ? (<CircularProgress />)
+              : (<Typography variant="button">Sign Up</Typography>)
           }
         </Button>
       </StyledForm>

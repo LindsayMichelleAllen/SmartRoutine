@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/rs/cors"
 )
@@ -250,6 +251,8 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else if resp.Routine != nil {
+				fmt.Fprint(w, resp.Routine.GetJson())
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -283,6 +286,13 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				routineStrings := []string{}
+				for _, r := range resp.Routines {
+					routineStrings = append(routineStrings, r.GetJson())
+				}
+
+				fmt.Fprintf(w, "[%s]", strings.Join(routineStrings, ","))
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -301,6 +311,13 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				routineStrings := []string{}
+				for _, r := range resp.Routines {
+					routineStrings = append(routineStrings, r.GetJson())
+				}
+
+				fmt.Fprintf(w, "[%s]", strings.Join(routineStrings, ","))
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -324,6 +341,8 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else if resp.Routine != nil {
+				fmt.Fprint(w, resp.Routine.GetJson())
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -385,6 +404,8 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, "[%s]", resp.Configuration.GetJson())
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -401,6 +422,13 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				configStrings := []string{}
+				for _, c := range resp.Configurations {
+					configStrings = append(configStrings, c.GetJson())
+				}
+
+				fmt.Fprintf(w, "[%s]", strings.Join(configStrings, ","))
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -420,6 +448,13 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				configStrings := []string{}
+				for _, c := range resp.Configurations {
+					configStrings = append(configStrings, c.GetJson())
+				}
+
+				fmt.Fprintf(w, "[%s]", strings.Join(configStrings, ","))
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -439,6 +474,13 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				configStrings := []string{}
+				for _, c := range resp.Configurations {
+					configStrings = append(configStrings, c.GetJson())
+				}
+
+				fmt.Fprintf(w, "[%s]", strings.Join(configStrings, ","))
 			}
 			fmt.Fprint(w, "Success", 200)
 		}

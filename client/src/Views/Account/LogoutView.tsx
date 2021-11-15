@@ -1,6 +1,10 @@
-import { Box, Button, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+} from '@mui/material';
 import React from 'react';
-import { setLoginState, useLoginState } from '../../Utils/LoginState';
+import { useAuth } from '../../Utils/LoginState';
 import { useNavigate } from 'react-router';
 
 /**
@@ -9,11 +13,16 @@ import { useNavigate } from 'react-router';
  * @returns The view.
  */
 export default function LogoutView() {
-  const loginDetails = useLoginState();
+  const authState = useAuth();
   const navigate = useNavigate();
 
+  const loginDetails = authState?.loginDetails;
+  const signOut = authState?.signOut;
+
   const handleClick = () => {
-    setLoginState(undefined);
+    if (signOut) {
+      signOut();
+    }
     navigate('/');
   };
 

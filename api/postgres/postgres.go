@@ -811,9 +811,12 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 
 	var name, basealarm, userid string
 
-	query := `SELECT r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
-			  FROM routine_details r, configuration_details c, device_details d 
-			  WHERE r.id = $1 AND r.id = c.routineid AND c.deviceid = d.id`
+	query := `
+SELECT r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
+FROM routine_details r
+LEFT JOIN configuration_details c ON r.id = c.routineid
+LEFT JOIN device_details d ON d.id = c.deviceid
+WHERE r.id = $1`
 
 	rows, err := db.Query(query, request.RoutineId)
 
@@ -827,8 +830,8 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 	defer rows.Close()
 	configs := make([]*model.Configuration, 0)
 	for rows.Next() {
-		var routineName, baseAlarm, userId, configId, deviceId, deviceName string
-		var timeoffset int
+		var routineName, baseAlarm, userId, configId, deviceId, deviceName sql.NullString
+		var timeoffset sql.NullInt32
 		err = rows.Scan(&routineName, &baseAlarm, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetRoutineDatabaseResponse{
@@ -836,17 +839,17 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 				Error:   err,
 			}
 		}
-		name = routineName
-		basealarm = baseAlarm
-		userid = userId
+		name = routineName.String
+		basealarm = baseAlarm.String
+		userid = userId.String
 		config := &model.Configuration{}
 		dev := &model.Device{}
-		dev.SetId(deviceId)
-		dev.SetName(deviceName)
-		dev.SetUserId(userId)
-		config.SetId(configId)
+		dev.SetId(deviceId.String)
+		dev.SetName(deviceName.String)
+		dev.SetUserId(userId.String)
+		config.SetId(configId.String)
 		config.SetRoutineId(request.RoutineId)
-		config.SetOffset(timeoffset)
+		config.SetOffset(int(timeoffset.Int32))
 		config.SetDevice(dev)
 		configs = append(configs, config)
 	}
@@ -960,9 +963,13 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 		}
 	}
 
-	query := `SELECT r.id, r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
-			  FROM routine_details r, configuration_details c, device_details d
-			  WHERE r.userid = $1 AND r.id = c.routineid AND c.deviceid = d.id`
+	query := `
+SELECT r.id, r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
+FROM routine_details r
+LEFT JOIN configuration_details c ON r.id = c.routineid
+LEFT JOIN device_details d ON d.id = c.deviceid
+WHERE r.userid = $1
+`
 
 	rows, err := db.Query(query, request.UserId)
 
@@ -976,8 +983,8 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 	defer rows.Close()
 	res := make(map[string][][7]string)
 	for rows.Next() {
-		var routineId, routineName, basealarm, userId, configId, deviceId, deviceName string
-		var timeoffset int
+		var routineId, routineName, basealarm, userId, configId, deviceId, deviceName sql.NullString
+		var timeoffset sql.NullInt32
 		err = rows.Scan(&routineId, &routineName, &basealarm, &userId, &configId, &timeoffset, &deviceId, &deviceName)
 		if err != nil {
 			return &GetUserRoutinesDatabaseResponse{
@@ -985,12 +992,28 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 				Error:   err,
 			}
 		}
-		if value, ok := res[routineId]; ok {
-			temp := [...]string{routineName, basealarm, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
-			res[routineId] = append(value, temp)
+		if value, ok := res[routineId.String]; ok {
+			temp := [...]string{
+				routineName.String,
+				basealarm.String,
+				userId.String,
+				configId.String,
+				strconv.Itoa(int(timeoffset.Int32)),
+				deviceId.String,
+				deviceName.String,
+			}
+			res[routineId.String] = append(value, temp)
 		} else {
-			temp := [...]string{routineName, basealarm, userId, configId, strconv.Itoa(timeoffset), deviceId, deviceName}
-			res[routineId] = append(res[routineId], temp)
+			temp := [...]string{
+				routineName.String,
+				basealarm.String,
+				userId.String,
+				configId.String,
+				strconv.Itoa(int(timeoffset.Int32)),
+				deviceId.String,
+				deviceName.String,
+			}
+			res[routineId.String] = append(res[routineId.String], temp)
 		}
 	}
 
