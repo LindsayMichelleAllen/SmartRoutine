@@ -91,6 +91,7 @@ export default function RoutinesView() {
         padding: '12px',
         justifyContent: 'center',
         paddingBottom: '128px', // Add some extra space so the FAB doesn't overlay the actions.
+        gridTemplateRows: 'min-content',
         gridTemplateColumns: {
           sm: '220px 220px',
           xs: '1fr',

@@ -109,7 +109,7 @@ export function GetLoginURL() {
  * @returns The signup URL for the current session.
  */
 export function GetSignupURL() {
-  return `${GetRootURL()}/create/user`;
+  return `${GetRootURL()}/create/user/`;
 }
 
 /**
@@ -118,7 +118,7 @@ export function GetSignupURL() {
  * @returns The URL for creating a new routine.
  */
 export function GetCreateRoutineURL() {
-  return `${GetRootURL()}/routine/create`;
+  return `${GetRootURL()}/routine/create/`;
 }
 
 /**
@@ -127,7 +127,7 @@ export function GetCreateRoutineURL() {
  * @returns The URL for modifying a user's information.
  */
 export function GetModifyUserURL() {
-  return `${GetRootURL()}/modify/user`;
+  return `${GetRootURL()}/modify/user/`;
 }
 
 /**
@@ -136,7 +136,7 @@ export function GetModifyUserURL() {
  * @returns The URL for deleting a routine.
  */
 export function GetDeleteRoutineURL() {
-  return `${GetRootURL()}/routine/delete`;
+  return `${GetRootURL()}/routine/delete/`;
 }
 
 /**
@@ -145,7 +145,7 @@ export function GetDeleteRoutineURL() {
  * @returns The URL for modifying a routine.
  */
 export function GetUpdateRoutineURL() {
-  return `${GetRootURL()}/routine/update`;
+  return `${GetRootURL()}/routine/update/`;
 }
 
 /**

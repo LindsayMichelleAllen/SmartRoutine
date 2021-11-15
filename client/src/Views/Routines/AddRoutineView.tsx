@@ -7,6 +7,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import {
+  TimePicker,
+} from '@mui/lab';
 import React, { useState } from 'react';
 import {
   GetCreateRoutineURL,
@@ -28,6 +31,7 @@ import {
  */
 export default function AddRoutineView() {
   const [name, setName] = useState('');
+  const [time, setTime] = useState<Date>(new Date(Date.now()));
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -36,9 +40,17 @@ export default function AddRoutineView() {
 
   const addRoutine = async (): Promise<StoredRoutine | undefined> => {
     try {
+      const timeZoneOffsetHours = time.getTimezoneOffset() / 60;
+      const offsetString = timeZoneOffsetHours > 9 ? `${timeZoneOffsetHours}:00` : `0${timeZoneOffsetHours}:00`;
+      const timeString = `${time.getHours()}:${time.getMinutes()}-${offsetString}`;
+
       const response = await fetch(GetCreateRoutineURL(), {
         method: 'POST',
-        body: `name=${name}&userid=${loginDetails?.userid ?? ''}`,
+        body: new URLSearchParams({
+          userid: loginDetails.userid ?? '',
+          name: name,
+          basealarm: timeString,
+        }),
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
@@ -103,6 +115,7 @@ export default function AddRoutineView() {
           gridTemplateAreas: `
             "error"
             "name"
+            "time"
             "submit"
           `,
         }}>
@@ -116,6 +129,11 @@ export default function AddRoutineView() {
           label="Routine Name"
           id="routinename"
           type="text" />
+        <TimePicker
+          label="Base Alarm"
+          value={time}
+          onChange={(v) => setTime(v)}
+          renderInput={(params) => <TextField sx={{ gridArea: 'time' }} {...params} />} />
         <Button sx={{ gridArea: 'submit' }} type="submit" >
           {
             isLoading

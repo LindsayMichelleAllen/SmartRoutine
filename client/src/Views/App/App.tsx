@@ -47,6 +47,10 @@ import {
 } from '../../Utils/CommonRouting';
 import AddRoutineView from '../Routines/AddRoutineView';
 import EditRoutineView from '../Routines/EditRoutineView';
+import {
+  LocalizationProvider,
+} from '@mui/lab';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
 
 const navDrawerWidth = 240;
 
@@ -174,11 +178,6 @@ export default function AppContainer() {
           enableColorOnDark: true,
         }
       },
-      // MuiCssBaseline: {
-      //   styleOverrides: {
-      //     body: colorMode === 'dark' ? darkScrollbar() : null,
-      //   },
-      // },
     },
   }), [colorMode]);
 
@@ -196,9 +195,11 @@ export default function AppContainer() {
     <BrowserRouter>
       <ColorProvider colorState={{colorMode, setColorMode: updateColorPreference}}>
         <ThemeProvider theme={theme}>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </LocalizationProvider>
         </ThemeProvider>
       </ColorProvider>
     </BrowserRouter>
