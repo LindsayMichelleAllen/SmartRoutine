@@ -19,7 +19,6 @@ type GetRoutineDevicesInteractorRequest struct {
 }
 
 type CreateDeviceRequest struct {
-	Id     string
 	Name   string
 	UserId string
 }

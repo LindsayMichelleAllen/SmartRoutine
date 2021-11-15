@@ -19,13 +19,15 @@ type GetDeviceRoutinesRequest struct {
 }
 
 type RoutineCreateRequest struct {
-	UserId string
-	Name   string
+	Basealarm string
+	UserId    string
+	Name      string
 }
 
 type RoutineUpdateRequest struct {
-	Id   string
-	Name string
+	Basealarm string
+	Id        string
+	Name      string
 }
 
 type RoutineDeleteRequest struct {
@@ -131,7 +133,7 @@ func (r *UnprotectedRoutineService) GetUserRoutines(request *GetUserRoutinesRequ
 }
 
 func (r *UnprotectedRoutineService) CreateRoutine(request *RoutineCreateRequest) *RoutineCreateResponse {
-	if request.Name == "" || request.UserId == "" {
+	if request.Name == "" || request.UserId == "" || request.Basealarm == "" {
 		return &RoutineCreateResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
@@ -139,8 +141,9 @@ func (r *UnprotectedRoutineService) CreateRoutine(request *RoutineCreateRequest)
 	}
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
 	resp := dbInt.CreateRoutine(&routinedatabaseinteractor.RoutineCreateInteractorRequest{
-		Name:   request.Name,
-		UserId: request.UserId,
+		Basealarm: request.Basealarm,
+		Name:      request.Name,
+		UserId:    request.UserId,
 	})
 
 	return &RoutineCreateResponse{
@@ -151,7 +154,7 @@ func (r *UnprotectedRoutineService) CreateRoutine(request *RoutineCreateRequest)
 }
 
 func (r *UnprotectedRoutineService) UpdateRoutine(request *RoutineUpdateRequest) *RoutineUpdateResponse {
-	if request.Id == "" || request.Name == "" {
+	if request.Id == "" || request.Name == "" || request.Basealarm == "" {
 		return &RoutineUpdateResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
@@ -159,8 +162,9 @@ func (r *UnprotectedRoutineService) UpdateRoutine(request *RoutineUpdateRequest)
 	}
 	dbInt := &routinedatabaseinteractor.UnprotectedRoutineDBInteractor{}
 	resp := dbInt.UpdateRoutine(&routinedatabaseinteractor.RoutineUpdateInteractorRequest{
-		Id:   request.Id,
-		Name: request.Name,
+		Basealarm: request.Basealarm,
+		Id:        request.Id,
+		Name:      request.Name,
 	})
 
 	return &RoutineUpdateResponse{
