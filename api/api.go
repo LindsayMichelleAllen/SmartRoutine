@@ -33,7 +33,7 @@ func main() {
 			if userResponse.Error != nil {
 				http.Error(w, userResponse.Error.Error(), 500)
 			} else {
-				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName(), 200)
 			}
 		}
 	})
@@ -46,7 +46,7 @@ func main() {
 				http.Error(w, userResponse.Error.Error(), 500)
 			} else {
 				for _, user := range userResponse.Users {
-					fmt.Fprintf(w, user.GetUsername()+", "+user.GetName()+", "+user.GetId(), 200)
+					fmt.Fprintf(w, user.GetUsername()+", "+user.GetName(), 200)
 				}
 			}
 		}
@@ -57,16 +57,18 @@ func main() {
 			r.ParseForm()
 			username := r.FormValue("username")
 			name := r.FormValue("name")
+			password := r.FormValue("password")
 
 			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
 			userResponse := basicUsrMngr.CreateUserProfile(&userAcctMngr.UserProfileCreateRequest{
 				Username: username,
 				Name:     name,
+				Password: password,
 			})
 			if userResponse.Error != nil {
 				http.Error(w, userResponse.Error.Error(), 500)
 			} else {
-				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName(), 200)
 			}
 		}
 	})
@@ -78,18 +80,16 @@ func main() {
 			}
 			username := r.FormValue("username")
 			name := r.FormValue("name")
-			id := r.FormValue("id")
 
 			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
 			userResponse := basicUsrMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
 				Username: username,
 				Name:     name,
-				Id:       id,
 			})
 			if userResponse.Error != nil {
 				http.Error(w, userResponse.Error.Error(), 500)
 			} else {
-				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName(), 200)
 			}
 		}
 	})
@@ -108,7 +108,7 @@ func main() {
 			if userResponse.Error != nil {
 				http.Error(w, userResponse.Error.Error(), 500)
 			} else {
-				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName()+", "+userResponse.User.GetId(), 200)
+				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName(), 200)
 			}
 		}
 	})

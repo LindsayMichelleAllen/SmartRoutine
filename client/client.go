@@ -29,10 +29,11 @@ func getUserProfiles() *http.Response {
 	return resp
 }
 
-func createUserProfile(name string, username string) *http.Response {
+func createUserProfile(name string, username string, password string) *http.Response {
 	data := url.Values{
 		"name":     {name},
 		"username": {username},
+		"password": {password},
 	}
 	resp, err := http.PostForm("http://localhost:8080/user/create/", data)
 
@@ -360,6 +361,5 @@ func deleteConfiguration(id string) *http.Response {
 }
 
 func main() {
-	/* userid : 9b3c86dd-155a-453d-9c7b-a9e4dbdf6a8a */
-	_ = createDevice("deviceName", "9b3c86dd-155a-453d-9c7b-a9e4dbdf6a8a")
+	_ = getUserProfiles()
 }

@@ -24,6 +24,7 @@ type GetUsersInteractorResponse struct {
 
 type CreateUserInteractorRequest struct {
 	Username string
+	Password string
 	Name     string
 }
 
@@ -103,13 +104,13 @@ func (u *UserAccountManagementServiceInteractor) CreateUserProfile(request *Crea
 	db := &postgres.UserProfileDB{}
 	resp := db.CreateUserProfile(&postgres.CreateUserDatabaseRequest{
 		Username: request.Username,
+		Password: request.Password,
 		Name:     request.Name,
 	})
 
 	return &CreateUserInteractorResponse{
 		Username: resp.Username,
 		Name:     resp.Name,
-		Id:       resp.Id,
 		Message:  resp.Message,
 		Error:    resp.Error,
 	}
@@ -120,13 +121,11 @@ func (u *UserAccountManagementServiceInteractor) UpdateUserProfile(request *Upda
 	resp := db.UpdateUserProfile(&postgres.UpdateUserDatabaseRequest{
 		Username: request.Username,
 		Name:     request.Name,
-		Id:       request.Id,
 	})
 
 	return &UpdateUserInteractorResponse{
 		Username: resp.Username,
 		Name:     resp.Name,
-		Id:       resp.Id,
 		Message:  resp.Message,
 		Error:    resp.Error,
 	}
@@ -141,7 +140,6 @@ func (u *UserAccountManagementServiceInteractor) DeleteUserProfile(request *Dele
 	return &DeleteUserInteractorResponse{
 		Username: resp.Username,
 		Name:     resp.Name,
-		Id:       resp.Id,
 		Message:  resp.Message,
 		Error:    resp.Error,
 	}
