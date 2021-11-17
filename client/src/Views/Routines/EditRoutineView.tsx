@@ -1,3 +1,4 @@
+import { TimePicker } from '@mui/lab';
 import {
   Box,
   Typography,
@@ -6,17 +7,20 @@ import {
   Button,
   CircularProgress,
   styled,
+  List,
+  ListItem,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
+  GetFetchRequest,
   GetGetRoutineURL,
+  GetRoutineBasealarmString,
   GetUpdateRoutineURL,
   ParseRoutine,
   StoredRoutine,
 } from '../../Utils/BackendIntegration';
-import { RoutineIdSearchParam } from '../../Utils/CommonRouting';
+import { ROUTINE_ID_SEARCH_PARAM } from '../../Utils/CommonRouting';
 import { ValidRoutineNameChars } from '../../Utils/InputValidation';
 
 /**
@@ -26,24 +30,30 @@ import { ValidRoutineNameChars } from '../../Utils/InputValidation';
  */
 export default function EditRoutineView() {
   const [name, setName] = useState('');
+  const [time, setTime] = useState<Date>(new Date(Date.now()));
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchParams, _] = useSearchParams();
   const [routine, setRoutine] = useState<StoredRoutine | undefined>(undefined);
-  const navigate = useNavigate();
+  
+  const devices = useMemo(() => routine?.Configuration?.map((c) => (
+    <ListItem key={c.Id}>
+      {c.Device.Name}
+    </ListItem>
+  )), [routine?.Configuration]);
 
-  const routineId = searchParams.get(RoutineIdSearchParam) ?? '';
+  const routineId = searchParams.get(ROUTINE_ID_SEARCH_PARAM) ?? '';
 
   const loadRoutine = async () => {
     try {
-      const response = await fetch(GetGetRoutineURL(), {
-        method: 'POST',
-        body: `routineid=${routineId}`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-      });
+      const response = await fetch(
+        GetGetRoutineURL(),
+        GetFetchRequest({
+          routineid: routineId,
+        }),
+      );
 
       const text = await response.text();
       if (!response.ok) {
@@ -54,6 +64,7 @@ export default function EditRoutineView() {
       if (routineData) {
         setRoutine(routineData);
         setName(routineData.Name);
+        setTime(routineData.BaseAlarm);
       } else {
         throw 'There was an error editing the routine. Please try again.';
       }
@@ -65,13 +76,15 @@ export default function EditRoutineView() {
 
   const editRoutine = async () => {
     try {
-      const response = await fetch(GetUpdateRoutineURL(), {
-        method: 'POST',
-        body: `routineId=${routine.Id}}&name=${name}`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-      });
+      const timeString = GetRoutineBasealarmString(time);
+      const response = await fetch(
+        GetUpdateRoutineURL(),
+        GetFetchRequest({
+          name,
+          routineid: routine.Id,
+          basealarm: timeString,
+        }),
+      );
 
       const text = await response.text();
       if (!response.ok) {
@@ -102,10 +115,12 @@ export default function EditRoutineView() {
     } else {
       try {
         await editRoutine();
-        navigate(`/routine?routineid=${routine.Id}`);
+        await loadRoutine();
+        setSuccessMessage('Successfully updated the routine!');
       } catch (e) {
-        // Only set loading to false if the login failed. If we try to set it on a success, that gets
-        // called after navigate which leads to the 'memory leak' React error.
+        console.error(e);
+      }
+      finally {
         setIsLoading(false);
       }
     }
@@ -126,14 +141,29 @@ export default function EditRoutineView() {
           paddingTop: '18px',
           display: 'grid',
           rowGap: '12px',
+          justifyContent: 'center',
+          alignItems: 'center',
           gridTemplateAreas: `
             "error"
+            "success"
             "name"
+            "time"
+            "devicestitle"
+            "devices"
             "submit"
           `,
         }}>
-        <Alert sx={{ visibility: !!errorMessage ? 'visible' : 'hidden' }} severity="error">
+        <Alert sx={{
+          visibility: !!errorMessage ? 'visible' : 'hidden',
+          gridArea: 'error',
+        }} severity="error">
           {errorMessage}
+        </Alert>
+        <Alert sx={{
+          visibility: !!successMessage ? 'visible' : 'hidden',
+          gridArea: 'success',
+        }} severity="success">
+          {successMessage}
         </Alert>
         <TextField
           sx={{ gridArea: 'name' }}
@@ -142,6 +172,17 @@ export default function EditRoutineView() {
           label="Routine Name"
           id="routinename"
           type="text" />
+        <TimePicker
+          label="Base Alarm"
+          value={time}
+          onChange={(v) => setTime(v)}
+          renderInput={(params) => <TextField sx={{ gridArea: 'time' }} {...params} />} />
+        <Typography variant="h6" sx={{ gridArea: 'devicestitle' }}>
+          Devices
+        </Typography>
+        <List sx={{ gridArea: 'devices' }}>
+          {devices}
+        </List>
         <Button sx={{ gridArea: 'submit' }} type="submit" >
           {
             isLoading

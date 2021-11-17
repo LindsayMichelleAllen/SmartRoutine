@@ -42,9 +42,9 @@ func (d *Device) GetJsonStruct() interface{} {
 		Name   string
 		UserID string
 	}{
-		Id:     d.id,
-		Name:   d.name,
-		UserID: d.userId,
+		Id:     d.GetId(),
+		Name:   d.GetName(),
+		UserID: d.GetUserId(),
 	}
 }
 

@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 type UserProfile struct {
 	/* username used for login */
 	userName string
@@ -37,4 +39,21 @@ func (u *UserProfile) SetAuthorizationStatus(stat bool) {
 /* GetId returns the current value of the private id field. */
 func (u *UserProfile) GetAuthorizationStatus() bool {
 	return u.isAuth
+}
+
+/* GetJsonStruct fetches the JSON struct representation for the user profile. */
+func (u *UserProfile) GetJsonStruct() interface{} {
+	return struct {
+		Name     string
+		Username string
+	}{
+		Name:     u.GetName(),
+		Username: u.GetUsername(),
+	}
+}
+
+/* GetJson provides the JSON-stringified output of GetJsonStruct(). */
+func (u *UserProfile) GetJson() string {
+	bytes, _ := json.Marshal(u.GetJsonStruct())
+	return string(bytes)
 }

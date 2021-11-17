@@ -1,4 +1,4 @@
-import { LoginDetailsBlob } from './LoginState';
+import { instanceOfLoginDetailsBlob, LoginDetailsBlob } from './LoginState';
 
 const ProdBaseUri = 'http://localhost:8080';
 const LocalBaseUri = 'http://localhost:8080';
@@ -68,9 +68,42 @@ export class StoredRoutine {
   UserId: string;
 
   /**
+   * The time for the base alarm that is established for the routine.
+   */
+  BaseAlarm: Date;
+
+  /**
    * The array of configurations associated with this routine.
    */
   Configuration: StoredConfiguration[];
+}
+
+/**
+ * Gets a backend-parseable string from the given routine's basealarm field.
+ * 
+ * @param time The date to evaluate to get the string.
+ * @returns The parsed string from the routine's basealarm field.
+ */
+export function GetRoutineBasealarmString(time: Date): string {
+  const timeZoneOffsetHours = Math.ceil(time.getTimezoneOffset() / 60);
+  const offsetString = timeZoneOffsetHours >= 10
+    ? `${timeZoneOffsetHours}:00`
+    : `0${timeZoneOffsetHours}:00`;
+
+  const timeHours = time.getHours();
+  const timeMinutes = time.getMinutes();
+
+  const formattedHours = timeHours >= 10
+    ? `${timeHours}`
+    : `0${timeHours}`;
+
+  const formattedMinutes = timeMinutes >= 10
+    ? `${timeMinutes}`
+    : `0${timeMinutes}`;
+
+  const timeString = `${formattedHours}:${formattedMinutes}-${offsetString}`;
+
+  return timeString;
 }
 
 /**
@@ -95,12 +128,34 @@ export function GetRootURL(): string {
 }
 
 /**
+ * A generic method wrapper to send a fetch request. The BE expects form data, so this simplifies
+ * some of the requests.
+ * 
+ * @param body The body to send. This is really just a mapped object type.
+ * @param requestType The type of request to send. The default value is 'POST'.
+ * @returns The request init value that should be associated with a fetch request.
+ */
+export function GetFetchRequest(
+  body: Record<string, string>,
+  requestType?: 'POST' | 'GET',
+): RequestInit {
+  const useRequestType = requestType ?? 'POST';
+  return {
+    method: useRequestType,
+    body: new URLSearchParams(body),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }
+  } as RequestInit;
+}
+
+/**
  * Gets the login URL for the current session.
  * 
  * @returns The login URL for the current session.
  */
 export function GetLoginURL() {
-  return `${GetRootURL()}/user/`;
+  return `${GetRootURL()}/user/login/`;
 }
 
 /**
@@ -109,7 +164,7 @@ export function GetLoginURL() {
  * @returns The signup URL for the current session.
  */
 export function GetSignupURL() {
-  return `${GetRootURL()}/create/user/`;
+  return `${GetRootURL()}/user/create/`;
 }
 
 /**
@@ -127,7 +182,7 @@ export function GetCreateRoutineURL() {
  * @returns The URL for modifying a user's information.
  */
 export function GetModifyUserURL() {
-  return `${GetRootURL()}/modify/user/`;
+  return `${GetRootURL()}/user/update/`;
 }
 
 /**
@@ -167,25 +222,44 @@ export function GetRoutinesFetchURL() {
 }
 
 /**
+ *
+ */
+export function GetRoutineDeleteURL() {
+  return `${GetRootURL()}/routine/delete/`;
+}
+
+/**
  * Evaluates a login response. This resopnse may come either from the login call or from the signup
  * call.
  * 
- * @param response The response to evaluate from a fetch call either to login or to signup.
+ * @param jsonInput The response to evaluate from a fetch call either to login or to signup.
  * @returns The evaluated login response. Returns undefined if the string is an invalid response.
  */
-export function ParseLoginResponse(response: string): LoginDetailsBlob | undefined {
-  const values = response.split(', ');
-  if (values.length >= 3) {
+export function ParseLoginResponse(jsonInput: string): LoginDetailsBlob | undefined {
+  let openingBracket: number | undefined = undefined;
+  let closingBracket: number | undefined = undefined;
 
-    return {
-      username: values[0],
-      name: values[1],
-      // the UUID is returning with some extra text. Truncate it here.
-      userid: values[2].split('%')[0],
-    };
+  [...jsonInput].forEach((c, i) => {
+    if (openingBracket === undefined) {
+      openingBracket = c === '{' ? i : undefined;
+    }
+    // The '+1' is to adjust for the 0/1-indexing mismatch between .substring() and an item's index.
+    closingBracket = c === '}' ? i + 1 : closingBracket;
+  });
+
+  const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
+  let result: LoginDetailsBlob | undefined = undefined;
+
+  try {
+    const parsedObject = JSON.parse(inputSubstr);
+    if (instanceOfLoginDetailsBlob(parsedObject)) {
+      result = parsedObject as LoginDetailsBlob;
+    }
+  } catch (e) {
+    console.error(e);
   }
-
-  return undefined;
+  
+  return result;
 }
 
 /**
@@ -296,7 +370,12 @@ export function ParseRoutine(jsonInput: string): StoredRoutine | undefined {
   let result: StoredRoutine | undefined = undefined;
 
   try {
-    const parsedObject = JSON.parse(inputSubstr);
+    const parsedObject = JSON.parse(inputSubstr, (key, value) => {
+      if (key === 'BaseAlarm') {
+        return new Date(value);
+      }
+      return value;
+    });
     if (instanceOfStoredRoutine(parsedObject)) {
       result = parsedObject;
     }
@@ -328,14 +407,22 @@ export function ParseRoutineArray(jsonInput: string): StoredRoutine[] | undefine
   
   const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
 
-  let result: StoredRoutine[] | undefined = undefined;
+  const result: StoredRoutine[] | undefined = [];
 
   try {
-    const parsedObject = JSON.parse(inputSubstr) as StoredRoutine[];
+    const jsonData = JSON.parse(inputSubstr);
 
-    if (Array.isArray(parsedObject)) {
-      result = parsedObject.filter((i) => instanceOfStoredRoutine(i));
+    if (Array.isArray(jsonData)) {
+      for (let i = 0; i < jsonData.length; i++) {
+        // We need to revive this differently from the base implementation.
+        const reStringifiedJson = JSON.stringify(jsonData[i]);
+        const routine = ParseRoutine(reStringifiedJson);
+        if (instanceOfStoredRoutine(routine)) {
+          result.push(routine);
+        }
+      }
     }
+
   } catch (e) {
     console.error(e);
   }

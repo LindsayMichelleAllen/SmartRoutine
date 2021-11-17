@@ -76,11 +76,13 @@ func (r *Routine) GetJsonStruct() interface{} {
 		Id            string
 		Name          string
 		UserId        string
+		BaseAlarm     string
 		Configuration []interface{}
 	}{
-		Id:            r.id,
-		Name:          r.name,
-		UserId:        r.userId,
+		Id:            r.GetId(),
+		Name:          r.GetName(),
+		UserId:        r.GetUserId(),
+		BaseAlarm:     r.GetBaseAlarm(),
 		Configuration: configs,
 	}
 }

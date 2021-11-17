@@ -48,9 +48,9 @@ func (c *Configuration) GetJsonStruct() interface{} {
 		Offset    int
 		Device    interface{}
 	}{
-		Id:        c.id,
-		RoutineId: c.routineId,
-		Offset:    c.offset,
+		Id:        c.GetId(),
+		RoutineId: c.GetRoutineId(),
+		Offset:    c.GetOffset(),
 		Device:    c.device.GetJsonStruct(),
 	}
 }

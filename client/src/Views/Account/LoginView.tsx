@@ -10,7 +10,7 @@ import {
 import {
   styled
 } from '@mui/material/styles';
-import { GetLoginURL, ParseLoginResponse } from '../../Utils/BackendIntegration';
+import { GetFetchRequest, GetLoginURL, ParseLoginResponse } from '../../Utils/BackendIntegration';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../Utils/LoginState';
 
@@ -37,13 +37,13 @@ export default function LoginView() {
 
   const login = async () => {
     try {
-      const response = await fetch(GetLoginURL(), {
-        method: 'POST',
-        body: `userId=${username}`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
+      const response = await fetch(
+        GetLoginURL(),
+        GetFetchRequest({
+          username,
+          password,
+        })
+      );
 
       const text = await response.text();
       if (response.ok) {

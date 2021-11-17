@@ -8,6 +8,7 @@ import {
   styled,
 } from '@mui/material';
 import {
+  GetFetchRequest,
   GetSignupURL, ParseLoginResponse,
 } from '../../Utils/BackendIntegration';
 import React, {
@@ -35,13 +36,14 @@ export default function SignupView() {
 
   const signup = async () => {
     try {
-      const response = await fetch(GetSignupURL(), {
-        method: 'POST',
-        body: `username=${username}&name=${name}`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-      });
+      const response = await fetch(
+        GetSignupURL(),
+        GetFetchRequest({
+          username,
+          name,
+          password,
+        }),
+      );
 
       const text = await response.text();
       if (!response.ok) {
@@ -52,10 +54,7 @@ export default function SignupView() {
 
       if (signIn) {
         signIn(loginData);
-        setSuccessMessage(`
-          Success! The user account for ${loginData.username} was created.\n
-          Your user ID is "${loginData.userid}".\n
-          Use this ID to log in again.`);
+        setSuccessMessage(`Success! The user account for ${loginData.Username} was created.`);
       }
     } catch (e) {
       console.error(e);
