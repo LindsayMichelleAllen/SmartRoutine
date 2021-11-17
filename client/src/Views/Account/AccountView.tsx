@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import {
+  GetFetchRequest,
   GetModifyUserURL,
   ParseLoginResponse,
 } from '../../Utils/BackendIntegration';
@@ -33,20 +34,20 @@ export default function AccountView() {
 
   useEffect(() => {
     if (loginDetails) {
-      setUsername(loginDetails.username);
-      setName(loginDetails.name);
+      setUsername(loginDetails.Username);
+      setName(loginDetails.Name);
     }
   }, [loginDetails]);
 
   const updateUser = async () => {
     try {
-      const response = await fetch(GetModifyUserURL(), {
-        method: 'POST',
-        body: `username=${username}&name=${name}&id=${loginDetails?.userid ?? ''}`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
+      const response = await fetch(
+        GetModifyUserURL(),
+        GetFetchRequest({
+          username,
+          name,
+        }),
+      );
 
       const text = await response.text();
       if (!response.ok) {
@@ -56,8 +57,8 @@ export default function AccountView() {
       const loginData = ParseLoginResponse(text);
       if (signIn) {
         signIn(loginData);
-        setUsername(loginData.username);
-        setName(loginData.name);
+        setUsername(loginData.Username);
+        setName(loginData.Name);
         setSuccessMessage(`
           Success! Your account has been updated.
         `);
@@ -129,8 +130,6 @@ export default function AccountView() {
               "username"
               "name_label"
               "name"
-              "userid_label"
-              "userid"
               "submit"
             `,
             rowGap: '12px',
@@ -168,12 +167,6 @@ export default function AccountView() {
             label="Name"
             id="name"
             type="text" />
-          <Typography sx={{ gridArea: 'userid_label', }} variant="h6">
-            User ID
-          </Typography>
-          <Typography sx={{ gridArea: 'userid' }} variant="body1">
-            {loginDetails?.userid ?? ''}
-          </Typography>
           <Button sx={{ gridArea: 'submit' }} type="submit">
             {
               isLoading

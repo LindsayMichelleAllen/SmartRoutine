@@ -18,11 +18,10 @@ const LOGIN_STATE_KEY = 'loginstate';
  * @returns A typeguarded truthy value if the object is a valid {@link LoginDetailsBlob}.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function instanceOfLoginDetailsBlob(object: any): object is LoginDetailsBlob {
+export function instanceOfLoginDetailsBlob(object: any): object is LoginDetailsBlob {
   return (
-    'username' in object &&
-    'name' in object &&
-    'userid' in object
+    'Username' in object &&
+    'Name' in object
   );
 }
 
@@ -33,17 +32,12 @@ export class LoginDetailsBlob {
   /**
    * The username for the active user.
    */
-  username: string;
+  Username: string;
 
   /**
    * The real name for the active user.
    */
-  name: string;
-
-  /**
-   * The user ID for the active user.
-   */
-  userid: string;
+  Name: string;
 }
 
 /**
@@ -94,6 +88,9 @@ function useLoginState(): AuthState | undefined {
       const parsedLogin = JSON.parse(storedLogin);
       if (instanceOfLoginDetailsBlob(parsedLogin)) {
         login = parsedLogin as LoginDetailsBlob;
+      } else {
+        // If our login state is invalid, purge it!
+        setLoginDetails(undefined);
       }
     }
 

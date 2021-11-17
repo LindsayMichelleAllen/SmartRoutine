@@ -1,12 +1,12 @@
 /**
  * A const value for the device ID search parameter in device routes.
  */
-export const DeviceIdSearchParam = 'deviceid';
+export const DEVICE_ID_SEARCH_PARAM = 'deviceid';
 
 /**
  * A const value for the routine ID search parameter in routine routes.
  */
-export const RoutineIdSearchParam = 'routineid';
+export const ROUTINE_ID_SEARCH_PARAM = 'routineid';
 
 /**
  * A const value for the URL for creating a routine.
@@ -42,8 +42,3 @@ export const ACCOUNT_URL = '/account';
  * A const value for the URL for a user's routines list.
  */
 export const ROUTINES_URL = '/routines';
-
-/**
- * A const value for the URL for viewing a single routine.
- */
-export const ROUTINE_URL = '/routine';

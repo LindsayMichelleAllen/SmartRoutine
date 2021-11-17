@@ -66,6 +66,9 @@ func main() {
 			if loginResponse.Error != nil {
 				http.Error(w, loginResponse.Error.Error(), 500)
 			} else {
+				if loginResponse.User != nil {
+					fmt.Fprint(w, loginResponse.User.GetJson())
+				}
 				fmt.Fprintf(w, "Success", 200)
 			}
 		}
@@ -87,7 +90,10 @@ func main() {
 			if userResponse.Error != nil {
 				http.Error(w, userResponse.Error.Error(), 500)
 			} else {
-				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName(), 200)
+				if userResponse.User != nil {
+					fmt.Fprint(w, userResponse.User.GetJson())
+				}
+				fmt.Fprintf(w, "Success", 200)
 			}
 		}
 	})

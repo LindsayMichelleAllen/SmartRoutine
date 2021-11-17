@@ -23,10 +23,10 @@ import {
   PaletteMode,
   Paper,
   ThemeProvider,
+  useTheme,
 } from '@mui/material';
 import PrivateRoute from '../../Components/Routing/PrivateRoute';
 import { AuthProvider } from '../../Utils/LoginState';
-import { purple } from '@mui/material/colors';
 import {
   ColorProvider,
   fetchColorPreference,
@@ -34,7 +34,6 @@ import {
 } from '../../Utils/ColorContext';
 import NavDrawer from '../../Components/NavDrawer/NavDrawer';
 import LogoutView from '../Account/LogoutView';
-import SingleRoutineView from '../Routines/SingleRoutineView';
 import {
   ACCOUNT_URL,
   ADD_ROUTINE_URL,
@@ -42,7 +41,6 @@ import {
   LOGIN_URL,
   LOGOUT_URL,
   ROUTINES_URL,
-  ROUTINE_URL,
   SIGNUP_URL,
 } from '../../Utils/CommonRouting';
 import AddRoutineView from '../Routines/AddRoutineView';
@@ -61,6 +59,7 @@ const navDrawerWidth = 240;
  */
 function App() {
   const location = useLocation();
+  const theme = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const formattedLocation = useMemo(() => {
@@ -117,7 +116,7 @@ function App() {
         title={formattedLocation}
         handleClickMenu={() => setMobileOpen(true)}
       />
-      <Divider sx={{ gridArea: 'divider' }} />
+      <Divider sx={{ gridArea: 'divider', borderColor: theme.palette.mode === 'dark' ? 'black' : 'white' }} />
       <Paper square sx={{ overflowY: 'auto' }} >
         <Routes>
           <Route
@@ -135,9 +134,6 @@ function App() {
           <Route
             path={ROUTINES_URL}
             element={<PrivateRoute authElement={<RoutinesView />} fallbackUrl={LOGIN_URL} />} />
-          <Route
-            path={ROUTINE_URL}
-            element={<PrivateRoute authElement={<SingleRoutineView />} fallbackUrl={LOGIN_URL} />} />
           <Route
             path={ADD_ROUTINE_URL}
             element={<PrivateRoute authElement={<AddRoutineView />} fallbackUrl={LOGIN_URL} />} />
@@ -164,7 +160,9 @@ export default function AppContainer() {
 
   const theme = useMemo(() => createTheme({
     palette: {
-      primary: purple,
+      primary: {
+        main: '#663399',
+      },
       mode: colorMode,
     },
     components: {

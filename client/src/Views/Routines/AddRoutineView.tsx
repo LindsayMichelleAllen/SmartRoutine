@@ -13,6 +13,8 @@ import {
 import React, { useState } from 'react';
 import {
   GetCreateRoutineURL,
+  GetFetchRequest,
+  GetRoutineBasealarmString,
   ParseRoutine,
   StoredRoutine,
  } from '../../Utils/BackendIntegration';
@@ -23,6 +25,7 @@ import {
 import {
   ValidRoutineNameChars,
 } from '../../Utils/InputValidation';
+import { EDIT_ROUTINE_URL, ROUTINES_URL, ROUTINE_ID_SEARCH_PARAM } from '../../Utils/CommonRouting';
 
 /**
  * A view used for the user to create a new routine.
@@ -40,21 +43,15 @@ export default function AddRoutineView() {
 
   const addRoutine = async (): Promise<StoredRoutine | undefined> => {
     try {
-      const timeZoneOffsetHours = time.getTimezoneOffset() / 60;
-      const offsetString = timeZoneOffsetHours > 9 ? `${timeZoneOffsetHours}:00` : `0${timeZoneOffsetHours}:00`;
-      const timeString = `${time.getHours()}:${time.getMinutes()}-${offsetString}`;
-
-      const response = await fetch(GetCreateRoutineURL(), {
-        method: 'POST',
-        body: new URLSearchParams({
-          userid: loginDetails.userid ?? '',
-          name: name,
+      const timeString = GetRoutineBasealarmString(time);
+      const response = await fetch(
+        GetCreateRoutineURL(),
+        GetFetchRequest({
+          name,
+          userid: loginDetails.Username,
           basealarm: timeString,
         }),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-      });
+      );
 
       const text = await response.text();
       if (!response.ok) {
@@ -84,15 +81,15 @@ export default function AddRoutineView() {
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
     const validationError = validateInput();
     if (validationError !== undefined) {
       setErrorMessage(validationError);
     } else {
       try {
-        const routine = await addRoutine();
-        navigate(`/routine?routineid=${routine.Id}`);
+        setIsLoading(true);
+        await addRoutine();
+        navigate(`${ROUTINES_URL}`);
       } catch (e) {
         // Only set loading to false if the login failed. If we try to set it on a success, that gets
         // called after navigate which leads to the 'memory leak' React error.
@@ -112,6 +109,8 @@ export default function AddRoutineView() {
           paddingTop: '18px',
           display: 'grid',
           rowGap: '12px',
+          justifyContent: 'center',
+          alignItems: 'center',
           gridTemplateAreas: `
             "error"
             "name"

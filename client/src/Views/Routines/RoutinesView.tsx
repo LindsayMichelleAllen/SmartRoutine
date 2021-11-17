@@ -1,11 +1,17 @@
 import {
   Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogTitle,
   Fab,
   Typography,
 } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
-import RoutineCard from '../../Components/Routines/RoutineCard';
 import {
+  GetFetchRequest,
+  GetRoutineDeleteURL,
   GetRoutinesFetchURL,
   ParseRoutineArray,
   StoredRoutine,
@@ -15,7 +21,8 @@ import {
   useAuth,
 } from '../../Utils/LoginState';
 import { useNavigate } from 'react-router';
-import { ADD_ROUTINE_URL } from '../../Utils/CommonRouting';
+import { ADD_ROUTINE_URL, EDIT_ROUTINE_URL } from '../../Utils/CommonRouting';
+import RoutineCard from '../../Components/Routines/RoutineCard';
 
 /**
  * The view used to describe the available routines for the user.
@@ -24,6 +31,9 @@ import { ADD_ROUTINE_URL } from '../../Utils/CommonRouting';
  */
 export default function RoutinesView() {
   const [routines, setRoutines] = useState<StoredRoutine[]>([]);
+  const [routineToDelete, setRoutineToDelete] = useState<StoredRoutine | undefined>(undefined);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteProcessing, setDeleteProcessing] = useState(false);
 
   const navigate = useNavigate();
   const authState = useAuth();
@@ -32,13 +42,12 @@ export default function RoutinesView() {
 
   const fetchRoutines = async () => {
     try {
-      const response = await fetch(GetRoutinesFetchURL(), {
-        method: 'POST',
-        body: `userid=${loginDetails.userid ?? ''}`,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-      });
+      const response = await fetch(
+        GetRoutinesFetchURL(),
+        GetFetchRequest({
+          userid: loginDetails.Username ?? '',
+        }),
+      );
 
       const text = await response.text();
 
@@ -47,10 +56,48 @@ export default function RoutinesView() {
         if (routinesData !== undefined) {
           setRoutines(routinesData);
         }
+      } else {
+        throw text;
       }
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     }
+  };
+
+  const deleteRoutine = async () => {
+    try {
+      const response = await fetch(
+        GetRoutineDeleteURL(),
+        GetFetchRequest({
+          id: routineToDelete.Id,
+        }),
+      );
+
+      const text = await response.text();
+      if (!response.ok) {
+        throw text;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleEditRoutine = (routine: StoredRoutine): void => {
+    navigate(`${EDIT_ROUTINE_URL}?routineid=${routine.Id}`);
+  };
+
+  const handleDeleteRoutine = (routine: StoredRoutine): void => {
+    setDeleteDialogOpen(true);
+    setRoutineToDelete(routine);
+  };
+
+  const onDeleteRoutine = async () => {
+    setDeleteProcessing(true);
+    await deleteRoutine();
+    setDeleteProcessing(false);
+
+    setDeleteDialogOpen(false);
+    await fetchRoutines();
   };
 
   useEffect(() => {
@@ -62,7 +109,12 @@ export default function RoutinesView() {
   console.log(routines);
 
   const routineCards = useMemo(() => routines.map((r) => (
-    <RoutineCard routine={r} />
+    <RoutineCard
+      key={r.Id}
+      routine={r}
+      onEditRoutine={handleEditRoutine}
+      onDeleteRoutine={handleDeleteRoutine}
+    />
   )), [routines]);
 
   return (
@@ -90,8 +142,9 @@ export default function RoutinesView() {
         rowGap: '12px',
         padding: '12px',
         justifyContent: 'center',
+        alignItems: 'start',
         paddingBottom: '128px', // Add some extra space so the FAB doesn't overlay the actions.
-        gridTemplateRows: 'min-content',
+        gridAutoRows: 'min-content',
         gridTemplateColumns: {
           sm: '220px 220px',
           xs: '1fr',
@@ -111,6 +164,27 @@ export default function RoutinesView() {
         onClick={() => navigate(ADD_ROUTINE_URL)}>
         <AddIcon />
       </Fab>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>Delete {routineToDelete?.Name ?? ''}?</DialogTitle>
+        <Typography
+          sx={{ padding: '18px' }}
+          variant="body1" >
+          Deleting this routine is irreversible. Are you sure that you wish to continue?
+        </Typography>
+        <DialogActions>
+          <Button onClick={() => onDeleteRoutine()}>
+            {
+              !deleteProcessing ? 'DELETE' : (<CircularProgress />)
+            }
+          </Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>
+            CANCEL
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
