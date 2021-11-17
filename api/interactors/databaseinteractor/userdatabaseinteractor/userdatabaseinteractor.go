@@ -22,8 +22,20 @@ type GetUsersInteractorResponse struct {
 	Error   error
 }
 
+type LoginUserInteractorRequest struct {
+	Username string
+	Password string
+}
+
+type LoginUserInteractorResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
+}
+
 type CreateUserInteractorRequest struct {
 	Username string
+	Password string
 	Name     string
 }
 
@@ -99,17 +111,33 @@ func (u *UserAccountManagementServiceInteractor) GetUserProfiles() *GetUsersInte
 	}
 }
 
+func (u *UserAccountManagementServiceInteractor) UserProfileLogin(request *LoginUserInteractorRequest) *LoginUserInteractorResponse {
+	if request.Username == "" || request.Password == "" {
+		return &LoginUserInteractorResponse{
+			User:    nil,
+			Message: "Input Field(s) Missing",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	db := &postgres.UserProfileDB{}
+	resp := db.UserProfileLogin(&postgres.LoginUserDatabaseRequest{
+		Username: request.Username,
+		Password: request.Password,
+	})
+	return (*LoginUserInteractorResponse)(resp)
+}
+
 func (u *UserAccountManagementServiceInteractor) CreateUserProfile(request *CreateUserInteractorRequest) *CreateUserInteractorResponse {
 	db := &postgres.UserProfileDB{}
 	resp := db.CreateUserProfile(&postgres.CreateUserDatabaseRequest{
 		Username: request.Username,
+		Password: request.Password,
 		Name:     request.Name,
 	})
 
 	return &CreateUserInteractorResponse{
 		Username: resp.Username,
 		Name:     resp.Name,
-		Id:       resp.Id,
 		Message:  resp.Message,
 		Error:    resp.Error,
 	}
@@ -120,13 +148,11 @@ func (u *UserAccountManagementServiceInteractor) UpdateUserProfile(request *Upda
 	resp := db.UpdateUserProfile(&postgres.UpdateUserDatabaseRequest{
 		Username: request.Username,
 		Name:     request.Name,
-		Id:       request.Id,
 	})
 
 	return &UpdateUserInteractorResponse{
 		Username: resp.Username,
 		Name:     resp.Name,
-		Id:       resp.Id,
 		Message:  resp.Message,
 		Error:    resp.Error,
 	}
@@ -141,7 +167,6 @@ func (u *UserAccountManagementServiceInteractor) DeleteUserProfile(request *Dele
 	return &DeleteUserInteractorResponse{
 		Username: resp.Username,
 		Name:     resp.Name,
-		Id:       resp.Id,
 		Message:  resp.Message,
 		Error:    resp.Error,
 	}

@@ -11,21 +11,27 @@ type UserProfileGetRequest struct {
 	Id string
 }
 
+type UserProfileLoginRequest struct {
+	Username string
+	Password string
+}
+
 type UserProfileCreateRequest struct {
-	/* username provided by user */
+	/* unique identifier - username provided by user */
 	Username string
 	/* name provided by user */
 	Name string
+	/* password for login */
+	Password string
 }
 
 type UserProfileUpdateRequest struct {
 	Username string
 	Name     string
-	Id       string
 }
 
 type UserProfileDeleteRequest struct {
-	/* unique id of user to be deleted */
+	/* unique id of user to be deleted - update this to pass a user to check auth status*/
 	Id string
 }
 
@@ -37,6 +43,12 @@ type UserProfileGetResponse struct {
 
 type UserProfilesGetResponse struct {
 	Users   []*model.UserProfile
+	Message string
+	Error   error
+}
+
+type UserProfileLoginResponse struct {
+	User    *model.UserProfile
 	Message string
 	Error   error
 }
@@ -97,26 +109,43 @@ func (u *UnprotectedUserService) GetUserProfiles() *UserProfilesGetResponse {
 	}
 }
 
+func (u *UnprotectedUserService) UserProfileLogin(request *UserProfileLoginRequest) *UserProfileLoginResponse {
+	if request.Username == "" || request.Password == "" {
+		return &UserProfileLoginResponse{
+			User:    nil,
+			Message: "Input Field(s) Missing",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
+	resp := dbInteractor.UserProfileLogin(&userdatabaseinteractor.LoginUserInteractorRequest{
+		Username: request.Username,
+		Password: request.Password,
+	})
+	return (*UserProfileLoginResponse)(resp)
+}
+
 func (u *UnprotectedUserService) CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse {
-	if request.Username == "" || request.Name == "" {
+	if request.Username == "" || request.Name == "" || request.Password == "" {
 		return &UserProfileCreateResponse{
 			User:    nil,
-			Message: "Error encountered: missing input field: Username: " + request.Username + ", Name: " + request.Name,
-			Error:   errors.New("missing input field(s)"),
+			Message: "Input field(s) missing",
+			Error:   errors.New("input field(s) missing"),
 		}
 	}
 
 	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
-	// TODO randomly generate the user id
+
 	resp := dbInteractor.CreateUserProfile(&userdatabaseinteractor.CreateUserInteractorRequest{
 		Username: request.Username,
+		Password: request.Password,
 		Name:     request.Name,
 	})
 
 	user := &model.UserProfile{}
 	user.SetName(resp.Name)
 	user.SetUsername(resp.Username)
-	user.SetId(resp.Id)
+	user.SetAuthorizationStatus(true)
 
 	return &UserProfileCreateResponse{
 		User:    user,
@@ -126,10 +155,10 @@ func (u *UnprotectedUserService) CreateUserProfile(request *UserProfileCreateReq
 }
 
 func (u *UnprotectedUserService) UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse {
-	if request.Username == "" || request.Name == "" || request.Id == "" {
+	if request.Username == "" || request.Name == "" {
 		return &UserProfileUpdateResponse{
 			User:    nil,
-			Message: "Error encountered: missing input field: Username: " + request.Username + ", Name: " + request.Name + ", Id: " + request.Id,
+			Message: "Error encountered: missing input field: Username: " + request.Username + ", Name: " + request.Name,
 			Error:   errors.New("missing input field(s)"),
 		}
 	}
@@ -138,13 +167,11 @@ func (u *UnprotectedUserService) UpdateUserProfile(request *UserProfileUpdateReq
 	resp := dbInteractor.UpdateUserProfile(&userdatabaseinteractor.UpdateUserInteractorRequest{
 		Username: request.Username,
 		Name:     request.Name,
-		Id:       request.Id,
 	})
 
 	usr := &model.UserProfile{}
 	usr.SetUsername(resp.Username)
 	usr.SetName(resp.Name)
-	usr.SetId(resp.Id)
 
 	return &UserProfileUpdateResponse{
 		User:    usr,
@@ -170,7 +197,6 @@ func (u *UnprotectedUserService) DeleteUserProfile(request *UserProfileDeleteReq
 	user := &model.UserProfile{}
 	user.SetUsername(resp.Username)
 	user.SetName(resp.Name)
-	user.SetId(resp.Id)
 
 	return &UserProfileDeleteResponse{
 		User:    user,

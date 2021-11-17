@@ -5,8 +5,8 @@ type UserProfile struct {
 	userName string
 	/* name displayed to user */
 	name string
-	/* unique id of user */
-	id string
+	/* status of user authenication */
+	isAuth bool
 }
 
 /* SetUsername overwrites the private username field. */
@@ -30,11 +30,11 @@ func (u *UserProfile) GetName() string {
 }
 
 /* SetId overwrites the private id field. */
-func (u *UserProfile) SetId(newId string) {
-	u.id = newId
+func (u *UserProfile) SetAuthorizationStatus(stat bool) {
+	u.isAuth = stat
 }
 
 /* GetId returns the current value of the private id field. */
-func (u *UserProfile) GetId() string {
-	return u.id
+func (u *UserProfile) GetAuthorizationStatus() bool {
+	return u.isAuth
 }

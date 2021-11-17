@@ -34,15 +34,26 @@ type GetUsersDatabaseResponse struct {
 	Error   error
 }
 
+type LoginUserDatabaseRequest struct {
+	Username string
+	Password string
+}
+
+type LoginUserDatabaseResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
+}
+
 type CreateUserDatabaseRequest struct {
 	Username string
+	Password string
 	Name     string
 }
 
 type CreateUserDatabaseResponse struct {
 	Username string
 	Name     string
-	Id       string
 	Message  string
 	Error    error
 }
@@ -50,13 +61,11 @@ type CreateUserDatabaseResponse struct {
 type UpdateUserDatabaseRequest struct {
 	Username string
 	Name     string
-	Id       string
 }
 
 type UpdateUserDatabaseResponse struct {
 	Username string
 	Name     string
-	Id       string
 	Message  string
 	Error    error
 }
@@ -68,7 +77,6 @@ type DeleteUserDatabaseRequest struct {
 type DeleteUserDatabaseResponse struct {
 	Username string
 	Name     string
-	Id       string
 	Message  string
 	Error    error
 }
@@ -359,7 +367,6 @@ func (u *UserProfileDB) GetUserProfile(request *GetUserDatabaseRequest) *GetUser
 	}
 
 	usr := &model.UserProfile{}
-	usr.SetId(request.Id)
 	usr.SetUsername(username)
 	usr.SetName(displayname)
 	resp.User = usr
@@ -378,7 +385,7 @@ func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
 
 	resp := &GetUsersDatabaseResponse{Message: "Successfully Queried All User Profiles", Error: nil}
 
-	query := "SELECT * FROM profile_details"
+	query := "SELECT username, displayname FROM profile_details"
 	rows, err := db.Query(query)
 
 	if err != nil {
@@ -391,16 +398,14 @@ func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
 	defer rows.Close()
 	usrs := make([]*model.UserProfile, 0)
 	for rows.Next() {
-		var id string
 		var username string
 		var displayname string
-		err = rows.Scan(&id, &username, &displayname)
+		err = rows.Scan(&username, &displayname)
 		if err != nil {
 			// handle this error
 			panic(err)
 		}
 		usr := &model.UserProfile{}
-		usr.SetId(id)
 		usr.SetUsername(username)
 		usr.SetName(displayname)
 		usrs = append(usrs, usr)
@@ -418,6 +423,44 @@ func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
 	return resp
 }
 
+func (u *UserProfileDB) UserProfileLogin(request *LoginUserDatabaseRequest) *LoginUserDatabaseResponse {
+	if request.Username == "" || request.Password == "" {
+		return &LoginUserDatabaseResponse{
+			User:    nil,
+			Message: "Input Field(s) Missing",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+
+	db, err := getDatabase()
+	if err != nil {
+		return &LoginUserDatabaseResponse{
+			User:    nil,
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+	var username, displayname string
+	query := "SELECT username, displayname FROM profile_details WHERE username=$1 AND accountpassword=crypt($2, accountpassword)"
+	err = db.QueryRow(query, request.Username, request.Password).Scan(&username, &displayname)
+	if err != nil {
+		return &LoginUserDatabaseResponse{
+			User:    nil,
+			Message: "Incorrect Credentials",
+			Error:   err,
+		}
+	}
+	user := &model.UserProfile{}
+	user.SetUsername(username)
+	user.SetName(displayname)
+	user.SetAuthorizationStatus(true)
+	return &LoginUserDatabaseResponse{
+		User:    user,
+		Message: "Login Successful",
+		Error:   nil,
+	}
+}
+
 func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *CreateUserDatabaseResponse {
 	db, err := getDatabase()
 
@@ -430,9 +473,11 @@ func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *C
 
 	resp := &CreateUserDatabaseResponse{Message: "Successfully added user", Error: nil}
 
-	query := "INSERT INTO profile_details (id, username, displayname) VALUES (gen_random_uuid(), $1, $2) RETURNING id, username, displayname"
+	query := `INSERT INTO profile_details (username, accountpassword, displayname) 
+			  VALUES ($1, crypt($2, gen_salt('bf',8)), $3) 
+			  RETURNING username, displayname`
 
-	err = db.QueryRow(query, request.Username, request.Name).Scan(&resp.Id, &resp.Username, &resp.Name)
+	err = db.QueryRow(query, request.Username, request.Password, request.Name).Scan(&resp.Username, &resp.Name)
 
 	if err != nil {
 		return &CreateUserDatabaseResponse{
@@ -440,7 +485,6 @@ func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *C
 			Error:   err,
 		}
 	}
-
 	return resp
 }
 
@@ -456,9 +500,9 @@ func (u *UserProfileDB) UpdateUserProfile(request *UpdateUserDatabaseRequest) *U
 
 	resp := &UpdateUserDatabaseResponse{Message: "Successfully updated user profile", Error: nil}
 
-	query := "UPDATE profile_details SET username=$1, displayname=$2 WHERE id=$3 RETURNING id, username, displayname"
+	query := "UPDATE profile_details SET displayname=$1 WHERE username=$2 RETURNING username, displayname"
 
-	err = db.QueryRow(query, request.Username, request.Name, request.Id).Scan(&resp.Id, &resp.Username, &resp.Name)
+	err = db.QueryRow(query, request.Name, request.Username).Scan(&resp.Username, &resp.Name)
 
 	if err != nil {
 		return &UpdateUserDatabaseResponse{
@@ -482,9 +526,9 @@ func (u *UserProfileDB) DeleteUserProfile(request *DeleteUserDatabaseRequest) *D
 
 	resp := &DeleteUserDatabaseResponse{Message: "Successfully deleted user profile", Error: nil}
 
-	query := "DELETE FROM profile_details WHERE id=$1 RETURNING id, username, displayname"
+	query := "DELETE FROM profile_details WHERE username=$1 RETURNING username, displayname"
 
-	err = db.QueryRow(query, request.Id).Scan(&resp.Id, &resp.Username, &resp.Name)
+	err = db.QueryRow(query, request.Id).Scan(&resp.Username, &resp.Name)
 
 	if err != nil {
 		return &DeleteUserDatabaseResponse{

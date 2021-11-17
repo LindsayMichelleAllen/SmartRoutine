@@ -11,7 +11,7 @@ func userSetup() *model.UserProfile {
 	user := &model.UserProfile{}
 	user.SetUsername("LJam")
 	user.SetName("Lindsay")
-	user.SetId("123456789")
+	user.SetAuthorizationStatus(false)
 	return user
 }
 
@@ -25,9 +25,9 @@ func TestUserProfileMethods(t *testing.T) {
 			user := userSetup()
 			assert.Equal(t, "Lindsay", user.GetName())
 		})
-		t.Run("should be able to get the id", func(t *testing.T) {
+		t.Run("should be able to get the auth status", func(t *testing.T) {
 			user := userSetup()
-			assert.Equal(t, "123456789", user.GetId())
+			assert.Equal(t, false, user.GetAuthorizationStatus())
 		})
 	})
 	t.Run("Setters", func(t *testing.T) {
@@ -43,11 +43,11 @@ func TestUserProfileMethods(t *testing.T) {
 			user.SetName("NewName")
 			assert.Equal(t, "NewName", user.GetName())
 		})
-		t.Run("should be able to set the id", func(t *testing.T) {
+		t.Run("should be able to set the authorization status", func(t *testing.T) {
 			user := userSetup()
-			assert.Equal(t, "123456789", user.GetId())
-			user.SetId("987654321")
-			assert.Equal(t, "987654321", user.GetId())
+			assert.Equal(t, false, user.GetAuthorizationStatus())
+			user.SetAuthorizationStatus(true)
+			assert.Equal(t, true, user.GetAuthorizationStatus())
 		})
 	})
 }
