@@ -22,6 +22,17 @@ type GetUsersInteractorResponse struct {
 	Error   error
 }
 
+type LoginUserInteractorRequest struct {
+	Username string
+	Password string
+}
+
+type LoginUserInteractorResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
+}
+
 type CreateUserInteractorRequest struct {
 	Username string
 	Password string
@@ -98,6 +109,22 @@ func (u *UserAccountManagementServiceInteractor) GetUserProfiles() *GetUsersInte
 		Message: resp.Message,
 		Error:   resp.Error,
 	}
+}
+
+func (u *UserAccountManagementServiceInteractor) UserProfileLogin(request *LoginUserInteractorRequest) *LoginUserInteractorResponse {
+	if request.Username == "" || request.Password == "" {
+		return &LoginUserInteractorResponse{
+			User:    nil,
+			Message: "Input Field(s) Missing",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	db := &postgres.UserProfileDB{}
+	resp := db.UserProfileLogin(&postgres.LoginUserDatabaseRequest{
+		Username: request.Username,
+		Password: request.Password,
+	})
+	return (*LoginUserInteractorResponse)(resp)
 }
 
 func (u *UserAccountManagementServiceInteractor) CreateUserProfile(request *CreateUserInteractorRequest) *CreateUserInteractorResponse {

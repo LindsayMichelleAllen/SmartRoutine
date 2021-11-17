@@ -29,6 +29,20 @@ func getUserProfiles() *http.Response {
 	return resp
 }
 
+func login(username string, password string) *http.Response {
+	data := url.Values{
+		"username": {username},
+		"password": {password},
+	}
+	resp, err := http.PostForm("http://localhost:8080/user/login/", data)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return resp
+}
+
 func createUserProfile(name string, username string, password string) *http.Response {
 	data := url.Values{
 		"name":     {name},
@@ -361,5 +375,5 @@ func deleteConfiguration(id string) *http.Response {
 }
 
 func main() {
-	_ = getUserProfiles()
+	_ = login("LJamSupreme", "Password")
 }

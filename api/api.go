@@ -52,6 +52,25 @@ func main() {
 		}
 	})
 
+	mux.HandleFunc("/user/login/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			r.ParseForm()
+			username := r.FormValue("username")
+			password := r.FormValue("password")
+
+			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+			loginResponse := basicUsrMngr.UserProfileLogin(&userAcctMngr.UserProfileLoginRequest{
+				Username: username,
+				Password: password,
+			})
+			if loginResponse.Error != nil {
+				http.Error(w, loginResponse.Error.Error(), 500)
+			} else {
+				fmt.Fprintf(w, "Success", 200)
+			}
+		}
+	})
+
 	mux.HandleFunc("/user/create/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
 			r.ParseForm()

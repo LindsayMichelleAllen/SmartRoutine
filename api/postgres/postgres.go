@@ -34,6 +34,17 @@ type GetUsersDatabaseResponse struct {
 	Error   error
 }
 
+type LoginUserDatabaseRequest struct {
+	Username string
+	Password string
+}
+
+type LoginUserDatabaseResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
+}
+
 type CreateUserDatabaseRequest struct {
 	Username string
 	Password string
@@ -374,7 +385,7 @@ func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
 
 	resp := &GetUsersDatabaseResponse{Message: "Successfully Queried All User Profiles", Error: nil}
 
-	query := "SELECT * FROM profile_details"
+	query := "SELECT username, displayname FROM profile_details"
 	rows, err := db.Query(query)
 
 	if err != nil {
@@ -387,10 +398,9 @@ func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
 	defer rows.Close()
 	usrs := make([]*model.UserProfile, 0)
 	for rows.Next() {
-		var id string
 		var username string
 		var displayname string
-		err = rows.Scan(&id, &username, &displayname)
+		err = rows.Scan(&username, &displayname)
 		if err != nil {
 			// handle this error
 			panic(err)
@@ -411,6 +421,44 @@ func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
 
 	resp.Users = usrs
 	return resp
+}
+
+func (u *UserProfileDB) UserProfileLogin(request *LoginUserDatabaseRequest) *LoginUserDatabaseResponse {
+	if request.Username == "" || request.Password == "" {
+		return &LoginUserDatabaseResponse{
+			User:    nil,
+			Message: "Input Field(s) Missing",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+
+	db, err := getDatabase()
+	if err != nil {
+		return &LoginUserDatabaseResponse{
+			User:    nil,
+			Message: "Unable to connect to database",
+			Error:   err,
+		}
+	}
+	var username, displayname string
+	query := "SELECT username, displayname FROM profile_details WHERE username=$1 AND accountpassword=crypt($2, accountpassword)"
+	err = db.QueryRow(query, request.Username, request.Password).Scan(&username, &displayname)
+	if err != nil {
+		return &LoginUserDatabaseResponse{
+			User:    nil,
+			Message: "Incorrect Credentials",
+			Error:   err,
+		}
+	}
+	user := &model.UserProfile{}
+	user.SetUsername(username)
+	user.SetName(displayname)
+	user.SetAuthorizationStatus(true)
+	return &LoginUserDatabaseResponse{
+		User:    user,
+		Message: "Login Successful",
+		Error:   nil,
+	}
 }
 
 func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *CreateUserDatabaseResponse {
@@ -451,7 +499,7 @@ func (u *UserProfileDB) UpdateUserProfile(request *UpdateUserDatabaseRequest) *U
 	}
 
 	resp := &UpdateUserDatabaseResponse{Message: "Successfully updated user profile", Error: nil}
-	//TODO - rewrite with username as unique id
+
 	query := "UPDATE profile_details SET displayname=$1 WHERE username=$2 RETURNING username, displayname"
 
 	err = db.QueryRow(query, request.Name, request.Username).Scan(&resp.Username, &resp.Name)

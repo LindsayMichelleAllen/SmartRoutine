@@ -11,6 +11,11 @@ type UserProfileGetRequest struct {
 	Id string
 }
 
+type UserProfileLoginRequest struct {
+	Username string
+	Password string
+}
+
 type UserProfileCreateRequest struct {
 	/* unique identifier - username provided by user */
 	Username string
@@ -38,6 +43,12 @@ type UserProfileGetResponse struct {
 
 type UserProfilesGetResponse struct {
 	Users   []*model.UserProfile
+	Message string
+	Error   error
+}
+
+type UserProfileLoginResponse struct {
+	User    *model.UserProfile
 	Message string
 	Error   error
 }
@@ -96,6 +107,22 @@ func (u *UnprotectedUserService) GetUserProfiles() *UserProfilesGetResponse {
 		Message: resp.Message,
 		Error:   resp.Error,
 	}
+}
+
+func (u *UnprotectedUserService) UserProfileLogin(request *UserProfileLoginRequest) *UserProfileLoginResponse {
+	if request.Username == "" || request.Password == "" {
+		return &UserProfileLoginResponse{
+			User:    nil,
+			Message: "Input Field(s) Missing",
+			Error:   errors.New("input field(s) missing"),
+		}
+	}
+	dbInteractor := &userdatabaseinteractor.UserAccountManagementServiceInteractor{}
+	resp := dbInteractor.UserProfileLogin(&userdatabaseinteractor.LoginUserInteractorRequest{
+		Username: request.Username,
+		Password: request.Password,
+	})
+	return (*UserProfileLoginResponse)(resp)
 }
 
 func (u *UnprotectedUserService) CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse {
