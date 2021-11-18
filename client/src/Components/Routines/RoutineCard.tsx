@@ -46,12 +46,13 @@ export default function RoutineCard(props: RoutineCardProps) {
   } = props;
 
   const alarmText = useMemo(() => {
-    const alarmHours = routine.BaseAlarm.getHours();
+    // 1-index -> 0-index -> 1-index
+    const alarmHours = ((routine.BaseAlarm.getHours() - 1) % 12) + 1;
     const alarmMinutes = routine.BaseAlarm.getMinutes();
 
     const alarmHourSyntax = alarmHours >= 10 ? `${alarmHours}` : `0${alarmHours}`;
     const alarmMinutesSyntax = alarmMinutes >= 10 ? `${alarmMinutes}` : `0${alarmMinutes}`;
-    const meridian = alarmHours <= 12 ? 'AM' : 'PM';
+    const meridian = routine.BaseAlarm.getHours() <= 12 ? 'AM' : 'PM';
 
     return `${alarmHourSyntax}:${alarmMinutesSyntax} ${meridian}`;
   }, [routine.BaseAlarm]);
