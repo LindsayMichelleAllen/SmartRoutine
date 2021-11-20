@@ -65,7 +65,7 @@ export default function AccountView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(e);
+      setErrorMessage(`${e}`);
     }
   };
 

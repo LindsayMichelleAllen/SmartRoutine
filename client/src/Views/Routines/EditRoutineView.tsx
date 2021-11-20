@@ -70,7 +70,7 @@ export default function EditRoutineView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(e);
+      setErrorMessage(`${e}`);
     }
   };
 
@@ -92,7 +92,7 @@ export default function EditRoutineView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(e);
+      setErrorMessage(`${e}`);
       throw e;
     }
   };

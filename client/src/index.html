@@ -2,7 +2,14 @@
 <html lang="en">
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+  <!-- TODO: Remove http-equiv and content tags when the prod BE has https support. -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+    charset="utf-8"
+    http-equiv="Content-Security-Policy"
+    content="upgrade-insecure-requests"
+  >
   <title>Smart Routine</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
