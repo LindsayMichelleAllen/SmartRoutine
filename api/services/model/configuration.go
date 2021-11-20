@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 type Configuration struct {
 	id        string
 	routineId string
@@ -37,4 +39,23 @@ func (c *Configuration) SetOffset(newOffset int) {
 
 func (c *Configuration) SetRoutineId(newRoutineId string) {
 	c.routineId = newRoutineId
+}
+
+func (c *Configuration) GetJsonStruct() interface{} {
+	return struct {
+		Id        string
+		RoutineId string
+		Offset    int
+		Device    interface{}
+	}{
+		Id:        c.GetId(),
+		RoutineId: c.GetRoutineId(),
+		Offset:    c.GetOffset(),
+		Device:    c.device.GetJsonStruct(),
+	}
+}
+
+func (c *Configuration) GetJson() string {
+	bytes, _ := json.Marshal(c.GetJsonStruct())
+	return string(bytes)
 }

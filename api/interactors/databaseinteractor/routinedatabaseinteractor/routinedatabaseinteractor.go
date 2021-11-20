@@ -17,14 +17,15 @@ type GetDeviceRoutinesInteractorRequest struct {
 }
 
 type RoutineCreateInteractorRequest struct {
-	Id     string
-	Name   string
-	UserId string
+	Basealarm string
+	Name      string
+	UserId    string
 }
 
 type RoutineUpdateInteractorRequest struct {
-	Id   string
-	Name string
+	Basealarm string
+	Id        string
+	Name      string
 }
 
 type RoutineDeleteInteractorRequest struct {
@@ -127,7 +128,7 @@ func (r *UnprotectedRoutineDBInteractor) GetUserRoutines(request *GetUserRoutine
 }
 
 func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateInteractorRequest) *RoutineCreateInteractorResponse {
-	if request.Id == "" || request.Name == "" || request.UserId == "" {
+	if request.Name == "" || request.UserId == "" || request.Basealarm == "" {
 		return &RoutineCreateInteractorResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
@@ -135,7 +136,7 @@ func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateInt
 	}
 
 	routine := &model.Routine{}
-	routine.PopulateRoutine(request.Id, request.Name, request.UserId, make([]*model.Configuration, 0))
+	routine.PopulateRoutine("", request.Name, request.UserId, request.Basealarm, make([]*model.Configuration, 0))
 
 	db := &postgres.UnprotectedRoutineDB{}
 	resp := db.CreateRoutine(&postgres.CreateRoutineDatabaseRequest{Routine: routine})
@@ -148,7 +149,7 @@ func (r *UnprotectedRoutineDBInteractor) CreateRoutine(request *RoutineCreateInt
 }
 
 func (r *UnprotectedRoutineDBInteractor) UpdateRoutine(request *RoutineUpdateInteractorRequest) *RoutineUpdateInteractorResponse {
-	if request.Id == "" || request.Name == "" {
+	if request.Id == "" || request.Name == "" || request.Basealarm == "" {
 		return &RoutineUpdateInteractorResponse{
 			Message: "Input field missing",
 			Error:   errors.New("input field missing"),
@@ -156,7 +157,7 @@ func (r *UnprotectedRoutineDBInteractor) UpdateRoutine(request *RoutineUpdateInt
 	}
 
 	routine := &model.Routine{}
-	routine.PopulateRoutine(request.Id, request.Name, "", make([]*model.Configuration, 0))
+	routine.PopulateRoutine(request.Id, request.Name, "", request.Basealarm, make([]*model.Configuration, 0))
 
 	db := &postgres.UnprotectedRoutineDB{}
 	resp := db.UpdateRoutine(&postgres.UpdateRoutineDatabaseRequest{Routine: routine})

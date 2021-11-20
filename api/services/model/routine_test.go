@@ -43,7 +43,7 @@ func TestRoutineMethods(t *testing.T) {
 			slc = append(slc, &config)
 			routine.SetConfiguration(slc)
 			assert.Equal(t, routine.GetConfiguration(), slc)
-			routine.ClearConfiguration()
+			routine.ClearConfigurations()
 		})
 		t.Run("should be able to add a single routine configuration", func(t *testing.T) {
 			config := &model.Configuration{}
@@ -70,7 +70,7 @@ func TestRoutineMethods(t *testing.T) {
 			assert.Equal(t, routine.GetConfiguration(), slc)
 		})
 		t.Run("should be able to clear configuration", func(t *testing.T) {
-			routine.ClearConfiguration()
+			routine.ClearConfigurations()
 			assert.Equal(t, len(routine.GetConfiguration()), 0)
 		})
 	})

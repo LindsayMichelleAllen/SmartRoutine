@@ -19,7 +19,6 @@ type GetRoutineDevicesInteractorRequest struct {
 }
 
 type CreateDeviceRequest struct {
-	Id     string
 	Name   string
 	UserId string
 }
@@ -143,7 +142,6 @@ func (d *UnprotectedDeviceDBInteractor) GetRoutineDevices(request *GetRoutineDev
 func (d *UnprotectedDeviceDBInteractor) CreateDevice(request *CreateDeviceRequest) *CreateDeviceResponse {
 	db := &postgres.UnprotectedDeviceDB{}
 	resp := db.CreateDevice(&postgres.CreateDeviceDatabaseRequest{
-		Id:     request.Id,
 		Name:   request.Name,
 		UserId: request.UserId,
 	})

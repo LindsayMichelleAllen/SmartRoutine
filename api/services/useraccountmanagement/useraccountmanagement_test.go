@@ -18,7 +18,6 @@ func TestUserAccountManagementServiceMethods(t *testing.T) {
 			assert.Equal(t, nil, resp.Error)
 			assert.Equal(t, "LJam", resp.User.GetUsername())
 			assert.Equal(t, "Lindsay", resp.User.GetName())
-			assert.NotEqual(t, "", resp.User.GetId())
 		})
 		t.Run("should return error if username is not provided", func(t *testing.T) {
 			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
@@ -47,13 +46,11 @@ func TestUserAccountManagementServiceMethods(t *testing.T) {
 			updateResp := basicUsrMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
 				Username: "LJam Supreme",
 				Name:     createResp.User.GetName(),
-				Id:       createResp.User.GetId(),
 			})
 			assert.Equal(t, "Successfully Updated User Profile", updateResp.Message)
 			assert.Equal(t, nil, updateResp.Error)
 			assert.Equal(t, "LJam Supreme", updateResp.User.GetUsername())
 			assert.Equal(t, createResp.User.GetName(), updateResp.User.GetName())
-			assert.Equal(t, createResp.User.GetId(), updateResp.User.GetId())
 		})
 		t.Run("should be able to update name", func(t *testing.T) {
 			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
@@ -66,13 +63,11 @@ func TestUserAccountManagementServiceMethods(t *testing.T) {
 			updateResp := basicUsrMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
 				Username: createResp.User.GetUsername(),
 				Name:     "Lindsay Allen",
-				Id:       createResp.User.GetId(),
 			})
 			assert.Equal(t, "Successfully Updated User Profile", updateResp.Message)
 			assert.Equal(t, nil, updateResp.Error)
 			assert.Equal(t, "Lindsay Allen", updateResp.User.GetName())
 			assert.Equal(t, createResp.User.GetUsername(), updateResp.User.GetUsername())
-			assert.Equal(t, createResp.User.GetId(), updateResp.User.GetId())
 		})
 		t.Run("should be able to update username and name", func(t *testing.T) {
 			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
@@ -85,13 +80,11 @@ func TestUserAccountManagementServiceMethods(t *testing.T) {
 			updateResp := basicUsrMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
 				Username: "LJam Supreme",
 				Name:     "Lindsay Allen",
-				Id:       createResp.User.GetId(),
 			})
 			assert.Equal(t, "Successfully Updated User Profile", updateResp.Message)
 			assert.Equal(t, nil, updateResp.Error)
 			assert.Equal(t, "Lindsay Allen", updateResp.User.GetName())
 			assert.Equal(t, "LJam Supreme", updateResp.User.GetUsername())
-			assert.Equal(t, createResp.User.GetId(), updateResp.User.GetId())
 		})
 		t.Run("should return error if username is not provided", func(t *testing.T) {
 			basicUsrMngr := userAcctMngr.UnprotectedUserService{}
@@ -103,7 +96,6 @@ func TestUserAccountManagementServiceMethods(t *testing.T) {
 
 			updateResp := basicUsrMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
 				Name: "Lindsay Allen",
-				Id:   createResp.User.GetId(),
 			})
 			assert.NotEqual(t, nil, updateResp.Error)
 		})
@@ -117,7 +109,6 @@ func TestUserAccountManagementServiceMethods(t *testing.T) {
 
 			updateResp := basicUsrMngr.UpdateUserProfile(&userAcctMngr.UserProfileUpdateRequest{
 				Username: "LJam Supreme",
-				Id:       createResp.User.GetId(),
 			})
 			assert.NotEqual(t, nil, updateResp.Error)
 		})
