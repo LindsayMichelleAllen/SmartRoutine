@@ -319,7 +319,7 @@ type UnprotectedConfigurationDB struct {
 
 func getDatabase() (*sql.DB, error) {
 
-	jsonFile, err := os.Open("../../../config.json")
+	jsonFile, err := os.Open("../../config.json")
 	if err != nil {
 		return nil, err
 	}
