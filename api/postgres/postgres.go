@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	DB_USER     = "postgres"
-	DB_PASSWORD = "postgres"
-	DB_NAME     = "smart_routine_db"
-	TBL_USER    = "profile_details"
+	host     = "smartroutinedb.czbaqarfnktv.us-west-1.rds.amazonaws.com"
+	port     = 5432
+	user     = "LJamSupreme"
+	password = "Kitt3nMitt3ns"
+	dbname   = "smart_routine_db"
 )
 
 type GetUserDatabaseRequest struct {
@@ -321,7 +322,7 @@ type UnprotectedConfigurationDB struct {
 }
 
 func getDatabase() (*sql.DB, error) {
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", DB_USER, DB_PASSWORD, DB_NAME)
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {

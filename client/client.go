@@ -375,5 +375,6 @@ func deleteConfiguration(id string) *http.Response {
 }
 
 func main() {
+	//_ = createUserProfile("Lindsay", "LJamSupreme", "Password")
 	_ = login("LJamSupreme", "Password")
 }
