@@ -9,4 +9,8 @@ This folder contains the frontend components for the SmartRoutine web applicatio
 The following packages should be installed globally:
 | Package Name | Command |
 |--------------|---------|
-| test | `npm install -g test` |
+| firebase | `npm install -g firebase-tools` |
+
+## Firebase
+
+Firebase requries that you login first via firebase login.

@@ -20,7 +20,8 @@
     "typescript": "^4.4.4"
   },
   "scripts": {
-    "start:frontend": "parcel ./src/index.html"
+    "start:frontend": "parcel ./src/index.html",
+    "deploy:frontend": "firebase deploy"
   },
   "dependencies": {
     "@date-io/date-fns": "^2.11.0",
