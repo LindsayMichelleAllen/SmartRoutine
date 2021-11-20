@@ -3,20 +3,16 @@ package postgres
 import (
 	"api/services/model"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"strconv"
 	"strings"
 
-	_ "github.com/lib/pq"
-)
+	"os"
 
-const (
-	host     = "smartroutinedb.czbaqarfnktv.us-west-1.rds.amazonaws.com"
-	port     = 5432
-	user     = "LJamSupreme"
-	password = "Kitt3nMitt3ns"
-	dbname   = "smart_routine_db"
+	_ "github.com/lib/pq"
 )
 
 type GetUserDatabaseRequest struct {
@@ -322,7 +318,21 @@ type UnprotectedConfigurationDB struct {
 }
 
 func getDatabase() (*sql.DB, error) {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	jsonFile, err := os.Open("../../../config.json")
+	if err != nil {
+		return nil, err
+	}
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+
+	var result map[string]string
+	json.Unmarshal([]byte(byteValue), &result)
+	port, _ := strconv.Atoi(result["port"])
+
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		result["host"], port, result["user"], result["password"], result["dbname"])
 	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {
