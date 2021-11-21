@@ -36,9 +36,9 @@ type UserProfileGetRequest struct {
 }
 
 type UserProfileLoginRequest struct {
-  /* unique ID of user */
+        /* unique ID of user */
 	Username string
-  /* account password */
+        /* account password */
 	Password string
 }
 
@@ -52,9 +52,9 @@ type UserProfileCreateRequest struct {
 }
 
 type UserProfileUpdateRequest struct {
-  /* unique ID of user */
+        /* unique ID of user */
 	Username string
-  /* name displayed to user */
+        /* name displayed to user */
 	Name     string
 }
 
@@ -112,9 +112,9 @@ import (
 )
 
 func main() {
-  /* Find a specific user */
-  
   basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+
+  /* Find a specific user */
   userResponse := basicUsrMngr.GetUserProfile(GetUserProfile(&userAcctMngr.UserProfileGetRequest{
     Id: "username",
   })
@@ -127,8 +127,6 @@ func main() {
   
   
   /* Get all users */
-  
-  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
   userResponse := basicUsrMngr.GetUserProfiles()  
   if userResponse.Error != nil {
     // handle error
@@ -138,8 +136,6 @@ func main() {
   
   
   /* Login */
-  
-  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
   loginResponse := basicUsrMngr.UserProfileLogin(&userAcctMngr.UserProfileLoginRequest{
     Username: "username",
     Password: "password",
@@ -152,7 +148,6 @@ func main() {
   usr := loginResponse.User
       
   /* Create a new user */
-  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
   newUserResp := basicUsrMngr.CreateUserProfile(&usrAcctMngr.UserProfileCreateRequest{
     Username: "Example Username",
     Password: "Password",
@@ -166,8 +161,6 @@ func main() {
   usr := newUserResp.User
 
   /* Update an existing user */
-  
-  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
   updateUserResp := basicUsrMngr.UpdateUserProfile(&usrAcctMngr.UserProfileUpdateRequest{
     Username: "New Username",
     Name:     "New Name",
@@ -180,8 +173,6 @@ func main() {
   usr := updateUserResp.User
 
   /* Delete an existing user */
-  
-  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
   deleteUserResp := basicUsrMngr.DeleteUserProfile(&usrAcctMngr.UserProfileDeleteRequest{
     Id: "username",
   })
