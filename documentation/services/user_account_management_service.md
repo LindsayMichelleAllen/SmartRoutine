@@ -6,68 +6,102 @@ The User Account Management service is responsible for creating, modifying, and 
 
 ### User Account Interface
 
-The user account interface shall provide methods to:
-* Find an existing user
-* Find all existing users
-* Authenticate an existing user
-* Create a new user
-* Modify an existing user
-* Delete an existing user
+The user account interface provides the following methods:
+```golang
+GetUserProfile(request *UserProfileGetRequest) *UserProfileGetResponse
+GetUserProfiles() *UserProfilesGetResponse
+UserProfileLogin(request *UserProfileLoginRequest) *UserProfileLoginResponse
+CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse
+UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse
+DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse
+ ```
 
-Below is an example of the minimum implementation of the user account management service. All response objects currently contain the same struct attributes, but these will not be combined to a single response object type to allow for future updates and extensions.
 
+#### UserProfile Type
 ```golang
 type UserProfile struct {
-  Username string
-  Name     string
+	/* username used for login */
+	userName string
+	/* name displayed to user */
+	name string
+	/* status of user authenication */
+	isAuth bool
+}
+```
+#### Request Types
+```golang
+type UserProfileGetRequest struct {
+	/* unique ID of user */
+	Id string
+}
+
+type UserProfileLoginRequest struct {
+  /* unique ID of user */
+	Username string
+  /* account password */
+	Password string
 }
 
 type UserProfileCreateRequest struct {
-  Username string
-  Name     string
+	/* unique identifier - username provided by user */
+	Username string
+	/* name displayed to user */
+	Name string
+	/* password for login */
+	Password string
 }
 
 type UserProfileUpdateRequest struct {
-  User *UserProfile
+  /* unique ID of user */
+	Username string
+  /* name displayed to user */
+	Name     string
 }
 
 type UserProfileDeleteRequest struct {
-  Id string
+	/* unique id of user to be deleted */
+	Id string
+}
+
+```
+#### Response Types
+Note: Most of the response types currently contain identical attributes. These were intentionally separated into different types to allow for better adaptability as the application evolves. 
+```golang
+type UserProfileGetResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
+}
+
+type UserProfilesGetResponse struct {
+	Users   []*model.UserProfile
+	Message string
+	Error   error
+}
+
+type UserProfileLoginResponse struct {
+	User    *model.UserProfile
+	Message string
+	Error   error
 }
 
 type UserProfileCreateResponse struct {
-  User *UserProfile
-  Message string
-  Error error
+	User    *model.UserProfile
+	Message string
+	Error   error
 }
 
 type UserProfileUpdateResponse struct {
-  User *UserProfile
-  Message string
-  Error error
+	User    *model.UserProfile
+	Message string
+	Error   error
 }
 
 type UserProfileDeleteResponse struct {
-  User *UserProfile
-  Message string
-  Error error
+	User    *model.UserProfile
+	Message string
+	Error   error
 }
-
-// These methods will be available via a services interactor
-
-type UserAccountManagementServiceInteractor struct {}
-
-func (u *UserAccouneManagementServiceInteractor)CreateUserProfile(request *UserProfileCreateRequest) *UserProfileCreateResponse { ... }
-func (u *UserAccouneManagementServiceInteractor)UpdateUserProfile(request *UserProfileUpdateRequest) *UserProfileUpdateResponse { ... }
-func (u *UserAccouneManagementServiceInteractor)DeleteUserProfile(request *UserProfileDeleteRequest) *UserProfileDeleteResponse { ... }
-
-
-type ServicesInteractor struct {
-  AccountManager *UserAccountManagementServiceInteractor
-  ...
-  ...
-}
-
 ```
 ### Example Usage
 
@@ -78,9 +112,50 @@ import (
 )
 
 func main() {
+  /* Find a specific user */
+  
+  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+  userResponse := basicUsrMngr.GetUserProfile(GetUserProfile(&userAcctMngr.UserProfileGetRequest{
+    Id: "username",
+  })
+  
+  if userResponse.Error != nil {
+    // handle error
+  }
+  
+  usr := userResponse.User
+  
+  
+  /* Get all users */
+  
+  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+  userResponse := basicUsrMngr.GetUserProfiles()  
+  if userResponse.Error != nil {
+    // handle error
+  }
+  
+  usr := userResponse.User
+  
+  
+  /* Login */
+  
+  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+  loginResponse := basicUsrMngr.UserProfileLogin(&userAcctMngr.UserProfileLoginRequest{
+    Username: "username",
+    Password: "password",
+  })
+  
+  if loginResponse.Error != nil {
+    // handle error
+  }
+  
+  usr := loginResponse.User
+      
   /* Create a new user */
-  newUserResp := usrAcctMngr.CreateUserProfile(&usrAcctMngr.UserProfileCreateRequest{
+  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+  newUserResp := basicUsrMngr.CreateUserProfile(&usrAcctMngr.UserProfileCreateRequest{
     Username: "Example Username",
+    Password: "Password",
     Name:     "Example Name",
   })
 
@@ -91,10 +166,11 @@ func main() {
   usr := newUserResp.User
 
   /* Update an existing user */
-  updateUserResp := usrAcctMngr.UpdateUserProfile(&usrAcctMngr.UserProfileUpdateRequest{
+  
+  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+  updateUserResp := basicUsrMngr.UpdateUserProfile(&usrAcctMngr.UserProfileUpdateRequest{
     Username: "New Username",
     Name:     "New Name",
-    Id:       "UserId",
   })
 
   if updateUserResp.Error != nil {
@@ -104,8 +180,10 @@ func main() {
   usr := updateUserResp.User
 
   /* Delete an existing user */
-  deleteUserResp := usrAcctMngr.DeleteUserProfile(&usrAcctMngr.UserProfileDeleteRequest{
-    Id: "UserId",
+  
+  basicUsrMngr := userAcctMngr.UnprotectedUserService{}
+  deleteUserResp := basicUsrMngr.DeleteUserProfile(&usrAcctMngr.UserProfileDeleteRequest{
+    Id: "username",
   })
 
   if deleteUserResp.Error != nil {
@@ -118,5 +196,5 @@ func main() {
 
 
 ## Future updates
-* Password protection
+* Maintain authentication state throughout user session
 * Authentication for Update & Delete functionality
