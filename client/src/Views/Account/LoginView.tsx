@@ -52,12 +52,9 @@ export default function LoginView() {
           signIn(loginData);
         }
       } else {
-        console.error(text);
-        setErrorMessage(text);
+        throw text;
       }
     } catch (e) {
-      console.error(e);
-      setErrorMessage(e);
       throw e;
     }
   };
@@ -71,6 +68,8 @@ export default function LoginView() {
     } catch (e) {
       // Only set loading to false if the login failed. If we try to set it on a success, that gets
       // called after navigate which leads to the 'memory leak' React error.
+      console.error(e);
+      setErrorMessage(`${e}`);
       setIsLoading(false);
     }
   };

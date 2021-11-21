@@ -66,7 +66,7 @@ export default function AddRoutineView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(e);
+      setErrorMessage(`${e}`);
       throw e;
     }
   };
