@@ -7,6 +7,9 @@ The User Account Management service is responsible for creating, modifying, and 
 ### User Account Interface
 
 The user account interface shall provide methods to:
+* Find an existing user
+* Find all existing users
+* Authenticate an existing user
 * Create a new user
 * Modify an existing user
 * Delete an existing user
@@ -17,7 +20,6 @@ Below is an example of the minimum implementation of the user account management
 type UserProfile struct {
   Username string
   Name     string
-  id       string
 }
 
 type UserProfileCreateRequest struct {
