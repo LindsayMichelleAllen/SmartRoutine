@@ -131,101 +131,141 @@ export function GetRootURL(): string {
  * A generic method wrapper to send a fetch request. The BE expects form data, so this simplifies
  * some of the requests.
  * 
- * @param body The body to send. This is really just a mapped object type.
- * @param requestType The type of request to send. The default value is 'POST'.
+ * @param endpoint
+ * @param requestType The type of request/endpoint to use.
+ * @param body The body associated with the provided endpoint.
  * @returns The request init value that should be associated with a fetch request.
  */
-export function GetFetchRequest(
-  body: Record<string, string>,
+export async function FetchRequest<T extends keyof Endpoints>(
+  endpoint: T,
+  body: Endpoints[T],
   requestType?: 'POST' | 'GET',
-): RequestInit {
-  const useRequestType = requestType ?? 'POST';
-  return {
-    method: useRequestType,
+) {
+  const endpointURL = EndpointTargets[endpoint as EndpointTargets];
+  const url = `${GetRootURL()}${endpointURL}`;
+
+  return await fetch(url, {
+    method: requestType ?? 'POST',
     body: new URLSearchParams(body),
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-    }
-  } as RequestInit;
+    },
+  });
 }
 
-/**
- * Gets the login URL for the current session.
- * 
- * @returns The login URL for the current session.
- */
-export function GetLoginURL() {
-  return `${GetRootURL()}/user/login/`;
+export enum EndpointTargets {
+  userRead = '/user/',
+  userLogin = '/user/login/',
+  userCreate = '/user/create/',
+  userUpdate = '/user/update/',
+  userDelete = '/user/delete/',
+  deviceRead = '/device/',
+  deviceReadUser = '/device/user/',
+  deviceReadRoutine = '/device/routine/',
+  deviceCreate = '/device/create/',
+  deviceUpdate = '/device/update/',
+  deviceDelete = '/device/delete/',
+  routineRead = '/routine/',
+  routineReadUser = '/routines/user/',
+  routineReadDevice = '/routines/device/',
+  routineCreate = '/routine/create/',
+  routineUpdate = '/routine/update/',
+  routineDelete = '/routine/delete/',
+  configurationCreate = '/configuration/create/',
+  configurationUpdate = '/configuration/update/',
+  configurationRead = '/configuration/',
+  configurationReadDevice = '/configurations/device/',
+  configurationReadUser = '/configurations/user/',
+  configurationReadRoutine = '/configurations/routine/',
+  configurationDelete = '/configuration/delete//',
 }
 
-/**
- * Gets the signup URL for the current session.
- * 
- * @returns The signup URL for the current session.
- */
-export function GetSignupURL() {
-  return `${GetRootURL()}/user/create/`;
-}
-
-/**
- * Gets the URL for creating a new routine.
- * 
- * @returns The URL for creating a new routine.
- */
-export function GetCreateRoutineURL() {
-  return `${GetRootURL()}/routine/create/`;
-}
-
-/**
- * Gets the URL for modifying a user's information.
- * 
- * @returns The URL for modifying a user's information.
- */
-export function GetModifyUserURL() {
-  return `${GetRootURL()}/user/update/`;
-}
-
-/**
- * Gets the URL for deleting a routine.
- * 
- * @returns The URL for deleting a routine.
- */
-export function GetDeleteRoutineURL() {
-  return `${GetRootURL()}/routine/delete/`;
-}
-
-/**
- * Gets the URL for modifying a given routine.
- * 
- * @returns The URL for modifying a routine.
- */
-export function GetUpdateRoutineURL() {
-  return `${GetRootURL()}/routine/update/`;
-}
-
-/**
- * Gets the URL for fetching a routine.
- * 
- * @returns The URL for fetching a routine.
- */
-export function GetGetRoutineURL() {
-  return `${GetRootURL()}/routine/`;
-}
-
-/**
- * Gets the routines fetch URL for the current user.
- * 
- * @returns The routines fetch URL for the current user.
- */
-export function GetRoutinesFetchURL() {
-  return `${GetRootURL()}/routines/user/`;
-}
-
-/**
- *
- */
-export function GetRoutineDeleteURL() {
-  return `${GetRootURL()}/routine/delete/`;
+export interface Endpoints extends Record<EndpointTargets, Record<string, string>> {
+  userRead: {
+    id: string
+  },
+  userLogin: {
+    username: string,
+    password: string,
+  },
+  userCreate: {
+    username: string,
+    name: string,
+    password: string,
+  },
+  userUpdate: {
+    username: string,
+    name: string,
+  },
+  userDelete: {
+    id: string,
+  },
+  deviceRead: {
+    id: string,
+  },
+  deviceReadUser: {
+    userid: string,
+  },
+  deviceReadRoutine: {
+    routineid: string,
+  },
+  deviceCreate: {
+    name: string,
+    userid: string,
+  },
+  deviceUpdate: {
+    name: string,
+    deviceid: string,
+  },
+  deviceDelete: {
+    id: string,
+  },
+  routineRead: {
+    routineid: string,
+  },
+  routineReadUser: {
+    userid: string,
+  },
+  routineReadDevice: {
+    deviceid: string,
+  },
+  routineCreate: {
+    name: string,
+    userid: string,
+    basealarm: string,
+  },
+  routineUpdate: {
+    name: string,
+    routineid: string,
+    basealarm: string,
+  },
+  routineDelete: {
+    id: string,
+  },
+  configurationCreate: {
+    offset: string,
+    deviceid: string,
+    routineid: string,
+  },
+  configurationUpdate: {
+    configid: string,
+    offset: string,
+  },
+  configurationRead: {
+    id: string,
+  },
+  configurationReadDevice: {
+    deviceid: string,
+  },
+  configurationReadUser: {
+    userid: string,
+  },
+  configurationReadRoutine: {
+    routineid: string,
+  },
+  configurationDelete: {
+    id: string,
+  },
 }
 
 /**
@@ -258,7 +298,7 @@ export function ParseLoginResponse(jsonInput: string): LoginDetailsBlob | undefi
   } catch (e) {
     console.error(e);
   }
-  
+
   return result;
 }
 
@@ -312,17 +352,84 @@ function instanceOfStoredRoutine(object: any): object is StoredRoutine {
 }
 
 /**
- * Parses the provided JSON input and converts that input to a {@link StoredDevice}, if possible.
+ * Parses the provided JSON input and converts that input to a {@link StoredRoutine}, if
+ * possible.
  * 
  * @param jsonInput The JSON string input to evaluate.
  * @returns The parsed object, if applicable. Undefined if the conversion is not possible.
  */
-export function ParseDevice(jsonInput: string): StoredDevice | undefined {
-  let result: StoredDevice | undefined = undefined;
-  const parsedObject = JSON.parse(jsonInput);
+ export function ParseDevice(jsonInput: string): StoredDevice | undefined {
+  let openingBracket: number | undefined = undefined;
+  let closingBracket: number | undefined = undefined;
 
-  if (instanceOfStoredDevice(parsedObject)) {
-    result = parsedObject;
+  [...jsonInput].forEach((c, i) => {
+    if (openingBracket === undefined) {
+      openingBracket = c === '{' ? i : undefined;
+    }
+    // The '+1' is to adjust for the 0/1-indexing mismatch between .substring() and an item's index.
+    closingBracket = c === '}' ? i + 1 : closingBracket;
+  });
+
+  const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
+
+  let result: StoredDevice | undefined = undefined;
+
+  try {
+    const parsedObject = JSON.parse(inputSubstr, (key, value) => {
+      if (key === 'BaseAlarm') {
+        return new Date(value);
+      }
+      return value;
+    });
+    if (instanceOfStoredDevice(parsedObject)) {
+      result = parsedObject;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+  return result;
+}
+
+/**
+ * Parses the provided JSON input and converts that input to a {@link StoredRoutine}[], if
+ * possible.
+ * 
+ * @param jsonInput The JSON string input to evaluate.
+ * @returns The parsed object, if applicable. Undefined if the conversion is not possible.
+ */
+export function ParseDeviceArray(jsonInput: string): StoredDevice[] | undefined {
+  let openingBracket: number | undefined = undefined;
+  let closingBracket: number | undefined = undefined;
+
+  [...jsonInput].forEach((c, i) => {
+    if (openingBracket === undefined) {
+      openingBracket = c === '[' ? i : undefined;
+    }
+    // The '+1' is to adjust for the 0/1-indexing mismatch between .substring() and an item's index.
+    closingBracket = c === ']' ? i + 1 : closingBracket;
+  });
+
+  const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
+
+  const result: StoredDevice[] | undefined = [];
+
+  try {
+    const jsonData = JSON.parse(inputSubstr);
+
+    if (Array.isArray(jsonData)) {
+      for (let i = 0; i < jsonData.length; i++) {
+        // We need to revive this differently from the base implementation.
+        const reStringifiedJson = JSON.stringify(jsonData[i]);
+        const device = ParseDevice(reStringifiedJson);
+        if (instanceOfStoredDevice(device)) {
+          result.push(device);
+        }
+      }
+    }
+
+  } catch (e) {
+    console.error(e);
   }
 
   return result;
@@ -383,6 +490,11 @@ export function ParseRoutine(jsonInput: string): StoredRoutine | undefined {
     console.error(e);
   }
 
+  result = {
+    ...result,
+    Configuration: result.Configuration.filter((c) => c.Id && c.Device && c.Device.Id)
+  };
+
   return result;
 }
 
@@ -404,7 +516,7 @@ export function ParseRoutineArray(jsonInput: string): StoredRoutine[] | undefine
     // The '+1' is to adjust for the 0/1-indexing mismatch between .substring() and an item's index.
     closingBracket = c === ']' ? i + 1 : closingBracket;
   });
-  
+
   const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
 
   const result: StoredRoutine[] | undefined = [];

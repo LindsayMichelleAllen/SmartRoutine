@@ -9,8 +9,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import {
-  GetFetchRequest,
-  GetModifyUserURL,
+  FetchRequest,
   ParseLoginResponse,
 } from '../../Utils/BackendIntegration';
 import { ValidUserNameChars } from '../../Utils/InputValidation';
@@ -41,13 +40,10 @@ export default function AccountView() {
 
   const updateUser = async () => {
     try {
-      const response = await fetch(
-        GetModifyUserURL(),
-        GetFetchRequest({
-          username,
-          name,
-        }),
-      );
+      const response = await FetchRequest('userUpdate', {
+        name,
+        username,
+      });
 
       const text = await response.text();
       if (!response.ok) {
@@ -93,8 +89,6 @@ export default function AccountView() {
 
   return (
     <Box sx={{
-      height: '100%',
-      width: '100%',
       display: 'grid',
       gridTemplateAreas: `
         "."
@@ -102,7 +96,6 @@ export default function AccountView() {
         "."
       `,
       justifyContent: 'center',
-      alignItems: 'center',
     }}>
       <Box sx={{
         gridArea: 'accountDetails',

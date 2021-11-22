@@ -14,11 +14,13 @@ import { useAuth } from '../../Utils/LoginState';
 import LoginIcon from '@mui/icons-material/Login';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AltRouteIcon from '@mui/icons-material/AltRoute';
+import DevicesIcon from '@mui/icons-material/Devices';
 import {
   ACCOUNT_URL,
   LOGIN_URL,
   ROUTINES_URL,
   LOGOUT_URL,
+  DEVICES_URL,
 } from '../../Utils/CommonRouting';
 
 /**
@@ -57,9 +59,13 @@ const protectedNavItems: NavItem[] = [
     icon: (<AltRouteIcon />),
     label: 'Routines',
     route: ROUTINES_URL,
+  },
+  {
+    icon: (<DevicesIcon />),
+    label: 'Devices',
+    route: DEVICES_URL,
   }
 ];
-
 
 /**
  * A list of static navigation items to be included in the nav pane. These items do not require a
@@ -142,7 +148,7 @@ export default function NavDrawer(props: NavDrawerProps) {
     <Paper sx={{ width: `${drawerWidthPixels}px` }}>
       <Toolbar>
         <Typography variant="h5">
-          SmartRoutine
+          MachineRoutine
         </Typography>
       </Toolbar>
       <Divider />

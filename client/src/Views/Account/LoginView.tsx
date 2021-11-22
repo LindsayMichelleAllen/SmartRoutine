@@ -10,7 +10,7 @@ import {
 import {
   styled
 } from '@mui/material/styles';
-import { GetFetchRequest, GetLoginURL, ParseLoginResponse } from '../../Utils/BackendIntegration';
+import { EndpointTargets, FetchRequest, ParseLoginResponse } from '../../Utils/BackendIntegration';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../Utils/LoginState';
 
@@ -37,13 +37,10 @@ export default function LoginView() {
 
   const login = async () => {
     try {
-      const response = await fetch(
-        GetLoginURL(),
-        GetFetchRequest({
-          username,
-          password,
-        })
-      );
+      const response = await FetchRequest('userLogin', {
+        username,
+        password,
+      });
 
       const text = await response.text();
       if (response.ok) {

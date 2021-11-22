@@ -36,19 +36,27 @@ import NavDrawer from '../../Components/NavDrawer/NavDrawer';
 import LogoutView from '../Account/LogoutView';
 import {
   ACCOUNT_URL,
+  ADD_DEVICE_URL,
   ADD_ROUTINE_URL,
+  DEVICES_URL,
+  EDIT_DEVICE_URL,
   EDIT_ROUTINE_URL,
   LOGIN_URL,
   LOGOUT_URL,
   ROUTINES_URL,
   SIGNUP_URL,
+  VIEW_ROUTINE_URL,
 } from '../../Utils/CommonRouting';
 import AddRoutineView from '../Routines/AddRoutineView';
-import EditRoutineView from '../Routines/EditRoutineView';
+import RoutineView from '../Routines/SingleRoutineView';
+import DevicesView from '../Devices/DevicesView';
 import {
   LocalizationProvider,
 } from '@mui/lab';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import EditRoutineView from '../Routines/EditRoutineView';
+import EditDeviceView from '../Devices/EditDeviceView';
+import AddDeviceView from '../Devices/AddDeviceView';
 
 const navDrawerWidth = 240;
 
@@ -135,11 +143,23 @@ function App() {
             path={ROUTINES_URL}
             element={<PrivateRoute authElement={<RoutinesView />} fallbackUrl={LOGIN_URL} />} />
           <Route
+            path={DEVICES_URL}
+            element={<PrivateRoute authElement={<DevicesView />} fallbackUrl={LOGIN_URL} />} />
+          <Route
             path={ADD_ROUTINE_URL}
             element={<PrivateRoute authElement={<AddRoutineView />} fallbackUrl={LOGIN_URL} />} />
           <Route
+            path={ADD_DEVICE_URL}
+            element={<PrivateRoute authElement={<AddDeviceView />} fallbackUrl={LOGIN_URL} />} />
+          <Route
             path={EDIT_ROUTINE_URL}
             element={<PrivateRoute authElement={<EditRoutineView />} fallbackUrl={LOGIN_URL} />} />
+          <Route
+            path={EDIT_DEVICE_URL}
+            element={<PrivateRoute authElement={<EditDeviceView />} fallbackUrl={LOGIN_URL} />} />
+          <Route
+            path={VIEW_ROUTINE_URL}
+            element={<PrivateRoute authElement={<RoutineView />} fallbackUrl={LOGIN_URL} />} />
           <Route
             path={LOGIN_URL}
             element={<PrivateRoute authElement={<LoginView />} fallbackUrl={LOGOUT_URL} invertPrivacy/>} />
