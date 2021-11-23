@@ -1,6 +1,6 @@
 import { instanceOfLoginDetailsBlob, LoginDetailsBlob } from './LoginState';
 
-const ProdBaseUri = 'http://ec2-184-169-188-209.us-west-1.compute.amazonaws.com:8080';
+const ProdBaseUri = 'http://ec2-13-52-98-203.us-west-1.compute.amazonaws.com:8080';
 const LocalBaseUri = 'http://localhost:8080';
 
 /**
