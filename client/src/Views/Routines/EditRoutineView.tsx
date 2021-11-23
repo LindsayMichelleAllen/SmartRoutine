@@ -13,10 +13,8 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  GetFetchRequest,
-  GetGetRoutineURL,
+  FetchRequest,
   GetRoutineBasealarmString,
-  GetUpdateRoutineURL,
   ParseRoutine,
   StoredRoutine,
 } from '../../Utils/BackendIntegration';
@@ -29,13 +27,13 @@ import { ValidRoutineNameChars } from '../../Utils/InputValidation';
  * @returns The View.
  */
 export default function EditRoutineView() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [searchParams, _] = useSearchParams();
   const [name, setName] = useState('');
   const [time, setTime] = useState<Date>(new Date(Date.now()));
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [searchParams, _] = useSearchParams();
   const [routine, setRoutine] = useState<StoredRoutine | undefined>(undefined);
   
   const devices = useMemo(() => routine?.Configuration?.map((c) => (
@@ -48,12 +46,9 @@ export default function EditRoutineView() {
 
   const loadRoutine = async () => {
     try {
-      const response = await fetch(
-        GetGetRoutineURL(),
-        GetFetchRequest({
-          routineid: routineId,
-        }),
-      );
+      const response = await FetchRequest('routineRead', {
+        routineid: routineId,
+      });
 
       const text = await response.text();
       if (!response.ok) {
@@ -77,14 +72,11 @@ export default function EditRoutineView() {
   const editRoutine = async () => {
     try {
       const timeString = GetRoutineBasealarmString(time);
-      const response = await fetch(
-        GetUpdateRoutineURL(),
-        GetFetchRequest({
-          name,
-          routineid: routine.Id,
-          basealarm: timeString,
-        }),
-      );
+      const response = await FetchRequest('routineUpdate', {
+        name,
+        routineid: routine.Id,
+        basealarm: timeString,
+      });
 
       const text = await response.text();
       if (!response.ok) {
@@ -178,7 +170,7 @@ export default function EditRoutineView() {
           onChange={(v) => setTime(v)}
           renderInput={(params) => <TextField sx={{ gridArea: 'time' }} {...params} />} />
         <Typography variant="h6" sx={{ gridArea: 'devicestitle' }}>
-          Devices
+          Configurations
         </Typography>
         <List sx={{ gridArea: 'devices' }}>
           {devices}

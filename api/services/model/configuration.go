@@ -42,6 +42,7 @@ func (c *Configuration) SetRoutineId(newRoutineId string) {
 }
 
 func (c *Configuration) GetJsonStruct() interface{} {
+
 	return struct {
 		Id        string
 		RoutineId string

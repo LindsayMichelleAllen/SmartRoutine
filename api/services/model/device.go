@@ -1,6 +1,8 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 /* The Device object is used to represent a controllable apparatus */
 type Device struct {

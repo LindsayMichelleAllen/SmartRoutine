@@ -10,6 +10,8 @@ import { StoredRoutine } from '../../Utils/BackendIntegration';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { GetAlarmText } from '../../Views/Routines/RoutineUtils';
 
 /**
  * The props for the {@link RoutineCard} component.
@@ -29,6 +31,11 @@ export type RoutineCardProps = {
    * An event callback when a routine delete button is pressed.
    */
   onDeleteRoutine: (routine: StoredRoutine) => void;
+
+  /**
+   * An event callback when a view button is pressed.
+   */
+  onViewRoutine: (routine: StoredRoutine) => void;
 }
 
 /**
@@ -43,19 +50,10 @@ export default function RoutineCard(props: RoutineCardProps) {
     routine,
     onDeleteRoutine,
     onEditRoutine,
+    onViewRoutine,
   } = props;
 
-  const alarmText = useMemo(() => {
-    // 1-index -> 0-index -> 1-index
-    const alarmHours = ((routine.BaseAlarm.getHours() - 1) % 12) + 1;
-    const alarmMinutes = routine.BaseAlarm.getMinutes();
-
-    const alarmHourSyntax = alarmHours >= 10 ? `${alarmHours}` : `0${alarmHours}`;
-    const alarmMinutesSyntax = alarmMinutes >= 10 ? `${alarmMinutes}` : `0${alarmMinutes}`;
-    const meridian = routine.BaseAlarm.getHours() <= 12 ? 'AM' : 'PM';
-
-    return `${alarmHourSyntax}:${alarmMinutesSyntax} ${meridian}`;
-  }, [routine.BaseAlarm]);
+  const alarmText = useMemo(() => GetAlarmText(routine.BaseAlarm), [routine.BaseAlarm]);
 
   const deviceCount = useMemo(() => {
     return routine.Configuration.flatMap((c) => c.Device).filter((d) => !!d.Id).length;
@@ -92,14 +90,15 @@ export default function RoutineCard(props: RoutineCardProps) {
           {deviceCount} devices connected
         </Typography>
       </CardContent>
-      <CardActions sx={{
-        justifyContent: 'end',
-      }}>
+      <CardActions sx={{ justifyContent: 'end' }}>
         <IconButton title="Edit" onClick={() => onEditRoutine(routine)}>
           <EditIcon />
         </IconButton>
         <IconButton title="Delete" onClick={() => onDeleteRoutine(routine)}>
           <DeleteIcon />
+        </IconButton>
+        <IconButton title="View" onClick={() => onViewRoutine(routine)}>
+          <VisibilityIcon />
         </IconButton>
       </CardActions>
     </Card>

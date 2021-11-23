@@ -12,12 +12,11 @@ import {
 } from '@mui/lab';
 import React, { useState } from 'react';
 import {
-  GetCreateRoutineURL,
-  GetFetchRequest,
+  FetchRequest,
   GetRoutineBasealarmString,
   ParseRoutine,
   StoredRoutine,
- } from '../../Utils/BackendIntegration';
+} from '../../Utils/BackendIntegration';
 import { useAuth } from '../../Utils/LoginState';
 import {
   useNavigate,
@@ -37,21 +36,20 @@ export default function AddRoutineView() {
   const [time, setTime] = useState<Date>(new Date(Date.now()));
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  
   const navigate = useNavigate();
+
   const authState = useAuth();
   const loginDetails = authState?.loginDetails;
 
   const addRoutine = async (): Promise<StoredRoutine | undefined> => {
     try {
       const timeString = GetRoutineBasealarmString(time);
-      const response = await fetch(
-        GetCreateRoutineURL(),
-        GetFetchRequest({
-          name,
-          userid: loginDetails.Username,
-          basealarm: timeString,
-        }),
-      );
+      const response = await FetchRequest('routineCreate', {
+        name,
+        userid: loginDetails.Username,
+        basealarm: timeString,
+      });
 
       const text = await response.text();
       if (!response.ok) {

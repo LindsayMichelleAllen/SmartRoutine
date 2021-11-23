@@ -10,9 +10,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  GetFetchRequest,
-  GetRoutineDeleteURL,
-  GetRoutinesFetchURL,
+  FetchRequest,
   ParseRoutineArray,
   StoredRoutine,
 } from '../../Utils/BackendIntegration';
@@ -21,7 +19,7 @@ import {
   useAuth,
 } from '../../Utils/LoginState';
 import { useNavigate } from 'react-router';
-import { ADD_ROUTINE_URL, EDIT_ROUTINE_URL } from '../../Utils/CommonRouting';
+import { ADD_ROUTINE_URL, EDIT_ROUTINE_URL, ROUTINE_ID_SEARCH_PARAM, VIEW_ROUTINE_URL } from '../../Utils/CommonRouting';
 import RoutineCard from '../../Components/Routines/RoutineCard';
 
 /**
@@ -42,12 +40,9 @@ export default function RoutinesView() {
 
   const fetchRoutines = async () => {
     try {
-      const response = await fetch(
-        GetRoutinesFetchURL(),
-        GetFetchRequest({
-          userid: loginDetails.Username ?? '',
-        }),
-      );
+      const response = await FetchRequest('routineReadUser', {
+        userid: loginDetails.Username ?? '',
+      });
 
       const text = await response.text();
 
@@ -66,12 +61,9 @@ export default function RoutinesView() {
 
   const deleteRoutine = async () => {
     try {
-      const response = await fetch(
-        GetRoutineDeleteURL(),
-        GetFetchRequest({
-          id: routineToDelete.Id,
-        }),
-      );
+      const response = await FetchRequest('routineDelete', {
+        id: routineToDelete.Id,
+      });
 
       const text = await response.text();
       if (!response.ok) {
@@ -83,12 +75,16 @@ export default function RoutinesView() {
   };
 
   const handleEditRoutine = (routine: StoredRoutine): void => {
-    navigate(`${EDIT_ROUTINE_URL}?routineid=${routine.Id}`);
+    navigate(`${EDIT_ROUTINE_URL}?${ROUTINE_ID_SEARCH_PARAM}=${routine.Id}`);
   };
 
   const handleDeleteRoutine = (routine: StoredRoutine): void => {
     setDeleteDialogOpen(true);
     setRoutineToDelete(routine);
+  };
+
+  const handleViewRoutine = (routine: StoredRoutine): void => {
+    navigate(`${VIEW_ROUTINE_URL}?${ROUTINE_ID_SEARCH_PARAM}=${routine.Id}`);
   };
 
   const onDeleteRoutine = async () => {
@@ -114,6 +110,7 @@ export default function RoutinesView() {
       routine={r}
       onEditRoutine={handleEditRoutine}
       onDeleteRoutine={handleDeleteRoutine}
+      onViewRoutine={handleViewRoutine}
     />
   )), [routines]);
 
@@ -132,7 +129,7 @@ export default function RoutinesView() {
     }}>
       <Typography
         sx={{ gridArea: 'title' }}
-        variant="h2">
+        variant="h3">
         Routines
       </Typography>
       <Box sx={{
@@ -155,19 +152,12 @@ export default function RoutinesView() {
       }}>
         {routineCards}
       </Box>
-      <Fab sx={{
-        position: 'absolute',
-        bottom: '24px',
-        right: '24px',
-      }}
+      <Fab sx={{ position: 'absolute', bottom: '24px', right: '24px' }}
         color='primary'
         onClick={() => navigate(ADD_ROUTINE_URL)}>
         <AddIcon />
       </Fab>
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
         <DialogTitle>Delete {routineToDelete?.Name ?? ''}?</DialogTitle>
         <Typography
           sx={{ padding: '18px' }}

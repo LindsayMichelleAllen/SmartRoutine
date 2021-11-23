@@ -8,8 +8,8 @@ import {
   styled,
 } from '@mui/material';
 import {
-  GetFetchRequest,
-  GetSignupURL, ParseLoginResponse,
+  FetchRequest,
+  ParseLoginResponse,
 } from '../../Utils/BackendIntegration';
 import React, {
   useState,
@@ -36,14 +36,11 @@ export default function SignupView() {
 
   const signup = async () => {
     try {
-      const response = await fetch(
-        GetSignupURL(),
-        GetFetchRequest({
-          username,
-          name,
-          password,
-        }),
-      );
+      const response = await FetchRequest('userCreate', {
+        name,
+        username,
+        password,
+      });
 
       const text = await response.text();
       if (!response.ok) {
@@ -58,6 +55,7 @@ export default function SignupView() {
       }
     } catch (e) {
       console.error(e);
+      setErrorMessage(`${e}`);
     } finally {
       setUsername('');
       setName('');

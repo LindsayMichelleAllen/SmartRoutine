@@ -149,6 +149,8 @@ func main() {
 			resp := basicDvcSrvc.GetDevice(&dvcMngr.GetDeviceRequest{Id: id})
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else if resp.Device != nil {
+				fmt.Fprint(w, resp.Device.GetJson())
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -180,6 +182,13 @@ func main() {
 			resp := basicDvcSrvc.GetUserDevices(&dvcMngr.GetUserDevicesRequest{UserId: userid})
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else {
+				deviceStrings := []string{}
+				for _, d := range resp.Devices {
+					deviceStrings = append(deviceStrings, d.GetJson())
+				}
+
+				fmt.Fprintf(w, "[%s]", strings.Join(deviceStrings, ","))
 			}
 			fmt.Fprint(w, "Success", 200)
 		}
@@ -217,6 +226,8 @@ func main() {
 
 			if resp.Error != nil {
 				http.Error(w, resp.Error.Error(), 500)
+			} else if resp.Device != nil {
+				fmt.Fprint(w, resp.Device)
 			}
 			fmt.Fprint(w, "Success", 200)
 		}

@@ -19,6 +19,11 @@ export const ADD_ROUTINE_URL = '/createroutine';
 export const EDIT_ROUTINE_URL = '/editroutine';
 
 /**
+ * A const value for the URL for viewing a routine.
+ */
+ export const VIEW_ROUTINE_URL = '/routine';
+
+/**
  * A const value for the URL for a user to log in.
  */
 export const LOGIN_URL = '/login';
@@ -42,3 +47,18 @@ export const ACCOUNT_URL = '/account';
  * A const value for the URL for a user's routines list.
  */
 export const ROUTINES_URL = '/routines';
+
+/**
+ * A const value for the URL for a user's devices list.
+ */
+export const DEVICES_URL = '/devices';
+
+/**
+ * A const value for the URL for a user's devices list.
+ */
+ export const ADD_DEVICE_URL = '/createdevice';
+
+ /**
+  * A const value for the URL for editing a device.
+  */
+  export const EDIT_DEVICE_URL = '/editdevice';

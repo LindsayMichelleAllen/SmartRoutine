@@ -48,7 +48,7 @@ export default function LogoutView() {
           Logged In
         </Typography>
         <Typography>
-          {`Currently logged in as ${loginDetails?.username ?? ''}`}
+          {`Currently logged in as ${loginDetails?.Username ?? ''}`}
         </Typography>
         <Button onClick={() => handleClick()}>
           <Typography variant="button">
