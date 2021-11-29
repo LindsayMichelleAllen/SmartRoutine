@@ -1,33 +1,50 @@
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogTitle,
   Fab,
-  IconButton,
-  Paper,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FetchRequest, ParseRoutine, StoredConfiguration, StoredRoutine } from '../../Utils/BackendIntegration';
-import { ADD_ROUTINE_URL, ROUTINE_ID_SEARCH_PARAM } from '../../Utils/CommonRouting';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
+import {
+  FetchRequest,
+  ParseRoutine,
+  StoredConfiguration,
+  StoredRoutine,
+} from '../../Utils/BackendIntegration';
+import {
+  ADD_DEVICE_TO_ROUTINE_URL,
+  ADD_ROUTINE_URL,
+  EDIT_ROUTINE_URL,
+  ROUTINE_ID_SEARCH_PARAM,
+} from '../../Utils/CommonRouting';
 import ConfigurationCard from '../../Components/Configurations/ConfigurationCard';
-import EditIcon from '@mui/icons-material/Edit';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import AddIcon from '@mui/icons-material/Add';
-import { GetAlarmText } from './RoutineUtils';
+import RoutineCard from '../../Components/Routines/RoutineCard';
+import { LoadingButton } from '@mui/lab';
+import { LoadingCardBox } from '../../Components/Containers/CardBox';
+import CardSkeleton from '../../Components/Skeletons/CardSkeleton';
 
 /**
- *
+ * A view used to render details and controls for a single routine.
+ * 
+ * @returns The view.
  */
 export default function SingleRoutineView() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchParams, _] = useSearchParams();
+  const [isFetchingRoutine, setIsFetchingRoutine] = useState(true);
   const [routine, setRoutine] = useState<StoredRoutine | undefined>(undefined);
-  const [alarmText, setAlarmText] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteProcessing, setDeleteProcessing] = useState(false);
@@ -48,7 +65,6 @@ export default function SingleRoutineView() {
       } else {
         const routine = ParseRoutine(text);
         setRoutine(routine);
-        setAlarmText(GetAlarmText(routine.BaseAlarm));
       }
     } catch (e) {
       console.error(e);
@@ -73,7 +89,9 @@ export default function SingleRoutineView() {
   };
 
   useEffect(() => {
-    loadRoutine();
+    loadRoutine().then(() => {
+      setIsFetchingRoutine(false);
+    });
   }, [routineId]);
 
   const handleDeleteConfiguration = (configuration: StoredConfiguration) => {
@@ -94,6 +112,10 @@ export default function SingleRoutineView() {
     await loadRoutine();
   };
 
+  const handleEditRoutine = (routine: StoredRoutine): void => {
+    navigate(`${EDIT_ROUTINE_URL}?${ROUTINE_ID_SEARCH_PARAM}=${routine.Id}`);
+  };
+
   const configurations = useMemo(() => routine?.Configuration?.map((c) => (
     <ConfigurationCard
       configuration={c}
@@ -106,73 +128,36 @@ export default function SingleRoutineView() {
     <Box sx={{ textAlign: 'center' }}>
       <Box sx={{
         display: 'grid',
+        rowGap: '18px',
         gridTemplateAreas: `
           "routineDetails"
+          "divider"
           "configurationsTitle"
           "configurationsList"
         `,
       }}>
-        <Paper
-          elevation={2}
-          sx={{
-            position: 'relative',
-            gridArea: 'routineDetails',
-            display: 'grid',
-            margin: '18px',
-            padding: '12px',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gridTemplateAreas: `
-            "title title"
-            "alarm alarmIcon"
-          `
-          }}>
-          <Typography sx={{ gridArea: 'title' }} padding="12px" textAlign="center" variant="h3">
-            {routine?.Name ?? ''}
-          </Typography>
-          <Typography sx={{ gridArea: 'alarm' }}>
-            {alarmText}
-          </Typography>
-          <AccessTimeIcon sx={{ gridArea: 'alarmIcon' }} />
-          <IconButton sx={{ position: 'absolute', right: '18px', bottom: '0px' }} title="Edit">
-            <EditIcon />
-          </IconButton>
-        </Paper>
-      </Box>
-      <Typography
-        sx={{
-          gridArea: 'configurationsTitle',
-        }}
-        variant="h4">
-        Devices
-      </Typography>
-      <Box sx={{
-        gridArea: 'configurationsList',
-        display: 'grid',
-        columnGap: '12px',
-        rowGap: '12px',
-        padding: '12px',
-        justifyContent: 'center',
-        alignItems: 'start',
-        paddingBottom: '128px', // Add some extra space so the FAB doesn't overlay the actions.
-        gridAutoRows: 'min-content',
-        gridTemplateColumns: {
-          sm: '220px 220px',
-          xs: '1fr',
-        },
-        width: {
-          sm: 'auto',
+        {
+          isFetchingRoutine
+            ? (<CardSkeleton />)
+            : (
+              <RoutineCard
+                routine={routine}
+                onEditRoutine={handleEditRoutine}
+              />
+            )
         }
-      }}>
-        {configurations}
+        <Typography
+          sx={{
+            gridArea: 'configurationsTitle',
+          }}
+          variant="h4">
+          Devices
+        </Typography>
+        <LoadingCardBox isLoading={false} sx={{ gridArea: 'configurationsList' }}>
+          {configurations}
+        </LoadingCardBox>
       </Box>
-      <Fab sx={{
-        position: 'absolute',
-        bottom: '24px',
-        right: '24px',
-      }}
-        color='primary'
-        onClick={() => navigate(ADD_ROUTINE_URL)}>
+      <Fab onClick={() => navigate(`${ADD_DEVICE_TO_ROUTINE_URL}?${ROUTINE_ID_SEARCH_PARAM}=${routineId}`)}>
         <AddIcon />
       </Fab>
       <Dialog
@@ -183,13 +168,13 @@ export default function SingleRoutineView() {
         <Typography
           sx={{ padding: '18px' }}
           variant="body1" >
-          Deleting this routine is irreversible. Are you sure that you wish to continue?
+          Deleting this device is irreversible. Are you sure that you wish to continue?
         </Typography>
         <DialogActions>
-          <Button onClick={() => onDeleteConfiguration()}>
-            {!deleteProcessing ? 'DELETE' : (<CircularProgress />)}
-          </Button>
-          <Button onClick={() => setDeleteDialogOpen(false)}>
+          <LoadingButton onClick={() => onDeleteConfiguration()} loading={deleteProcessing}>
+            <Typography variant="button">Delete</Typography>
+          </LoadingButton>
+          <Button onClick={() => setDeleteDialogOpen(false)} disabled={deleteProcessing}>
             CANCEL
           </Button>
         </DialogActions>

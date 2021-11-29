@@ -1,8 +1,6 @@
 import {
   Alert,
   Box,
-  Button,
-  CircularProgress,
   TextField,
   Typography,
   styled,
@@ -16,6 +14,7 @@ import React, {
 } from 'react';
 import { useAuth } from '../../Utils/LoginState';
 import { ValidUserNameChars } from '../../Utils/InputValidation';
+import { LoadingButton } from '@mui/lab';
 
 /**
  * The view used to provide the user with a means to create a new account.
@@ -157,13 +156,9 @@ export default function SignupView() {
           label="Confirm Password"
           id="confirmpassword"
           type="password" />
-        <Button type="submit">
-          {
-            isLoading
-              ? (<CircularProgress />)
-              : (<Typography variant="button">Sign Up</Typography>)
-          }
-        </Button>
+        <LoadingButton loading={isLoading} sx={{ gridArea: 'submit' }} type="submit">
+          <Typography variant="button">Sign Up</Typography>
+        </LoadingButton>
       </StyledForm>
     </Box>
   );

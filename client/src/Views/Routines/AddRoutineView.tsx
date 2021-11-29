@@ -1,13 +1,12 @@
 import {
   Alert,
   Box,
-  Button,
-  CircularProgress,
   styled,
   TextField,
   Typography,
 } from '@mui/material';
 import {
+  LoadingButton,
   TimePicker,
 } from '@mui/lab';
 import React, { useState } from 'react';
@@ -24,7 +23,9 @@ import {
 import {
   ValidRoutineNameChars,
 } from '../../Utils/InputValidation';
-import { EDIT_ROUTINE_URL, ROUTINES_URL, ROUTINE_ID_SEARCH_PARAM } from '../../Utils/CommonRouting';
+import {
+  ROUTINES_URL,
+} from '../../Utils/CommonRouting';
 
 /**
  * A view used for the user to create a new routine.
@@ -131,13 +132,9 @@ export default function AddRoutineView() {
           value={time}
           onChange={(v) => setTime(v)}
           renderInput={(params) => <TextField sx={{ gridArea: 'time' }} {...params} />} />
-        <Button sx={{ gridArea: 'submit' }} type="submit" >
-          {
-            isLoading
-              ? (<CircularProgress />)
-              : (<Typography variant="button">Create</Typography>)
-          }
-        </Button>
+        <LoadingButton loading={isLoading} sx={{ gridArea: 'submit' }} type="submit">
+          <Typography variant="button">Create</Typography>
+        </LoadingButton>
       </StyledForm>
     </Box>
   );

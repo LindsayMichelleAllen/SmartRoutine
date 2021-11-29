@@ -1,13 +1,25 @@
-import { Alert, Box, Button, CircularProgress, styled, TextField, Typography } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import {
+  Alert,
+  Box,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { FetchRequest, ParseDevice } from '../../Utils/BackendIntegration';
+import {
+  FetchRequest,
+  ParseDevice,
+} from '../../Utils/BackendIntegration';
 import { DEVICES_URL } from '../../Utils/CommonRouting';
 import { ValidDeviceNameChars } from '../../Utils/InputValidation';
 import { useAuth } from '../../Utils/LoginState';
 
 /**
- *
+ * AddDeviceView provides the means for a user to create a new device.
+ * 
+ * @returns The view.
  */
 export default function AddDeviceView() {
   const [name, setName] = useState('');
@@ -122,14 +134,9 @@ export default function AddDeviceView() {
           label="Device Name"
           id="devicename"
           type="text" />
-        <Button
-          sx={{
-            gridArea: 'submit',
-          }}
-          disabled={isLoading}
-          type="submit">
-          {isLoading ? (<CircularProgress />) : (<Typography variant="button">Create</Typography>)}
-        </Button>
+        <LoadingButton loading={isLoading} sx={{ gridArea: 'submit' }} type="submit">
+          <Typography variant="button">Create</Typography>
+        </LoadingButton>
       </StyledForm>
     </Box>
   );

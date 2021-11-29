@@ -1,8 +1,7 @@
+import { LoadingButton } from '@mui/lab';
 import {
   Alert,
   Box,
-  Button,
-  CircularProgress,
   styled,
   TextField,
   Typography,
@@ -140,9 +139,6 @@ export default function AccountView() {
           }}>
             {errorMessage}
           </Alert>
-          <Typography sx={{ gridArea: 'username_label' }} variant="h6">
-            Username
-          </Typography>
           <TextField
             sx={{ gridArea: 'username' }}
             onChange={(e) => setUsername(e.target.value)}
@@ -150,9 +146,6 @@ export default function AccountView() {
             label="Username"
             id="username"
             type="text" />
-          <Typography sx={{ gridArea: 'name_label' }} variant="h6">
-            Name
-          </Typography>
           <TextField
             sx={{ gridArea: 'name' }}
             onChange={(e) => setName(e.target.value)}
@@ -160,13 +153,9 @@ export default function AccountView() {
             label="Name"
             id="name"
             type="text" />
-          <Button sx={{ gridArea: 'submit' }} type="submit">
-            {
-              isLoading
-                ? (<CircularProgress />)
-                : (<Typography variant="button">Update</Typography>)
-            }
-          </Button>
+          <LoadingButton loading={isLoading} sx={{ gridArea: 'submit' }} type="submit">
+            <Typography variant="button">Update</Typography>
+          </LoadingButton>
         </StyledForm>
       </Box>
     </Box>

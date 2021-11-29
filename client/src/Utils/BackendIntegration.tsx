@@ -131,9 +131,9 @@ export function GetRootURL(): string {
  * A generic method wrapper to send a fetch request. The BE expects form data, so this simplifies
  * some of the requests.
  * 
- * @param endpoint
- * @param requestType The type of request/endpoint to use.
+ * @param endpoint The endpoint that should be queried with this request.
  * @param body The body associated with the provided endpoint.
+ * @param requestType The type of request to submit. The default value is 'POST'.
  * @returns The request init value that should be associated with a fetch request.
  */
 export async function FetchRequest<T extends keyof Endpoints>(

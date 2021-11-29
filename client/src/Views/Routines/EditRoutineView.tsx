@@ -1,11 +1,9 @@
-import { TimePicker } from '@mui/lab';
+import { LoadingButton, TimePicker } from '@mui/lab';
 import {
   Box,
   Typography,
   Alert,
   TextField,
-  Button,
-  CircularProgress,
   styled,
   List,
   ListItem,
@@ -175,13 +173,9 @@ export default function EditRoutineView() {
         <List sx={{ gridArea: 'devices' }}>
           {devices}
         </List>
-        <Button sx={{ gridArea: 'submit' }} type="submit" >
-          {
-            isLoading
-              ? (<CircularProgress />)
-              : (<Typography variant="button">Update</Typography>)
-          }
-        </Button>
+        <LoadingButton sx={{ gridArea: 'submit' }} type="submit" loading={isLoading}>
+          <Typography variant="button">Update</Typography>
+        </LoadingButton>
       </StyledForm>
     </Box>
   );

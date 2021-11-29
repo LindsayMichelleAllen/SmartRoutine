@@ -1,12 +1,27 @@
-import { Alert, Box, Button, CircularProgress, styled, TextField, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { LoadingButton } from '@mui/lab';
+import {
+  Alert,
+  Box,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { FetchRequest, ParseDevice } from '../../Utils/BackendIntegration';
+import {
+  FetchRequest,
+  ParseDevice,
+} from '../../Utils/BackendIntegration';
 import { DEVICE_ID_SEARCH_PARAM } from '../../Utils/CommonRouting';
 import { ValidDeviceNameChars } from '../../Utils/InputValidation';
 
 /**
- *
+ * A view used to edit a particular device.
+ * 
+ * @returns The view.
  */
 export default function EditDeviceView() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -142,13 +157,9 @@ export default function EditDeviceView() {
           label="Device Name"
           id="devicename"
           type="text" />
-        <Button sx={{ gridArea: 'submit' }} type="submit">
-          {
-            isLoading
-              ? (<CircularProgress />)
-              : (<Typography variant="button">Update</Typography>)
-          }
-        </Button>
+        <LoadingButton sx={{ gridArea: 'submit' }} type="submit" loading={isLoading}>
+          <Typography variant="button">Update</Typography>
+        </LoadingButton>
       </StyledForm>
     </Box>
   );

@@ -56,9 +56,14 @@ export const DEVICES_URL = '/devices';
 /**
  * A const value for the URL for a user's devices list.
  */
- export const ADD_DEVICE_URL = '/createdevice';
+export const ADD_DEVICE_URL = '/createdevice';
 
- /**
-  * A const value for the URL for editing a device.
-  */
-  export const EDIT_DEVICE_URL = '/editdevice';
+/**
+ * A const value for the URL for editing a device.
+ */
+export const EDIT_DEVICE_URL = '/editdevice';
+
+/**
+ * A const value for the URL for adding a device to a routine.
+ */
+export const ADD_DEVICE_TO_ROUTINE_URL = '/addtoroutine';

@@ -1,11 +1,34 @@
-import { Alert, Box, Button, Dialog, DialogActions, DialogTitle, Fab, Typography } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Fab,
+  Typography,
+} from '@mui/material';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useNavigate } from 'react-router';
-import { FetchRequest, ParseDeviceArray, StoredDevice } from '../../Utils/BackendIntegration';
+import {
+  FetchRequest,
+  ParseDeviceArray,
+  StoredDevice,
+} from '../../Utils/BackendIntegration';
 import { useAuth } from '../../Utils/LoginState';
 import AddIcon from '@mui/icons-material/Add';
-import { ADD_DEVICE_URL, DEVICE_ID_SEARCH_PARAM, EDIT_DEVICE_URL } from '../../Utils/CommonRouting';
+import {
+  ADD_DEVICE_URL,
+  DEVICE_ID_SEARCH_PARAM,
+  EDIT_DEVICE_URL,
+} from '../../Utils/CommonRouting';
 import DeviceCard from '../../Components/Devices/DeviceCard';
+import { LoadingButton } from '@mui/lab';
+import { LoadingCardBox } from '../../Components/Containers/CardBox';
 
 /**
  * The props for the {@link DevicesView}.
@@ -20,9 +43,11 @@ export type DevicesViewProps = {
  */
 export default function DevicesView() {
   const [devices, setDevices] = useState<StoredDevice[]>([]);
+  const [isFetchingDevices, setIsFetchingDevices] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<StoredDevice | undefined>(undefined);
   const [errorMessage, setErrorMessage] = useState('');
+  const [deleteProcessing, setDeleteProcessing] = useState(false);
 
   const navigate = useNavigate();
 
@@ -51,6 +76,22 @@ export default function DevicesView() {
     }
   };
 
+  const deleteDevice = async () => {
+    try {
+      const response = await FetchRequest('deviceDelete', {
+        id: deviceToDelete.Id,
+      });
+
+      const text = await response.text();
+      if (!response.ok) {
+        throw text;
+      }
+    } catch (e) {
+      console.error(e);
+      setErrorMessage(e);
+    }
+  };
+
   const handleEditDevice = (device: StoredDevice): void => {
     navigate(`${EDIT_DEVICE_URL}?${DEVICE_ID_SEARCH_PARAM}=${device?.Id ?? ''}`);
   };
@@ -60,8 +101,19 @@ export default function DevicesView() {
     setDeviceToDelete(device);
   };
 
+  const onDeleteDevice = async () => {
+    setDeleteProcessing(true);
+    await deleteDevice();
+    setDeleteProcessing(false);
+
+    setDeleteDialogOpen(false);
+    await fetchDevices();
+  };
+
   useEffect(() => {
-    fetchDevices();
+    fetchDevices().then(() => {
+      setIsFetchingDevices(false);
+    });
   }, []);
 
   const deviceCards = useMemo(() => devices.map((d) => (
@@ -86,33 +138,10 @@ export default function DevicesView() {
         Devices
       </Typography>
       <Alert sx={{ visibility: !!errorMessage ? 'visible' : 'hidden' }} severity="error" />
-      <Box sx={{
-        gridArea: 'devices',
-        display: 'grid',
-        columnGap: '12px',
-        rowGap: '12px',
-        padding: '12px',
-        justifyContent: 'center',
-        alignItems: 'start',
-        paddingBottom: '128px', // Add some extra space so the FAB doesn't overlay the actions.
-        gridAutoRows: 'min-content',
-        gridTemplateColumns: {
-          sm: '220px 220px',
-          xs: '1fr',
-        },
-        width: {
-          sm: 'auto',
-        }
-      }}>
+      <LoadingCardBox isLoading={isFetchingDevices} sx={{ gridArea: 'devices' }}>
         {deviceCards}
-      </Box>
-      <Fab color="primary"
-        onClick={() => navigate(ADD_DEVICE_URL)}
-        sx={{
-          position: 'absolute',
-          bottom: '24px',
-          right: '24px',
-        }}>
+      </LoadingCardBox>
+      <Fab onClick={() => navigate(ADD_DEVICE_URL)}>
         <AddIcon />
       </Fab>
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
@@ -121,10 +150,10 @@ export default function DevicesView() {
           Deleting this device is irreversible. Are you sure that you wish to continue?
         </Typography>
         <DialogActions>
-          <Button>
-            DELETE
-          </Button>
-          <Button onClick={() => setDeleteDialogOpen(false)}>
+          <LoadingButton onClick={() => onDeleteDevice()} loading={deleteProcessing}>
+            <Typography variant="button">Delete</Typography>
+          </LoadingButton>
+          <Button onClick={() => setDeleteDialogOpen(false)} disabled={deleteProcessing}>
             CANCEL
           </Button>
         </DialogActions>

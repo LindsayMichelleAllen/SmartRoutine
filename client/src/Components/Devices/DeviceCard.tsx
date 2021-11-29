@@ -1,17 +1,40 @@
-import { Card, CardActions, CardContent, IconButton, Typography } from '@mui/material';
-import React from 'react';
+import {
+  Card,
+  CardActions,
+  CardContent,
+  IconButton,
+  Typography,
+} from '@mui/material';
+import React, { useMemo } from 'react';
 import { StoredDevice } from '../../Utils/BackendIntegration';
-import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
+/**
+ * The props for {@link DeviceCard}.
+ */
 export type DeviceCardProps = {
+  /**
+   * The device to be represented by this card.
+   */
   device: StoredDevice;
+
+  /**
+   * The callback event for when the delete button is pressed on this card.
+   */
   onDeleteDevice: (device: StoredDevice) => void;
+
+  /**
+   * The callback event for when the edit button is pressed on this card.
+   */
   onEditDevice: (device: StoredDevice) => void;
 }
 
 /**
- * @param props
+ * A card component used to represent a single device.
+ * 
+ * @param props See {@link DeviceCardProps}.
+ * @returns The component.
  */
 export default function DeviceCard(props: DeviceCardProps) {
   const {
@@ -19,6 +42,18 @@ export default function DeviceCard(props: DeviceCardProps) {
     onDeleteDevice,
     onEditDevice,
   } = props;
+
+  const editButton = useMemo(() => !!onEditDevice ? (
+    <IconButton title="Edit" onClick={() => onEditDevice(device)}>
+      <EditIcon />
+    </IconButton>
+  ) : (<></>), [onEditDevice]);
+
+  const deleteButton = useMemo(() => !!onDeleteDevice ? (
+    <IconButton title="Delete" onClick={() => onDeleteDevice(device)}>
+      <DeleteIcon />
+    </IconButton>
+  ) : (<></>), [onDeleteDevice]);
 
   return (
     <Card>
@@ -32,13 +67,9 @@ export default function DeviceCard(props: DeviceCardProps) {
           {device?.Name ?? ''}
         </Typography>
       </CardContent>
-      <CardActions sx={{ justifyContent: 'end' }}>
-        <IconButton title="Edit" onClick={() => onEditDevice(device)}>
-          <EditIcon />
-        </IconButton>
-        <IconButton title="Delete" onClick={() => onDeleteDevice(device)}>
-          <CloseIcon />
-        </IconButton>
+      <CardActions>
+        {editButton}
+        {deleteButton}
       </CardActions>
     </Card>
   );

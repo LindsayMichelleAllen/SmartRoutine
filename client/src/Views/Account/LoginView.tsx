@@ -10,7 +10,10 @@ import {
 import {
   styled
 } from '@mui/material/styles';
-import { EndpointTargets, FetchRequest, ParseLoginResponse } from '../../Utils/BackendIntegration';
+import {
+  FetchRequest,
+  ParseLoginResponse,
+} from '../../Utils/BackendIntegration';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../Utils/LoginState';
 

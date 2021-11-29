@@ -36,6 +36,7 @@ import NavDrawer from '../../Components/NavDrawer/NavDrawer';
 import LogoutView from '../Account/LogoutView';
 import {
   ACCOUNT_URL,
+  ADD_DEVICE_TO_ROUTINE_URL,
   ADD_DEVICE_URL,
   ADD_ROUTINE_URL,
   DEVICES_URL,
@@ -57,6 +58,7 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import EditRoutineView from '../Routines/EditRoutineView';
 import EditDeviceView from '../Devices/EditDeviceView';
 import AddDeviceView from '../Devices/AddDeviceView';
+import AddConfigurationView from '../Routines/AddConfigurationView';
 
 const navDrawerWidth = 240;
 
@@ -161,6 +163,9 @@ function App() {
             path={VIEW_ROUTINE_URL}
             element={<PrivateRoute authElement={<RoutineView />} fallbackUrl={LOGIN_URL} />} />
           <Route
+            path={ADD_DEVICE_TO_ROUTINE_URL}
+            element={<PrivateRoute authElement={<AddConfigurationView />} fallbackUrl={LOGIN_URL} />} />
+          <Route
             path={LOGIN_URL}
             element={<PrivateRoute authElement={<LoginView />} fallbackUrl={LOGOUT_URL} invertPrivacy/>} />
         </Routes>
@@ -186,6 +191,36 @@ export default function AppContainer() {
       mode: colorMode,
     },
     components: {
+      MuiFab: {
+        styleOverrides: {
+          root: {
+            position: 'absolute',
+            bottom: '24px',
+            right: '24px',
+          }
+        },
+        defaultProps: {
+          color: 'primary',
+        },
+      },
+      MuiCardActions: {
+        styleOverrides: {
+          root: {
+            justifyContent: 'end',
+          }
+        },
+      },
+      MuiCard: {
+        defaultProps: {
+          variant: 'outlined'
+        },
+        styleOverrides: {
+          root: {
+            minHeight: '200px',
+            minWidth: '320px',
+          }
+        }
+      },
       MuiButton: {
         defaultProps: {
           variant: 'contained',
