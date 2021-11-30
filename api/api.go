@@ -114,6 +114,9 @@ func main() {
 			if userResponse.Error != nil {
 				http.Error(w, userResponse.Error.Error(), 500)
 			} else {
+				if userResponse.User != nil {
+					fmt.Fprint(w, userResponse.User.GetJson())
+				}
 				fmt.Fprintf(w, userResponse.User.GetUsername()+", "+userResponse.User.GetName(), 200)
 			}
 		}

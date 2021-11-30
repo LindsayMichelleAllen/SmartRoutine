@@ -120,6 +120,7 @@ export default function SingleRoutineView() {
 
   const configurations = useMemo(() => routine?.Configuration?.map((c) => (
     <ConfigurationCard
+      key={c.Id}
       configuration={c}
       onDeleteConfiguration={handleDeleteConfiguration}
       onEditConfiguration={handleEditConfiguration}

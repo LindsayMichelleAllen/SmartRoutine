@@ -128,6 +128,7 @@ export default function DevicesView() {
 
   const deviceCards = useMemo(() => devices.map((d) => (
     <DeviceCard
+      key={d.Id}
       device={d}
       onDeleteDevice={handleDeleteDevice}
       onEditDevice={handleEditDevice}

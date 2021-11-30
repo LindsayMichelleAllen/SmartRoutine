@@ -59,7 +59,7 @@ export function LoadingCardBox(props: React.PropsWithChildren<LoadingCardBoxProp
   const skeletons = useMemo(() => {
     let skeletonArray: JSX.Element[] = [];
     for (let i = 0; i < skeletonCount; i++) {
-      skeletonArray = [...skeletonArray, (<CardSkeleton />)];
+      skeletonArray = [...skeletonArray, (<CardSkeleton key={`card-skeleton-${i}`} />)];
     }
     return skeletonArray;
   }, [skeletonCount]);

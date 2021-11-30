@@ -127,8 +127,6 @@ export default function RoutinesView() {
     }
   }, [loginDetails]);
 
-  console.log(routines);
-
   const routineCards = useMemo(() => routines.map((r) => (
     <RoutineCard
       key={r.Id}

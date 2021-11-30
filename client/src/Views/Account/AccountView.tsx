@@ -64,7 +64,7 @@ export default function AccountView() {
       }
 
       const loginData = ParseLoginResponse(text);
-      if (signIn) {
+      if (signIn && loginData) {
         signIn(loginData);
         setUsername(loginData.Username);
         setName(loginData.Name);

@@ -171,7 +171,7 @@ export default function EditConfigurationView() {
             }}
             type="submit"
             loading={isSubmitting || !configuration}>
-            <Typography variant="button">Add this device</Typography>
+            <Typography variant="button">Update this configuration</Typography>
           </LoadingButton>
       </StyledForm>
     </Box>
