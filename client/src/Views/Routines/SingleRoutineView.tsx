@@ -24,7 +24,8 @@ import {
 } from '../../Utils/BackendIntegration';
 import {
   ADD_DEVICE_TO_ROUTINE_URL,
-  ADD_ROUTINE_URL,
+  CONFIGURATION_ID_SEARCH_PARAM,
+  EDIT_CONFIGURATION_URL,
   EDIT_ROUTINE_URL,
   ROUTINE_ID_SEARCH_PARAM,
 } from '../../Utils/CommonRouting';
@@ -34,6 +35,7 @@ import RoutineCard from '../../Components/Routines/RoutineCard';
 import { LoadingButton } from '@mui/lab';
 import { LoadingCardBox } from '../../Components/Containers/CardBox';
 import CardSkeleton from '../../Components/Skeletons/CardSkeleton';
+import AlertsBox from '../../Components/Containers/AlertsBox';
 
 /**
  * A view used to render details and controls for a single routine.
@@ -45,7 +47,7 @@ export default function SingleRoutineView() {
   const [searchParams, _] = useSearchParams();
   const [isFetchingRoutine, setIsFetchingRoutine] = useState(true);
   const [routine, setRoutine] = useState<StoredRoutine | undefined>(undefined);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [genericError, setGenericError] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteProcessing, setDeleteProcessing] = useState(false);
   const [configToDelete, setConfigToDelete] = useState<StoredConfiguration | undefined>(undefined);
@@ -68,7 +70,7 @@ export default function SingleRoutineView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
   };
 
@@ -84,7 +86,7 @@ export default function SingleRoutineView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
   };
 
@@ -100,7 +102,7 @@ export default function SingleRoutineView() {
   };
 
   const handleEditConfiguration = (configuration: StoredConfiguration) => {
-    navigate(`${ADD_ROUTINE_URL}?${ROUTINE_ID_SEARCH_PARAM}=${routine.Id}`);
+    navigate(`${EDIT_CONFIGURATION_URL}?${CONFIGURATION_ID_SEARCH_PARAM}=${configuration.Id}`);
   };
 
   const onDeleteConfiguration = async () => {
@@ -131,8 +133,8 @@ export default function SingleRoutineView() {
         rowGap: '18px',
         gridTemplateAreas: `
           "routineDetails"
-          "divider"
           "configurationsTitle"
+          "alerts"
           "configurationsList"
         `,
       }}>
@@ -153,7 +155,12 @@ export default function SingleRoutineView() {
           variant="h4">
           Devices
         </Typography>
-        <LoadingCardBox isLoading={false} sx={{ gridArea: 'configurationsList' }}>
+        <AlertsBox errorMessage={genericError}/>
+        <LoadingCardBox
+          sx={{
+            gridArea: 'configurationsList',
+          }}
+          isLoading={false}>
           {configurations}
         </LoadingCardBox>
       </Box>

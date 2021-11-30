@@ -5,7 +5,9 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import React, { useMemo } from 'react';
+import React, {
+  useMemo,
+} from 'react';
 import {
   StoredConfiguration,
 } from '../../Utils/BackendIntegration';

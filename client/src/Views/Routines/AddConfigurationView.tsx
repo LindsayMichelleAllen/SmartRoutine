@@ -1,14 +1,48 @@
-import { LoadingButton } from '@mui/lab';
-import { Alert, FormControl, Input, InputLabel, MenuItem, Select, SelectChangeEvent, styled, TextField, Typography } from '@mui/material';
-import { Box } from '@mui/system';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FetchRequest, ParseDeviceArray, ParseRoutine, StoredDevice, StoredRoutine } from '../../Utils/BackendIntegration';
-import { ROUTINE_ID_SEARCH_PARAM, VIEW_ROUTINE_URL } from '../../Utils/CommonRouting';
-import { useAuth } from '../../Utils/LoginState';
+import {
+  LoadingButton,
+} from '@mui/lab';
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  styled,
+  TextField,
+  Typography,
+} from '@mui/material';
+import {
+  Box,
+} from '@mui/system';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
+import AlertsBox from '../../Components/Containers/AlertsBox';
+import {
+  FetchRequest,
+  ParseDeviceArray,
+  ParseRoutine,
+  StoredDevice,
+  StoredRoutine,
+} from '../../Utils/BackendIntegration';
+import {
+  ROUTINE_ID_SEARCH_PARAM,
+  VIEW_ROUTINE_URL,
+} from '../../Utils/CommonRouting';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 
 /**
- *
+ * A view used to add a new device configuration to an existing routine.
+ * 
+ * @returns The view.
  */
 export default function AddConfigurationView() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -16,7 +50,7 @@ export default function AddConfigurationView() {
   const [deviceId, setDeviceId] = useState('');
   const [routine, setRoutine] = useState<StoredRoutine | undefined>(undefined);
   const [deviceList, setDeviceList] = useState<StoredDevice[]>([]);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [genericError, setGenericError] = useState('');
   const [offset, setOffset] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,7 +78,7 @@ export default function AddConfigurationView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
   };
 
@@ -67,7 +101,7 @@ export default function AddConfigurationView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
   };
 
@@ -85,7 +119,7 @@ export default function AddConfigurationView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
   };
 
@@ -105,8 +139,8 @@ export default function AddConfigurationView() {
     setIsSubmitting(true);
 
     const validationError = validateInput();
-    if (validationError !== undefined) {
-      setErrorMessage(validationError);
+    if (!!validationError) {
+      setGenericError(validationError);
       setIsSubmitting(false);
     } else {
       try {
@@ -114,7 +148,7 @@ export default function AddConfigurationView() {
         navigate(`${VIEW_ROUTINE_URL}?${ROUTINE_ID_SEARCH_PARAM}=${routineId}`);
       } catch (e) {
         console.error(e);
-        setErrorMessage(`${e}`);
+        setGenericError(`${e}`);
         setIsSubmitting(false);
       }
     }
@@ -143,21 +177,18 @@ export default function AddConfigurationView() {
       display: 'grid',
       gridTemplateAreas: `
         "title"
-        "error"
+        "alerts"
         "form"
       `
     }}>
-      <Typography sx={{
-        gridArea: 'title'
-      }} variant="h3">
+      <Typography
+        sx={{
+          gridArea: 'title',
+        }}
+        variant="h3">
         Add a Device to {routine?.Name ?? ''}
       </Typography>
-      <Alert sx={{
-        visibility: !!errorMessage ? 'visible' : 'hidden',
-        gridArea: 'error',
-      }} severity="error">
-        {errorMessage}
-      </Alert>
+      <AlertsBox errorMessage={genericError} />
       <StyledForm
         onSubmit={onSubmit}
         sx={{

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, {
+  useState,
+} from 'react';
 import {
   Alert,
   Box,
@@ -14,8 +16,12 @@ import {
   FetchRequest,
   ParseLoginResponse,
 } from '../../Utils/BackendIntegration';
-import { useNavigate } from 'react-router';
-import { useAuth } from '../../Utils/LoginState';
+import {
+  useNavigate,
+} from 'react-router';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 
 /**
  * The view used to describe the Login form for a user. Should only be visible the user is not

@@ -5,8 +5,12 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import React, { useMemo } from 'react';
-import { StoredDevice } from '../../Utils/BackendIntegration';
+import React, {
+  useMemo,
+} from 'react';
+import {
+  StoredDevice,
+} from '../../Utils/BackendIntegration';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 

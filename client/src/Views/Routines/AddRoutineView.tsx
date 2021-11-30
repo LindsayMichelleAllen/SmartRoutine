@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   styled,
   TextField,
@@ -9,23 +8,31 @@ import {
   LoadingButton,
   TimePicker,
 } from '@mui/lab';
-import React, { useState } from 'react';
+import React, {
+  useState,
+} from 'react';
 import {
   FetchRequest,
   GetRoutineBasealarmString,
   ParseRoutine,
   StoredRoutine,
 } from '../../Utils/BackendIntegration';
-import { useAuth } from '../../Utils/LoginState';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 import {
   useNavigate,
 } from 'react-router';
 import {
-  ValidRoutineNameChars,
+  ValidateRoutineName,
 } from '../../Utils/InputValidation';
 import {
   ROUTINES_URL,
 } from '../../Utils/CommonRouting';
+import AlertsBox from '../../Components/Containers/AlertsBox';
+import ValidatedInput, {
+  OnValidatedInputChange,
+} from '../../Components/Containers/ValidatedInput';
 
 /**
  * A view used for the user to create a new routine.
@@ -35,8 +42,11 @@ import {
 export default function AddRoutineView() {
   const [name, setName] = useState('');
   const [time, setTime] = useState<Date>(new Date(Date.now()));
+
+  const [nameValidation, setNameValidation] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [genericError, setGenericError] = useState('');
   
   const navigate = useNavigate();
 
@@ -65,43 +75,51 @@ export default function AddRoutineView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
       throw e;
     }
-  };
-
-  const validateInput = (): string | undefined => {
-    if (!name.match(ValidRoutineNameChars)) {
-      return 'Please only use letters and numbers in your routine name.';
-    }
-
-    return undefined;
   };
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    const validationError = validateInput();
-    if (validationError !== undefined) {
-      setErrorMessage(validationError);
+    try {
+      setIsLoading(true);
+      await addRoutine();
+      navigate(`${ROUTINES_URL}`);
+    } catch (e) {
+      // Only set loading to false if the login failed. If we try to set it on a success, that gets
+      // called after navigate which leads to the 'memory leak' React error.
+      setIsLoading(false);
+    }
+  };
+
+  const onRoutineNameChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setName(input);
+    const validationError = ValidateRoutineName(input);
+    if (!!validationError) {
+      setNameValidation(validationError);
     } else {
-      try {
-        setIsLoading(true);
-        await addRoutine();
-        navigate(`${ROUTINES_URL}`);
-      } catch (e) {
-        // Only set loading to false if the login failed. If we try to set it on a success, that gets
-        // called after navigate which leads to the 'memory leak' React error.
-        setIsLoading(false);
-      }
+      setNameValidation('');
     }
   };
 
   return (
-    <Box>
-      <Typography padding="12px" textAlign="center" variant="h3">
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateAreas: `
+          "title"
+          "alerts-box"
+          "routines"
+        `,
+        textAlign: 'center',
+      }}>
+      <Typography sx={{ gridArea: 'title' }} variant="h3" >
         Add a Routine
       </Typography>
+      <AlertsBox errorMessage={genericError} />
       <StyledForm
         onSubmit={onSubmit}
         sx={{
@@ -111,22 +129,20 @@ export default function AddRoutineView() {
           justifyContent: 'center',
           alignItems: 'center',
           gridTemplateAreas: `
-            "error"
             "name"
             "time"
             "submit"
           `,
         }}>
-        <Alert sx={{ visibility: !!errorMessage ? 'visible' : 'hidden' }} severity="error">
-          {errorMessage}
-        </Alert>
-        <TextField
-          sx={{ gridArea: 'name' }}
-          onChange={(e) => setName(e.target.value)}
+        <ValidatedInput
+          sx={{
+            gridArea: 'name',
+          }}
+          labelId="name"
+          labelText="Name"
           value={name}
-          label="Routine Name"
-          id="routinename"
-          type="text" />
+          errorMessage={nameValidation}
+          onValueChange={onRoutineNameChange} />
         <TimePicker
           label="Base Alarm"
           value={time}

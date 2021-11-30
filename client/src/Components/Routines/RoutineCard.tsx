@@ -5,13 +5,19 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import React, { useMemo } from 'react';
-import { StoredRoutine } from '../../Utils/BackendIntegration';
+import React, {
+  useMemo,
+} from 'react';
+import {
+  StoredRoutine,
+} from '../../Utils/BackendIntegration';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { GetAlarmText } from '../../Views/Routines/RoutineUtils';
+import {
+  GetAlarmText,
+} from '../../Utils/RoutineUtils';
 
 /**
  * The props for the {@link RoutineCard} component.

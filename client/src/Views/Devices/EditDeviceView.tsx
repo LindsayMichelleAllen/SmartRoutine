@@ -1,22 +1,32 @@
-import { LoadingButton } from '@mui/lab';
+import {
+  LoadingButton,
+} from '@mui/lab';
 import {
   Alert,
   Box,
   styled,
-  TextField,
   Typography,
 } from '@mui/material';
 import React, {
   useEffect,
   useState,
 } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import {
+  useSearchParams,
+} from 'react-router-dom';
+import ValidatedInput, {
+  OnValidatedInputChange,
+} from '../../Components/Containers/ValidatedInput';
 import {
   FetchRequest,
   ParseDevice,
 } from '../../Utils/BackendIntegration';
-import { DEVICE_ID_SEARCH_PARAM } from '../../Utils/CommonRouting';
-import { ValidDeviceNameChars } from '../../Utils/InputValidation';
+import {
+  DEVICE_ID_SEARCH_PARAM,
+} from '../../Utils/CommonRouting';
+import {
+  ValidateDeviceName,
+} from '../../Utils/InputValidation';
 
 /**
  * A view used to edit a particular device.
@@ -28,8 +38,11 @@ export default function EditDeviceView() {
   const [searchParams, _] = useSearchParams();
 
   const [name, setName] = useState('');
+
+  const [nameValidation, setNameValidation] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [genericError, setGenericError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   const deviceId = searchParams.get(DEVICE_ID_SEARCH_PARAM) ?? '';
@@ -53,7 +66,7 @@ export default function EditDeviceView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
   };
 
@@ -70,39 +83,34 @@ export default function EditDeviceView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
-  };
-
-  const validateInput = (): string | undefined => {
-    if (name.length === 0) {
-      return 'Please enter a name that is least 1 character long.';
-    }
-    if (!name.match(ValidDeviceNameChars)) {
-      return 'Please only use letters and numbers in your device name.';
-    }
-
-    return undefined;
   };
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    const validationError = validateInput();
-    if (validationError !== undefined) {
-      setErrorMessage(validationError);
+    try {
+      setIsLoading(true);
+      await editDevice();
+      await loadDevice();
+      setSuccessMessage('Successfully updated the device!');
+    } catch (e) {
+      console.error(e);
+      setGenericError(`${e}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onDeviceNameChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setName(input);
+    const validationError = ValidateDeviceName(input);
+    if (!!validationError) {
+      setNameValidation(validationError);
     } else {
-      try {
-        await editDevice();
-        await loadDevice();
-        setSuccessMessage('Successfully updated the device!');
-      } catch (e) {
-        console.error(e);
-        setErrorMessage(`${e}`);
-      } finally {
-        setIsLoading(false);
-      }
+      setNameValidation('');
     }
   };
 
@@ -125,9 +133,9 @@ export default function EditDeviceView() {
       </Typography>
       <Alert severity="error" sx={{
         gridArea: 'error',
-        visibility: !!errorMessage ? 'visible' : 'hidden',
+        visibility: !!genericError ? 'visible' : 'hidden',
       }}>
-        {errorMessage}
+        {genericError}
       </Alert>
       <Alert severity="success" sx={{
         gridArea: 'success',
@@ -149,14 +157,15 @@ export default function EditDeviceView() {
           "submit"
         `,
         }}>
-        <TextField sx={{
-          gridArea: 'name'
-        }}
+        <ValidatedInput
+          sx={{
+            gridArea: 'name',
+          }}
+          labelId="name"
+          labelText="Name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
-          label="Device Name"
-          id="devicename"
-          type="text" />
+          errorMessage={nameValidation}
+          onValueChange={onDeviceNameChange} />
         <LoadingButton sx={{ gridArea: 'submit' }} type="submit" loading={isLoading}>
           <Typography variant="button">Update</Typography>
         </LoadingButton>

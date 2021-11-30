@@ -1,7 +1,5 @@
 import {
-  Alert,
   Box,
-  TextField,
   Typography,
   styled,
 } from '@mui/material';
@@ -12,9 +10,21 @@ import {
 import React, {
   useState,
 } from 'react';
-import { useAuth } from '../../Utils/LoginState';
-import { ValidUserNameChars } from '../../Utils/InputValidation';
-import { LoadingButton } from '@mui/lab';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
+import {
+  ValidateName,
+  ValidatePassword,
+  ValidateUsername,
+} from '../../Utils/InputValidation';
+import {
+  LoadingButton,
+} from '@mui/lab';
+import AlertsBox from '../../Components/Containers/AlertsBox';
+import ValidatedInput, {
+  OnValidatedInputChange,
+} from '../../Components/Containers/ValidatedInput';
 
 /**
  * The view used to provide the user with a means to create a new account.
@@ -24,10 +34,17 @@ import { LoadingButton } from '@mui/lab';
 export default function SignupView() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [usernameValidation, setUsernameValidation] = useState('');
+  const [nameValidation, setNameValidation] = useState('');
+  const [passwordValidation, setPasswordValidation] = useState('');
+  const [confirmPasswordValidation, setConfirmPasswordValidation] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const authState = useAuth();
 
@@ -63,16 +80,6 @@ export default function SignupView() {
     }
   };
 
-  const validateInput = (): string | undefined => {
-    if (password !== confirmPassword) {
-      return 'Passwords do not match.';
-    } else if (!username.match(ValidUserNameChars)) {
-      return 'Please only use letters and numbers in your username.';
-    }
-
-    return undefined;
-  };
-
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -87,13 +94,65 @@ export default function SignupView() {
     setIsLoading(false);
   };
 
+  const validateInput = (): string | undefined => {
+    if (password !== confirmPassword) {
+      return 'Passwords do not match.';
+    }
+
+    return undefined;
+  };
+
+  const onUsernameChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setUsername(input);
+    const validationError = ValidateUsername(input);
+    if (!!validationError) {
+      setUsernameValidation(validationError);
+    } else {
+      setUsernameValidation('');
+    }
+  };
+
+  const onNameChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setName(input);
+    const validationError = ValidateName(input);
+    if (!!validationError) {
+      setNameValidation(validationError);
+    } else {
+      setNameValidation('');
+    }
+  };
+
+  const onPasswordChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setPassword(input);
+    const validationError = ValidatePassword(input);
+    if (!!validationError) {
+      setPasswordValidation(validationError);
+    } else {
+      setPasswordValidation('');
+    }
+  };
+
+  const onConfirmPasswordChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setConfirmPassword(input);
+    const validationError = ValidatePassword(input);
+    if (!!validationError) {
+      setConfirmPasswordValidation(validationError);
+    } else {
+      setConfirmPasswordValidation('');
+    }
+  };
+
   return (
     <Box sx={{
       height: '100%',
       width: '100%',
       display: 'grid',
       gridTemplateAreas: `
-        "."
+        "title"
         "form"
         "."
       `,
@@ -101,17 +160,20 @@ export default function SignupView() {
       alignItems: 'center',
       gridTemplateRows: '1fr min-content 1fr',
     }}>
+      <Typography variant="h2">
+        Sign Up
+      </Typography>
+      <AlertsBox
+        errorMessage={errorMessage}
+        successMessage={successMessage} />
       <StyledForm
         sx={{
           display: 'grid',
           gridTemplateAreas: `
-            "title"
-            "error"
-            "success"
             "username"
             "name"
             "password"
-            "confirmpassword"
+            "confirm-password"
             "submit"
           `,
           textAlign: 'center',
@@ -119,43 +181,42 @@ export default function SignupView() {
           gridArea: 'form',
         }}
         onSubmit={onSubmit} >
-        <Typography variant="h2">
-          Sign Up
-        </Typography>
-        <Alert sx={{
-          visibility: !!errorMessage ? 'visible' : 'hidden',
-        }} severity="error">
-          {errorMessage}
-        </Alert>
-        <Alert sx={{
-          visibility: !!successMessage ? 'visible' : 'hidden',
-        }} severity="success">
-          {successMessage}
-        </Alert>
-        <TextField
-          onChange={(e) => setUsername(e.target.value)}
+        <ValidatedInput
+          sx={{
+            gridArea: 'username',
+          }}
+          labelId="username"
+          labelText="Username"
           value={username}
-          label="Username"
-          id="username"
-          type="text" />
-        <TextField
-          onChange={(e) => setName(e.target.value)}
+          errorMessage={usernameValidation}
+          onValueChange={onUsernameChange} />
+        <ValidatedInput
+          sx={{
+            gridArea: 'name',
+          }}
+          labelId="name"
+          labelText="Your Name"
           value={name}
-          label="Your Name"
-          id="name"
-          type="text" />
-        <TextField
-          onChange={(e) => setPassword(e.target.value)}
+          errorMessage={nameValidation}
+          onValueChange={onNameChange} />
+        <ValidatedInput
+          sx={{
+            gridArea: 'password',
+          }}
+          labelId="password"
+          labelText="Password"
           value={password}
-          label="Password"
-          id="password"
-          type="password" />
-        <TextField
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          errorMessage={passwordValidation}
+          onValueChange={onPasswordChange} />
+        <ValidatedInput
+          sx={{
+            gridArea: 'confirm-password',
+          }}
+          labelId="confirm-password"
+          labelText="Confirm Password"
           value={confirmPassword}
-          label="Confirm Password"
-          id="confirmpassword"
-          type="password" />
+          errorMessage={confirmPasswordValidation}
+          onValueChange={onConfirmPasswordChange} />
         <LoadingButton loading={isLoading} sx={{ gridArea: 'submit' }} type="submit">
           <Typography variant="button">Sign Up</Typography>
         </LoadingButton>

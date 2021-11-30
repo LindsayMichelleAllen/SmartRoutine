@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   Dialog,
@@ -13,13 +12,17 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useNavigate } from 'react-router';
+import {
+  useNavigate,
+} from 'react-router';
 import {
   FetchRequest,
   ParseDeviceArray,
   StoredDevice,
 } from '../../Utils/BackendIntegration';
-import { useAuth } from '../../Utils/LoginState';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 import AddIcon from '@mui/icons-material/Add';
 import {
   ADD_DEVICE_URL,
@@ -27,8 +30,13 @@ import {
   EDIT_DEVICE_URL,
 } from '../../Utils/CommonRouting';
 import DeviceCard from '../../Components/Devices/DeviceCard';
-import { LoadingButton } from '@mui/lab';
-import { LoadingCardBox } from '../../Components/Containers/CardBox';
+import {
+  LoadingButton,
+} from '@mui/lab';
+import {
+  LoadingCardBox,
+} from '../../Components/Containers/CardBox';
+import AlertsBox from '../../Components/Containers/AlertsBox';
 
 /**
  * The props for the {@link DevicesView}.
@@ -44,10 +52,12 @@ export type DevicesViewProps = {
 export default function DevicesView() {
   const [devices, setDevices] = useState<StoredDevice[]>([]);
   const [isFetchingDevices, setIsFetchingDevices] = useState(true);
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<StoredDevice | undefined>(undefined);
-  const [errorMessage, setErrorMessage] = useState('');
   const [deleteProcessing, setDeleteProcessing] = useState(false);
+
+  const [genericError, setGenericError] = useState('');
 
   const navigate = useNavigate();
 
@@ -72,7 +82,7 @@ export default function DevicesView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(e);
+      setGenericError(e);
     }
   };
 
@@ -88,7 +98,7 @@ export default function DevicesView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(e);
+      setGenericError(e);
     }
   };
 
@@ -125,19 +135,20 @@ export default function DevicesView() {
   )), [devices]);
 
   return (
-    <Box sx={{
-      display: 'grid',
-      gridTemplateAreas: `
-        "title"
-        "devices"
-      `,
-      rowGap: '48px',
-      textAlign: 'center',
-    }}>
-      <Typography sx={{ gridArea: 'title' }} variant="h3">
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateAreas: `
+          "title"
+          "alerts-box"
+          "devices"
+        `,
+        textAlign: 'center',
+      }}>
+      <Typography sx={{ gridArea: 'title' }} variant="h3" >
         Devices
       </Typography>
-      <Alert sx={{ visibility: !!errorMessage ? 'visible' : 'hidden' }} severity="error" />
+      <AlertsBox errorMessage={genericError} />
       <LoadingCardBox isLoading={isFetchingDevices} sx={{ gridArea: 'devices' }}>
         {deviceCards}
       </LoadingCardBox>

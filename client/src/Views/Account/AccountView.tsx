@@ -1,18 +1,30 @@
-import { LoadingButton } from '@mui/lab';
 import {
-  Alert,
+  LoadingButton,
+} from '@mui/lab';
+import {
   Box,
   styled,
-  TextField,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+import AlertsBox from '../../Components/Containers/AlertsBox';
+import ValidatedInput, {
+  OnValidatedInputChange,
+} from '../../Components/Containers/ValidatedInput';
 import {
   FetchRequest,
   ParseLoginResponse,
 } from '../../Utils/BackendIntegration';
-import { ValidUserNameChars } from '../../Utils/InputValidation';
-import { useAuth } from '../../Utils/LoginState';
+import {
+  ValidateName,
+  ValidateUsername,
+} from '../../Utils/InputValidation';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 
 /**
  * The view used to describe a user's account and its specific details.
@@ -23,7 +35,9 @@ export default function AccountView() {
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [genericError, setGenericError] = useState('');
+  const [usernameValidation, setUsernameValidation] = useState('');
+  const [nameValidation, setNameValidation] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   const authState = useAuth();
@@ -60,30 +74,38 @@ export default function AccountView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
-  };
-
-  const validateInput = (): string | undefined => {
-    if (!username.match(ValidUserNameChars)) {
-      return 'Please only use letters and numbers in your username.';
-    }
-
-    return undefined;
   };
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+
     setIsLoading(true);
-
-    const validationError = validateInput();
-    if (validationError !== undefined) {
-      setErrorMessage(validationError);
-    } else {
-      await updateUser();
-    }
-
+    await updateUser();
     setIsLoading(false);
+  };
+
+  const onUsernameChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setUsername(input);
+    const validationError = ValidateUsername(input);
+    if (!!validationError) {
+      setUsernameValidation(validationError);
+    } else {
+      setUsernameValidation('');
+    }
+  };
+
+  const onNameChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setName(input);
+    const validationError = ValidateName(input);
+    if (!!validationError) {
+      setNameValidation(validationError);
+    } else {
+      setNameValidation('');
+    }
   };
 
   return (
@@ -109,6 +131,9 @@ export default function AccountView() {
         <Typography sx={{ gridArea: 'title' }} variant="h3">
           Account Details
         </Typography>
+        <AlertsBox
+          successMessage={successMessage}
+          errorMessage={genericError} />
         <StyledForm
           onSubmit={onSubmit}
           sx={{
@@ -116,44 +141,36 @@ export default function AccountView() {
             gridArea: 'form',
             gridTemplateRows: 'auto',
             gridTemplateAreas: `
-              "error"
-              "success"
-              "username_label"
               "username"
-              "name_label"
               "name"
               "submit"
             `,
             rowGap: '12px',
           }}>
-          <Alert severity="success"
+          <ValidatedInput
             sx={{
-              gridArea: 'success',
-              visibility: !!successMessage ? 'visible' : 'hidden'
-            }}>
-            {successMessage}
-          </Alert>
-          <Alert severity="error" sx={{
-            gridArea: 'error',
-            visibility: !!errorMessage ? 'visible' : 'hidden',
-          }}>
-            {errorMessage}
-          </Alert>
-          <TextField
-            sx={{ gridArea: 'username' }}
-            onChange={(e) => setUsername(e.target.value)}
+              gridArea: 'username',
+            }}
+            labelId="username"
+            labelText="Username"
             value={username}
-            label="Username"
-            id="username"
-            type="text" />
-          <TextField
-            sx={{ gridArea: 'name' }}
-            onChange={(e) => setName(e.target.value)}
+            errorMessage={usernameValidation}
+            onValueChange={onUsernameChange} />
+          <ValidatedInput
+            sx={{
+              gridArea: 'name',
+            }}
+            labelId="name"
+            labelText="Name"
             value={name}
-            label="Name"
-            id="name"
-            type="text" />
-          <LoadingButton loading={isLoading} sx={{ gridArea: 'submit' }} type="submit">
+            errorMessage={nameValidation}
+            onValueChange={onNameChange} />
+          <LoadingButton
+            sx={{
+              gridArea: 'submit',
+            }}
+            loading={isLoading}
+            type="submit">
             <Typography variant="button">Update</Typography>
           </LoadingButton>
         </StyledForm>

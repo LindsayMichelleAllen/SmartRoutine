@@ -21,7 +21,9 @@ import AddIcon from '@mui/icons-material/Add';
 import {
   useAuth,
 } from '../../Utils/LoginState';
-import { useNavigate } from 'react-router';
+import {
+  useNavigate,
+} from 'react-router';
 import {
   ADD_ROUTINE_URL,
   EDIT_ROUTINE_URL,
@@ -32,7 +34,10 @@ import RoutineCard from '../../Components/Routines/RoutineCard';
 import {
   LoadingButton,
 } from '@mui/lab';
-import { LoadingCardBox } from '../../Components/Containers/CardBox';
+import {
+  LoadingCardBox,
+} from '../../Components/Containers/CardBox';
+import AlertsBox from '../../Components/Containers/AlertsBox';
 
 /**
  * The view used to describe the available routines for the user.
@@ -42,9 +47,12 @@ import { LoadingCardBox } from '../../Components/Containers/CardBox';
 export default function RoutinesView() {
   const [routines, setRoutines] = useState<StoredRoutine[]>([]);
   const [isFetchingRoutines, setIsFetchingRoutines] = useState(true);
-  const [routineToDelete, setRoutineToDelete] = useState<StoredRoutine | undefined>(undefined);
+  
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [routineToDelete, setRoutineToDelete] = useState<StoredRoutine | undefined>(undefined);
   const [deleteProcessing, setDeleteProcessing] = useState(false);
+  
+  const [genericError, setGenericError] = useState('');
 
   const navigate = useNavigate();
   const authState = useAuth();
@@ -69,6 +77,7 @@ export default function RoutinesView() {
       }
     } catch (e) {
       console.error(e);
+      setGenericError(`${e}`);
     }
   };
 
@@ -84,6 +93,7 @@ export default function RoutinesView() {
       }
     } catch (e) {
       console.error(e);
+      setGenericError(`${e}`);
     }
   };
 
@@ -134,10 +144,9 @@ export default function RoutinesView() {
       display: 'grid',
       gridTemplateAreas: `
         "title"
-        "routines"
+        "alerts-box"
+        "devices"
       `,
-      gridTemplateRows: 'min-content 1fr',
-      rowGap: '48px',
       textAlign: 'center',
     }}>
       <Typography
@@ -145,6 +154,7 @@ export default function RoutinesView() {
         variant="h3">
         Routines
       </Typography>
+      <AlertsBox errorMessage={genericError} />
       <LoadingCardBox isLoading={isFetchingRoutines} sx={{ gridArea: 'routines' }}>
         {routineCards}
       </LoadingCardBox>

@@ -1,4 +1,7 @@
-import { instanceOfLoginDetailsBlob, LoginDetailsBlob } from './LoginState';
+import {
+  instanceOfLoginDetailsBlob,
+  LoginDetailsBlob,
+} from './LoginState';
 
 const ProdBaseUri = 'http://ec2-184-169-188-209.us-west-1.compute.amazonaws.com:8080';
 const LocalBaseUri = 'http://localhost:8080';
@@ -443,8 +446,21 @@ export function ParseDeviceArray(jsonInput: string): StoredDevice[] | undefined 
  * @returns The parsed object, if applicable. Undefined if the conversion is not possible.
  */
 export function ParseConfiguration(jsonInput: string): StoredConfiguration | undefined {
+  let openingBracket: number | undefined = undefined;
+  let closingBracket: number | undefined = undefined;
+
+  [...jsonInput].forEach((c, i) => {
+    if (openingBracket === undefined) {
+      openingBracket = c === '{' ? i : undefined;
+    }
+    // The '+1' is to adjust for the 0/1-indexing mismatch between .substring() and an item's index.
+    closingBracket = c === '}' ? i + 1 : closingBracket;
+  });
+
+  const inputSubstr = jsonInput.substring(openingBracket, closingBracket);
+
   let result: StoredConfiguration | undefined = undefined;
-  const parsedObject = JSON.parse(jsonInput);
+  const parsedObject = JSON.parse(inputSubstr);
 
   if (instanceOfStoredConfiguration(parsedObject)) {
     result = parsedObject;

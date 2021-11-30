@@ -11,9 +11,16 @@ import {
   LightMode,
   Menu as MenuIcon,
 } from '@mui/icons-material';
-import React, { useMemo } from 'react';
-import { useColorMode } from '../../Utils/ColorContext';
-import { SxProps, Theme } from '@mui/system';
+import React, {
+  useMemo,
+} from 'react';
+import {
+  useColorMode,
+} from '../../Utils/ColorContext';
+import {
+  SxProps,
+  Theme,
+} from '@mui/system';
 
 /**
  * The props type for the {@link MenuBar} component.

@@ -1,6 +1,13 @@
-import { styled } from '@mui/material';
-import { Box, BoxProps } from '@mui/system';
-import { useMemo } from 'react';
+import {
+  styled,
+} from '@mui/material';
+import {
+  Box,
+  BoxProps,
+} from '@mui/system';
+import {
+  useMemo,
+} from 'react';
 import CardSkeleton from '../Skeletons/CardSkeleton';
 
 export const CardBox = styled(Box)<BoxProps>(({ theme }) => ({
@@ -21,13 +28,26 @@ export const CardBox = styled(Box)<BoxProps>(({ theme }) => ({
   }
 }));
 
+/**
+ * See {@link LoadingCardBox}.
+ */
 export type LoadingCardBoxProps = BoxProps & {
+  /**
+   * If true, then render some card skeletons rather than any cards.
+   */
   isLoading: boolean;
+
+  /**
+   * The number of card skeletons to render when loading. The default value is 2.
+   */
   skeletonCount?: number;
 }
 
 /**
- * @param props
+ * A component used to render card skeletons when {@link isLoading} is true.
+ * 
+ * @param props See {@link LoadingCardBoxProps}.
+ * @returns The component.
  */
 export function LoadingCardBox(props: React.PropsWithChildren<LoadingCardBoxProps>) {
   const {
