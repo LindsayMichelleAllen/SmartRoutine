@@ -3,7 +3,7 @@ import {
   LoginDetailsBlob,
 } from './LoginState';
 
-const ProdBaseUri = 'http://ec2-184-169-188-209.us-west-1.compute.amazonaws.com:8080';
+const ProdBaseUri = 'http://ec2-3-101-35-159.us-west-1.compute.amazonaws.com:8080';
 const LocalBaseUri = 'http://localhost:8080';
 
 /**
