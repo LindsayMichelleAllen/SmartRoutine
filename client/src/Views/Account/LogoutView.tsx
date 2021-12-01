@@ -4,8 +4,12 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { useAuth } from '../../Utils/LoginState';
-import { useNavigate } from 'react-router';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
+import {
+  useNavigate,
+} from 'react-router';
 
 /**
  * The view used to provide the user with a logout option.

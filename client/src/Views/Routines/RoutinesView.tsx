@@ -1,14 +1,17 @@
 import {
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogTitle,
   Fab,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   FetchRequest,
   ParseRoutineArray,
@@ -18,9 +21,23 @@ import AddIcon from '@mui/icons-material/Add';
 import {
   useAuth,
 } from '../../Utils/LoginState';
-import { useNavigate } from 'react-router';
-import { ADD_ROUTINE_URL, EDIT_ROUTINE_URL, ROUTINE_ID_SEARCH_PARAM, VIEW_ROUTINE_URL } from '../../Utils/CommonRouting';
+import {
+  useNavigate,
+} from 'react-router';
+import {
+  ADD_ROUTINE_URL,
+  EDIT_ROUTINE_URL,
+  ROUTINE_ID_SEARCH_PARAM,
+  VIEW_ROUTINE_URL,
+} from '../../Utils/CommonRouting';
 import RoutineCard from '../../Components/Routines/RoutineCard';
+import {
+  LoadingButton,
+} from '@mui/lab';
+import {
+  LoadingCardBox,
+} from '../../Components/Containers/CardBox';
+import AlertsBox from '../../Components/Containers/AlertsBox';
 
 /**
  * The view used to describe the available routines for the user.
@@ -29,9 +46,13 @@ import RoutineCard from '../../Components/Routines/RoutineCard';
  */
 export default function RoutinesView() {
   const [routines, setRoutines] = useState<StoredRoutine[]>([]);
-  const [routineToDelete, setRoutineToDelete] = useState<StoredRoutine | undefined>(undefined);
+  const [isFetchingRoutines, setIsFetchingRoutines] = useState(true);
+  
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [routineToDelete, setRoutineToDelete] = useState<StoredRoutine | undefined>(undefined);
   const [deleteProcessing, setDeleteProcessing] = useState(false);
+  
+  const [genericError, setGenericError] = useState('');
 
   const navigate = useNavigate();
   const authState = useAuth();
@@ -56,6 +77,7 @@ export default function RoutinesView() {
       }
     } catch (e) {
       console.error(e);
+      setGenericError(`${e}`);
     }
   };
 
@@ -71,6 +93,7 @@ export default function RoutinesView() {
       }
     } catch (e) {
       console.error(e);
+      setGenericError(`${e}`);
     }
   };
 
@@ -98,11 +121,11 @@ export default function RoutinesView() {
 
   useEffect(() => {
     if (loginDetails !== undefined) {
-      fetchRoutines();
+      fetchRoutines().then(() => {
+        setIsFetchingRoutines(false);
+      });
     }
   }, [loginDetails]);
-
-  console.log(routines);
 
   const routineCards = useMemo(() => routines.map((r) => (
     <RoutineCard
@@ -116,15 +139,12 @@ export default function RoutinesView() {
 
   return (
     <Box sx={{
-      height: '100%',
-      width: '100%',
       display: 'grid',
       gridTemplateAreas: `
         "title"
-        "routines"
+        "alerts-box"
+        "devices"
       `,
-      gridTemplateRows: 'min-content 1fr',
-      rowGap: '48px',
       textAlign: 'center',
     }}>
       <Typography
@@ -132,29 +152,11 @@ export default function RoutinesView() {
         variant="h3">
         Routines
       </Typography>
-      <Box sx={{
-        gridArea: 'routines',
-        display: 'grid',
-        columnGap: '12px',
-        rowGap: '12px',
-        padding: '12px',
-        justifyContent: 'center',
-        alignItems: 'start',
-        paddingBottom: '128px', // Add some extra space so the FAB doesn't overlay the actions.
-        gridAutoRows: 'min-content',
-        gridTemplateColumns: {
-          sm: '220px 220px',
-          xs: '1fr',
-        },
-        width: {
-          sm: 'auto',
-        }
-      }}>
+      <AlertsBox errorMessage={genericError} />
+      <LoadingCardBox isLoading={isFetchingRoutines} sx={{ gridArea: 'routines' }}>
         {routineCards}
-      </Box>
-      <Fab sx={{ position: 'absolute', bottom: '24px', right: '24px' }}
-        color='primary'
-        onClick={() => navigate(ADD_ROUTINE_URL)}>
+      </LoadingCardBox>
+      <Fab onClick={() => navigate(ADD_ROUTINE_URL)}>
         <AddIcon />
       </Fab>
       <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
@@ -165,12 +167,10 @@ export default function RoutinesView() {
           Deleting this routine is irreversible. Are you sure that you wish to continue?
         </Typography>
         <DialogActions>
-          <Button onClick={() => onDeleteRoutine()}>
-            {
-              !deleteProcessing ? 'DELETE' : (<CircularProgress />)
-            }
-          </Button>
-          <Button onClick={() => setDeleteDialogOpen(false)}>
+          <LoadingButton onClick={() => onDeleteRoutine()} loading={deleteProcessing}>
+            <Typography variant="button">Delete</Typography>
+          </LoadingButton>
+          <Button disabled={deleteProcessing} onClick={() => setDeleteDialogOpen(false)}>
             CANCEL
           </Button>
         </DialogActions>

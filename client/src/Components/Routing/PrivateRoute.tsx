@@ -1,7 +1,16 @@
-import { Box, CircularProgress } from '@mui/material';
-import React, { useMemo } from 'react';
-import { Navigate } from 'react-router';
-import { useAuth } from '../../Utils/LoginState';
+import {
+  Box,
+  CircularProgress,
+} from '@mui/material';
+import React, {
+  useMemo,
+} from 'react';
+import {
+  Navigate,
+} from 'react-router';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 
 /**
  * Props for the {@link PrivateRoute} element.

@@ -1,18 +1,47 @@
-import { Alert, Box, Button, CircularProgress, styled, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { FetchRequest, ParseDevice } from '../../Utils/BackendIntegration';
-import { DEVICES_URL } from '../../Utils/CommonRouting';
-import { ValidDeviceNameChars } from '../../Utils/InputValidation';
-import { useAuth } from '../../Utils/LoginState';
+import {
+  LoadingButton,
+} from '@mui/lab';
+import {
+  Box,
+  styled,
+  Typography,
+} from '@mui/material';
+import React, {
+  useState,
+} from 'react';
+import {
+  useNavigate,
+} from 'react-router';
+import AlertsBox from '../../Components/Containers/AlertsBox';
+import ValidatedInput, {
+  OnValidatedInputChange,
+} from '../../Components/Containers/ValidatedInput';
+import {
+  FetchRequest,
+  ParseDevice,
+} from '../../Utils/BackendIntegration';
+import {
+  DEVICES_URL,
+} from '../../Utils/CommonRouting';
+import {
+  ValidateDeviceName,
+} from '../../Utils/InputValidation';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 
 /**
- *
+ * AddDeviceView provides the means for a user to create a new device.
+ * 
+ * @returns The view.
  */
 export default function AddDeviceView() {
   const [name, setName] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  
+  const [nameValidation, setNameValidation] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
+  const [genericError, setGenericError] = useState('');
 
   const navigate = useNavigate();
 
@@ -38,39 +67,34 @@ export default function AddDeviceView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
 
     return;
   };
 
-  const validateInput = (): string | undefined => {
-    if (name.length === 0) {
-      return 'Please enter a name that is least 1 character long.';
-    }
-    if (!name.match(ValidDeviceNameChars)) {
-      return 'Please only use letters and numbers in your device name.';
-    }
-
-    return undefined;
-  };
-
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    const validationError = validateInput();
-    if (validationError !== undefined) {
-      setErrorMessage(validationError);
+    try {
+      setIsLoading(true);
+      await addDevice();
+      navigate(`${DEVICES_URL}`);
+    } catch (e) {
+      // Only set loading to false if the login failed. If we try to set it on a success, that gets
+      // called after navigate which leads to the 'memory leak' React error.
+      setIsLoading(false);
+    }
+  };
+
+  const onDeviceNameChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setName(input);
+    const validationError = ValidateDeviceName(input);
+    if (!!validationError) {
+      setNameValidation(validationError);
     } else {
-      try {
-        setIsLoading(true);
-        await addDevice();
-        navigate(`${DEVICES_URL}`);
-      } catch (e) {
-        // Only set loading to false if the login failed. If we try to set it on a success, that gets
-        // called after navigate which leads to the 'memory leak' React error.
-        setIsLoading(false);
-      }
+      setNameValidation('');
     }
   };
 
@@ -91,14 +115,7 @@ export default function AddDeviceView() {
         }}>
         Add a Device
       </Typography>
-      <Alert
-        sx={{
-          visibility: !!errorMessage ? 'visible' : 'hidden',
-          gridArea: 'error',
-        }}
-        severity="error">
-        {errorMessage}
-      </Alert>
+      <AlertsBox errorMessage={genericError} />
       <StyledForm
         sx={{
           gridArea: 'form',
@@ -113,23 +130,18 @@ export default function AddDeviceView() {
           `
         }}
         onSubmit={onSubmit} >
-        <TextField
+        <ValidatedInput
           sx={{
-            gridArea: 'name'
+            gridArea: 'name',
           }}
-          onChange={(e) => setName(e.target.value)}
+          labelId="device-id"
+          labelText="Device Name"
           value={name}
-          label="Device Name"
-          id="devicename"
-          type="text" />
-        <Button
-          sx={{
-            gridArea: 'submit',
-          }}
-          disabled={isLoading}
-          type="submit">
-          {isLoading ? (<CircularProgress />) : (<Typography variant="button">Create</Typography>)}
-        </Button>
+          errorMessage={nameValidation}
+          onValueChange={onDeviceNameChange} />
+        <LoadingButton loading={isLoading} sx={{ gridArea: 'submit' }} type="submit">
+          <Typography variant="button">Create</Typography>
+        </LoadingButton>
       </StyledForm>
     </Box>
   );

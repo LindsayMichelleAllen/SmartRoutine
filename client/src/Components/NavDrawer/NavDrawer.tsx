@@ -8,9 +8,15 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import React, { useMemo } from 'react';
-import { useNavigate } from 'react-router';
-import { useAuth } from '../../Utils/LoginState';
+import React, {
+  useMemo,
+} from 'react';
+import {
+  useNavigate,
+} from 'react-router';
+import {
+  useAuth,
+} from '../../Utils/LoginState';
 import LoginIcon from '@mui/icons-material/Login';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AltRouteIcon from '@mui/icons-material/AltRoute';

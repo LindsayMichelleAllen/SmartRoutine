@@ -1,25 +1,36 @@
-import { TimePicker } from '@mui/lab';
+import {
+  LoadingButton,
+  TimePicker,
+} from '@mui/lab';
 import {
   Box,
   Typography,
-  Alert,
   TextField,
-  Button,
-  CircularProgress,
   styled,
-  List,
-  ListItem,
 } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+import {
+  useSearchParams,
+} from 'react-router-dom';
+import AlertsBox from '../../Components/Containers/AlertsBox';
+import ValidatedInput, {
+  OnValidatedInputChange,
+} from '../../Components/Containers/ValidatedInput';
 import {
   FetchRequest,
   GetRoutineBasealarmString,
   ParseRoutine,
   StoredRoutine,
 } from '../../Utils/BackendIntegration';
-import { ROUTINE_ID_SEARCH_PARAM } from '../../Utils/CommonRouting';
-import { ValidRoutineNameChars } from '../../Utils/InputValidation';
+import {
+  ROUTINE_ID_SEARCH_PARAM,
+} from '../../Utils/CommonRouting';
+import {
+  ValidateRoutineName,
+} from '../../Utils/InputValidation';
 
 /**
  * A view used for a user to edit the details for a given view.
@@ -29,18 +40,17 @@ import { ValidRoutineNameChars } from '../../Utils/InputValidation';
 export default function EditRoutineView() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchParams, _] = useSearchParams();
+
   const [name, setName] = useState('');
   const [time, setTime] = useState<Date>(new Date(Date.now()));
+
+  const [nameValidation, setNameValidation] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [genericError, setGenericError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
   const [routine, setRoutine] = useState<StoredRoutine | undefined>(undefined);
-  
-  const devices = useMemo(() => routine?.Configuration?.map((c) => (
-    <ListItem key={c.Id}>
-      {c.Device.Name}
-    </ListItem>
-  )), [routine?.Configuration]);
 
   const routineId = searchParams.get(ROUTINE_ID_SEARCH_PARAM) ?? '';
 
@@ -65,7 +75,7 @@ export default function EditRoutineView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
     }
   };
 
@@ -84,37 +94,37 @@ export default function EditRoutineView() {
       }
     } catch (e) {
       console.error(e);
-      setErrorMessage(`${e}`);
+      setGenericError(`${e}`);
       throw e;
     }
   };
 
-  const validateInput = (): string | undefined => {
-    if (!name.match(ValidRoutineNameChars)) {
-      return 'Please only use letters and numbers in your routine name.';
-    }
-
-    return undefined;
-  };
-
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    const validationError = validateInput();
-    if (validationError !== undefined) {
-      setErrorMessage(validationError);
+    try {
+      setIsLoading(true);
+      await editRoutine();
+      await loadRoutine();
+      setSuccessMessage('Successfully updated the routine!');
+    } catch (e) {
+      console.error(e);
+    }
+    finally {
+      // Only set loading to false if the login failed. If we try to set it on a success, that gets
+      // called after navigate which leads to the 'memory leak' React error.
+      setIsLoading(false);
+    }
+  };
+
+  const onRoutineNameChange: OnValidatedInputChange = (e) => {
+    const input = e.target.value;
+    setName(input);
+    const validationError = ValidateRoutineName(input);
+    if (!!validationError) {
+      setNameValidation(validationError);
     } else {
-      try {
-        await editRoutine();
-        await loadRoutine();
-        setSuccessMessage('Successfully updated the routine!');
-      } catch (e) {
-        console.error(e);
-      }
-      finally {
-        setIsLoading(false);
-      }
+      setNameValidation('');
     }
   };
 
@@ -127,6 +137,7 @@ export default function EditRoutineView() {
       <Typography padding="12px" textAlign="center" variant="h3">
         Update a Routine
       </Typography>
+      <AlertsBox errorMessage={genericError} successMessage={successMessage} />
       <StyledForm
         onSubmit={onSubmit}
         sx={{
@@ -136,52 +147,28 @@ export default function EditRoutineView() {
           justifyContent: 'center',
           alignItems: 'center',
           gridTemplateAreas: `
-            "error"
-            "success"
             "name"
             "time"
-            "devicestitle"
-            "devices"
             "submit"
           `,
         }}>
-        <Alert sx={{
-          visibility: !!errorMessage ? 'visible' : 'hidden',
-          gridArea: 'error',
-        }} severity="error">
-          {errorMessage}
-        </Alert>
-        <Alert sx={{
-          visibility: !!successMessage ? 'visible' : 'hidden',
-          gridArea: 'success',
-        }} severity="success">
-          {successMessage}
-        </Alert>
-        <TextField
-          sx={{ gridArea: 'name' }}
-          onChange={(e) => setName(e.target.value)}
+        <ValidatedInput
+          sx={{
+            gridArea: 'name',
+          }}
+          labelId="name"
+          labelText="Name"
           value={name}
-          label="Routine Name"
-          id="routinename"
-          type="text" />
+          errorMessage={nameValidation}
+          onValueChange={onRoutineNameChange} />
         <TimePicker
           label="Base Alarm"
           value={time}
           onChange={(v) => setTime(v)}
           renderInput={(params) => <TextField sx={{ gridArea: 'time' }} {...params} />} />
-        <Typography variant="h6" sx={{ gridArea: 'devicestitle' }}>
-          Configurations
-        </Typography>
-        <List sx={{ gridArea: 'devices' }}>
-          {devices}
-        </List>
-        <Button sx={{ gridArea: 'submit' }} type="submit" >
-          {
-            isLoading
-              ? (<CircularProgress />)
-              : (<Typography variant="button">Update</Typography>)
-          }
-        </Button>
+        <LoadingButton sx={{ gridArea: 'submit' }} type="submit" loading={isLoading}>
+          <Typography variant="button">Update</Typography>
+        </LoadingButton>
       </StyledForm>
     </Box>
   );

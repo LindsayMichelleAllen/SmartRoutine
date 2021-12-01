@@ -1,5 +1,9 @@
 /**
- * @param alarm
+ * This function gets the alarm time (date object) as a consistently human-readable object. Note
+ * that this is the human-readable value which is different from the stored value.
+ *
+ * @param alarm The date value associated with the alarm.
+ * @returns The human-readable string representing the {@link alarm}.
  */
 export function GetAlarmText(alarm: Date) {
   // 1-index -> 0-index -> 1-index

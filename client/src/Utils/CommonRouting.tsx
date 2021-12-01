@@ -9,6 +9,11 @@ export const DEVICE_ID_SEARCH_PARAM = 'deviceid';
 export const ROUTINE_ID_SEARCH_PARAM = 'routineid';
 
 /**
+ * A const value for the routine ID search parameter in routine routes.
+ */
+export const CONFIGURATION_ID_SEARCH_PARAM = 'configurationId';
+
+/**
  * A const value for the URL for creating a routine.
  */
 export const ADD_ROUTINE_URL = '/createroutine';
@@ -56,9 +61,19 @@ export const DEVICES_URL = '/devices';
 /**
  * A const value for the URL for a user's devices list.
  */
- export const ADD_DEVICE_URL = '/createdevice';
+export const ADD_DEVICE_URL = '/createdevice';
 
- /**
-  * A const value for the URL for editing a device.
-  */
-  export const EDIT_DEVICE_URL = '/editdevice';
+/**
+ * A const value for the URL for editing a device.
+ */
+export const EDIT_DEVICE_URL = '/editdevice';
+
+/**
+ * A const value for the URL for adding a device to a routine.
+ */
+export const ADD_DEVICE_TO_ROUTINE_URL = '/addtoroutine';
+
+/**
+ * A const value for the URL for editing an existing device configuration.
+ */
+export const EDIT_CONFIGURATION_URL = '/editconfiguration';
