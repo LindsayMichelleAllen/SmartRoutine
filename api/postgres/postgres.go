@@ -362,6 +362,7 @@ func (u *UserProfileDB) GetUserProfile(request *GetUserDatabaseRequest) *GetUser
 			Error:   err,
 		}
 	}
+	defer db.Close()
 	resp := &GetUserDatabaseResponse{Message: "Successfully Queried User Profile", Error: nil}
 	username := ""
 	displayname := ""
@@ -393,7 +394,7 @@ func (u *UserProfileDB) GetUserProfiles() *GetUsersDatabaseResponse {
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &GetUsersDatabaseResponse{Message: "Successfully Queried All User Profiles", Error: nil}
 
 	query := "SELECT username, displayname FROM profile_details"
@@ -451,6 +452,7 @@ func (u *UserProfileDB) UserProfileLogin(request *LoginUserDatabaseRequest) *Log
 			Error:   err,
 		}
 	}
+	defer db.Close()
 	var username, displayname string
 	query := "SELECT username, displayname FROM profile_details WHERE username=$1 AND accountpassword=crypt($2, accountpassword)"
 	err = db.QueryRow(query, request.Username, request.Password).Scan(&username, &displayname)
@@ -481,7 +483,7 @@ func (u *UserProfileDB) CreateUserProfile(request *CreateUserDatabaseRequest) *C
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &CreateUserDatabaseResponse{Message: "Successfully added user", Error: nil}
 
 	query := `INSERT INTO profile_details (username, accountpassword, displayname) 
@@ -508,7 +510,7 @@ func (u *UserProfileDB) UpdateUserProfile(request *UpdateUserDatabaseRequest) *U
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &UpdateUserDatabaseResponse{Message: "Successfully updated user profile", Error: nil}
 
 	query := "UPDATE profile_details SET displayname=$1 WHERE username=$2 RETURNING username, displayname"
@@ -534,7 +536,7 @@ func (u *UserProfileDB) DeleteUserProfile(request *DeleteUserDatabaseRequest) *D
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &DeleteUserDatabaseResponse{Message: "Successfully deleted user profile", Error: nil}
 
 	query := "DELETE FROM profile_details WHERE username=$1 RETURNING username, displayname"
@@ -567,7 +569,7 @@ func (u *UnprotectedDeviceDB) GetDevice(request *GetDeviceDatabaseRequest) *GetD
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &GetDeviceDatabaseResponse{Message: "Successfully Queried Device", Error: nil}
 	id := ""
 	userid := ""
@@ -601,7 +603,7 @@ func (u *UnprotectedDeviceDB) GetDevices() *GetDevicesDatabaseResponse {
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &GetDevicesDatabaseResponse{Message: "Successfully Queried All Devices", Error: nil}
 
 	query := "SELECT * FROM device_details"
@@ -660,7 +662,7 @@ func (u *UnprotectedDeviceDB) GetUserDevices(request *GetUserDevicesDatabaseRequ
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &GetUserDevicesDatabaseResponse{Message: "Successfully Queried User Devices", Error: nil}
 	query := "SELECT * FROM device_details WHERE userid=$1"
 
@@ -713,7 +715,7 @@ func (u *UnprotectedDeviceDB) GetRoutineDevices(request *GetRoutineDevicesDataba
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &GetRoutineDevicesDatabaseResponse{Message: "Successfully Queried Routine Devices", Error: nil}
 	query := "SELECT deviceid FROM configuration_details WHERE routineid=$1"
 
@@ -785,7 +787,7 @@ func (d *UnprotectedDeviceDB) CreateDevice(request *CreateDeviceDatabaseRequest)
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &CreateDeviceDatabaseResponse{Message: "Successfully created device!", Error: nil}
 	query := "INSERT INTO device_details (id, userid, devicename) VALUES (gen_random_uuid(), $1, $2) RETURNING id, userid, devicename"
 	err = db.QueryRow(query, request.UserId, request.Name).Scan(&resp.Id, &resp.UserId, &resp.Name)
@@ -809,7 +811,7 @@ func (d *UnprotectedDeviceDB) UpdateDevice(request *UpdateDeviceDatabaseRequest)
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &UpdateDeviceDatabaseResponse{Message: "Successfully updated device!", Error: nil}
 	query := "UPDATE device_details SET devicename=$1 WHERE id=$2 RETURNING id, userid, devicename"
 	err = db.QueryRow(query, request.Name, request.Id).Scan(&resp.Id, &resp.UserId, &resp.Name)
@@ -833,7 +835,7 @@ func (d *UnprotectedDeviceDB) DeleteDevice(request *DeleteDeviceDatabaseRequest)
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &DeleteDeviceDatabaseResponse{Message: "Successfully removed device!", Error: nil}
 	query := "DELETE FROM device_details WHERE id=$1 RETURNING id, userid, devicename"
 	err = db.QueryRow(query, request.Id).Scan(&resp.Id, &resp.UserId, &resp.Name)
@@ -863,7 +865,7 @@ func (r *UnprotectedRoutineDB) GetRoutine(request *GetRoutineDatabaseRequest) *G
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	var name, basealarm, userid string
 
 	query := `
@@ -925,7 +927,7 @@ func (r *UnprotectedRoutineDB) GetRoutines() *GetRoutinesDatabaseResponse {
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	query := `SELECT r.id, r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
 			  FROM routine_details r, configuration_details c, device_details d
 			  WHERE r.id = c.routineid AND c.deviceid = d.id`
@@ -1017,7 +1019,7 @@ func (R *UnprotectedRoutineDB) GetUserRoutines(request *GetUserRoutinesDatabaseR
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	query := `
 SELECT r.id, r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
 FROM routine_details r
@@ -1129,7 +1131,7 @@ func (r *UnprotectedRoutineDB) GetDeviceRoutines(request *GetDeviceRoutinesDatab
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	query := `SELECT r.id, r.routinename, r.basealarm, r.userid, c.id, c.timeoffset, d.id, d.devicename
 			  FROM routine_details r, configuration_details c, device_details d
 			  WHERE d.id = $1 AND r.id = c.routineid AND c.deviceid = d.id`
@@ -1220,7 +1222,7 @@ func (r *UnprotectedRoutineDB) CreateRoutine(request *CreateRoutineDatabaseReque
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	resp := &CreateRoutineDatabaseResponse{Routine: request.Routine, Message: "Successfully Created Routine", Error: nil}
 	var id string
 	query := "INSERT INTO routine_details (id, basealarm, routinename, userid) VALUES(gen_random_uuid(), $1, $2, $3) RETURNING id"
@@ -1253,7 +1255,7 @@ func (r *UnprotectedRoutineDB) UpdateRoutine(request *UpdateRoutineDatabaseReque
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	query := "UPDATE routine_details SET routinename=$1 WHERE id=$2"
 	err = db.QueryRow(query, request.Routine.GetName(), request.Routine.GetId()).Scan()
 
@@ -1284,7 +1286,7 @@ func (r *UnprotectedRoutineDB) DeleteRoutine(request *DeleteRoutineDatabaseReque
 			Error:   err,
 		}
 	}
-
+	defer db.Close()
 	query := "DELETE FROM routine_details WHERE id=$1"
 	err = db.QueryRow(query, request.Id).Scan()
 
@@ -1318,6 +1320,7 @@ func (c *UnprotectedConfigurationDB) GetConfiguration(request *GetConfigurationD
 			Error:   err,
 		}
 	}
+	defer db.Close()
 	var id, devId, routineId, devName, userId string
 	var timeoffset int
 	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
@@ -1351,6 +1354,7 @@ func (c *UnprotectedConfigurationDB) GetConfigurations() *GetConfigurationsDatab
 			Error:          err,
 		}
 	}
+	defer db.Close()
 	// TODO: Query returning duplicates
 	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
 			  FROM configuration_details c, device_details d`
@@ -1405,6 +1409,7 @@ func (c *UnprotectedConfigurationDB) GetUserConfigurations(request *GetUserConfi
 			Error:          err,
 		}
 	}
+	defer db.Close()
 	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
 			  FROM configuration_details c, device_details d
 			  WHERE d.userid = $1`
@@ -1459,6 +1464,7 @@ func (c *UnprotectedConfigurationDB) GetDeviceConfigurations(request *GetDeviceC
 			Error:          err,
 		}
 	}
+	defer db.Close()
 	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
 			  FROM configuration_details c, device_details d
 			  WHERE d.id = $1`
@@ -1513,6 +1519,7 @@ func (c *UnprotectedConfigurationDB) GetRoutineConfigurations(request *GetRoutin
 			Error:          err,
 		}
 	}
+	defer db.Close()
 	query := `SELECT c.id, c.timeoffset, c.routineid, d.id, d.devicename, d.userid
 			  FROM configuration_details c, device_details d
 			  WHERE c.routineid = $1`
@@ -1567,6 +1574,7 @@ func (c *UnprotectedConfigurationDB) CreateConfiguration(request *CreateConfigur
 			Error:   err,
 		}
 	}
+	defer db.Close()
 
 	var id string
 	query := "INSERT INTO configuration_details (id, timeoffset, deviceid, routineid) VALUES(gen_random_uuid(), $1, $2, $3) RETURNING id"
@@ -1604,6 +1612,7 @@ func (c *UnprotectedConfigurationDB) UpdateConfiguration(request *UpdateConfigur
 			Error:   err,
 		}
 	}
+	defer db.Close()
 
 	query := "UPDATE configuration_details SET timeoffset=$1 WHERE id=$2"
 	err = db.QueryRow(query,
@@ -1638,6 +1647,7 @@ func (c *UnprotectedConfigurationDB) DeleteConfiguration(request *DeleteConfigur
 			Error:   err,
 		}
 	}
+	defer db.Close()
 
 	resp := &DeleteConfigurationDatabaseResponse{Message: "Sucessfully Removed Configuration", Error: nil}
 	configId := ""
